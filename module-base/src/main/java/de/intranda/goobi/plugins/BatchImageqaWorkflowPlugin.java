@@ -1,10 +1,20 @@
 package de.intranda.goobi.plugins;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.Batch;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
+import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -12,12 +22,19 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 @PluginImplementation
 @Log4j2
 public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
-    
+
+    private static final long serialVersionUID = 6658238449519958476L;
+
     @Getter
     private String title = "intranda_workflow_batch_imageqa";
-        
-    @Getter
-    private String value;
+
+    private List<QaBatch> allBatches = null;
+
+    private String qaStepName = "";
+
+    private String openTaskBatchQuery;
+
+    private XMLConfiguration config = null;
 
     @Override
     public PluginType getType() {
@@ -33,7 +50,80 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
      * Constructor
      */
     public BatchImageqaWorkflowPlugin() {
-        log.info("BatchImageqa workflow plugin started");
-        value = ConfigPlugins.getPluginConfig(title).getString("value", "default value");
+        log.trace("BatchImageqa workflow plugin started");
     }
+
+    private void readConfig() {
+        config = ConfigPlugins.getPluginConfig(title);
+        config.setExpressionEngine(new XPathExpressionEngine());
+
+        qaStepName = config.getString("/qaTaskName");
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(DISTINCT p.prozesseid), p.batchid ");
+        sql.append("FROM prozesse p ");
+        sql.append("JOIN schritte s ON s.ProzesseID = p.ProzesseID ");
+        sql.append("WHERE p.batchid IS NOT NULL ");
+        sql.append("AND s.titel = '");
+        sql.append(qaStepName);
+        sql.append("' ");
+        sql.append("AND s.Bearbeitungsstatus in (1,2,4) ");
+        sql.append("GROUP BY p.batchid; ");
+        openTaskBatchQuery = sql.toString();
+    }
+
+    public List<QaBatch> getAllBatches() {
+        if (config == null) {
+            readConfig();
+        }
+
+        if (allBatches == null) {
+            // find all batches with open qa steps
+            @SuppressWarnings("rawtypes")
+            List result = ProcessManager.runSQL(openTaskBatchQuery);
+
+            StringBuilder idList = new StringBuilder();
+            Map<String, String> batches = new HashMap<>();
+            for (Object obj : result) {
+                Object[] objArr = (Object[]) obj;
+                String numberOfProcesses = objArr[0].toString();
+                String batchId = objArr[1].toString();
+                batches.put(batchId, numberOfProcesses);
+                if (!idList.isEmpty()) {
+                    idList.append(", ");
+                }
+                idList.append(batchId);
+            }
+            if (!idList.isEmpty()) {
+                allBatches = new ArrayList<>();
+                // compare the number of processes with the total number in each batch
+
+                String completeBatchQuery =
+                        "select batchid, count(prozesseid) from prozesse where batchid in (" + idList.toString() + ") GROUP BY batchid;";
+
+                result = ProcessManager.runSQL(completeBatchQuery);
+
+                // if numbers are equal (all tasks reached the step), load batch, add to list
+                for (Object obj : result) {
+                    Object[] objArr = (Object[]) obj;
+                    String batchId = objArr[0].toString();
+                    String totalNumberOfProcesses = objArr[1].toString();
+                    String currentNumber = batches.get(batchId);
+                    if (totalNumberOfProcesses.equals(currentNumber)) {
+                        Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
+                        allBatches.add(new QaBatch(b));
+                    }
+
+                }
+
+            }
+
+        }
+        return allBatches;
+    }
+
+    public void reloadBatches() {
+        allBatches = null;
+    }
+
 }

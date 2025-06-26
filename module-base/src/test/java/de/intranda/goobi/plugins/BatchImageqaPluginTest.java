@@ -1,16 +1,38 @@
 package de.intranda.goobi.plugins;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.goobi.beans.Batch;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-//@RunWith(PowerMockRunner.class)
-//@PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*" ,"jdk.internal.reflect.*"})
+import de.intranda.goobi.plugins.model.QaBatch;
+import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.persistence.managers.ProcessManager;
+
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
+
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class })
+
 public class BatchImageqaPluginTest {
 
     private static String resourcesFolder;
@@ -28,9 +50,77 @@ public class BatchImageqaPluginTest {
         System.setProperty("log4j.configurationFile", log4jFile);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Before
+    public void setUp() {
+        PowerMock.mockStatic(ConfigPlugins.class);
+        EasyMock.expect(ConfigPlugins.getPluginConfig(EasyMock.anyString())).andReturn(getConfig()).anyTimes();
+
+        PowerMock.mockStatic(ProcessManager.class);
+
+        // search for batches
+        EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString()))
+                .andAnswer(
+                        new IAnswer<List>() {
+                            @SuppressWarnings("unchecked")
+                            @Override
+                            public List answer() throws Throwable {
+                                String query = (String) EasyMock.getCurrentArguments()[0];
+                                List answer = new ArrayList();
+                                if (query.startsWith("SELECT COUNT")) {
+                                    // first column: number of processes, second column: batch id
+                                    String[] row1 = { "5", "1" };
+                                    String[] row2 = { "10", "2" };
+                                    String[] row3 = { "5", "3" }; // only 5 of 10 reached the task
+                                    answer.add(row1);
+                                    answer.add(row2);
+                                    answer.add(row3);
+                                } else {
+                                    String[] row1 = { "1", "5" };
+                                    String[] row2 = { "2", "10" };
+                                    String[] row3 = { "3", "10" };
+                                    answer.add(row1);
+                                    answer.add(row2);
+                                    answer.add(row3);
+                                }
+                                return answer;
+                            }
+                        }
+
+                )
+                .anyTimes();
+
+        // initialize individual batches
+        Batch b = new Batch();
+        b.setBatchId(1);
+        b.setBatchLabel("label");
+        EasyMock.expect(ProcessManager.getBatchById(EasyMock.anyInt())).andReturn(b).anyTimes();
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class);
+    }
+
     @Test
-    public void testVersion() throws IOException {
-        String s = "xyz";
-        assertNotNull(s);
+    public void testConstructor() throws IOException {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        assertNotNull(fixture);
+    }
+
+    @Test
+    public void testAllBatches() throws IOException {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        List<QaBatch> batches = fixture.getAllBatches();
+        assertEquals(2, batches.size());
+
+    }
+
+    private static XMLConfiguration getConfig() {
+        String file = "plugin_intranda_workflow_batch_imageqa.xml";
+        XMLConfiguration config = new XMLConfiguration();
+        config.setDelimiterParsingDisabled(true);
+        try {
+            config.load(resourcesFolder + file);
+        } catch (ConfigurationException e) {
+        }
+        config.setReloadingStrategy(new FileChangedReloadingStrategy());
+        return config;
     }
 }
