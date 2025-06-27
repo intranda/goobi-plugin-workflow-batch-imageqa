@@ -2,6 +2,7 @@ package de.intranda.goobi.plugins;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ import org.easymock.IAnswer;
 import org.goobi.beans.Batch;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
@@ -48,6 +50,18 @@ public class BatchImageqaPluginTest {
         String log4jFile = resourcesFolder + "log4j2.xml"; // for junit tests in eclipse
 
         System.setProperty("log4j.configurationFile", log4jFile);
+    }
+
+    private static XMLConfiguration getConfig() {
+        String file = "plugin_intranda_workflow_batch_imageqa.xml";
+        XMLConfiguration config = new XMLConfiguration();
+        config.setDelimiterParsingDisabled(true);
+        try {
+            config.load(resourcesFolder + file);
+        } catch (ConfigurationException e) {
+        }
+        config.setReloadingStrategy(new FileChangedReloadingStrategy());
+        return config;
     }
 
     @SuppressWarnings("rawtypes")
@@ -112,15 +126,30 @@ public class BatchImageqaPluginTest {
 
     }
 
-    private static XMLConfiguration getConfig() {
-        String file = "plugin_intranda_workflow_batch_imageqa.xml";
-        XMLConfiguration config = new XMLConfiguration();
-        config.setDelimiterParsingDisabled(true);
-        try {
-            config.load(resourcesFolder + file);
-        } catch (ConfigurationException e) {
-        }
-        config.setReloadingStrategy(new FileChangedReloadingStrategy());
-        return config;
+    @Test
+    public void testDisplayType() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        assertEquals("overview", fixture.getDisplayType());
+        fixture.setDisplayType("other");
+        assertEquals("other", fixture.getDisplayType());
     }
+
+    @Test
+    public void testCurrentBatch() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        assertNull(fixture.getCurrentBatch());
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+        assertEquals("label", fixture.getCurrentBatch().getBatch().getBatchLabel());
+    }
+
+    @Ignore
+    public void testOpenBatch() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+
+        fixture.openBatch();
+    }
+
 }

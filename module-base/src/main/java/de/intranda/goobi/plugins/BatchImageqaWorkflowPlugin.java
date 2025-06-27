@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -16,6 +17,7 @@ import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
@@ -34,7 +36,20 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     private String openTaskBatchQuery;
 
+    @Getter
+    private int percentage;
+    @Getter
+    private int numberOfImagesToDisplay = 0;
+
     private XMLConfiguration config = null;
+
+    @Getter
+    @Setter
+    private String displayType = "overview";
+
+    @Getter
+    @Setter
+    private QaBatch currentBatch;
 
     @Override
     public PluginType getType() {
@@ -58,6 +73,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         config.setExpressionEngine(new XPathExpressionEngine());
 
         qaStepName = config.getString("/qaTaskName");
+        percentage = config.getInt("/percentage", 10);
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT p.prozesseid), p.batchid ");
@@ -124,6 +140,31 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public void reloadBatches() {
         allBatches = null;
+    }
+
+    public void openBatch() {
+        double totalPages = currentBatch.getNumberOfPages();
+        if (percentage < 1) {
+            percentage = 1;
+        }
+        numberOfImagesToDisplay = 0;
+        double imagesToDisplay = totalPages * percentage / 100;
+        List<String> processesToDisplay = new ArrayList<>();
+
+        for (Entry<String, Integer> entry : currentBatch.getProceses().entrySet()) {
+            String processid = entry.getKey();
+            processesToDisplay.add(processid);
+            int numberOfPages = entry.getValue();
+            numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
+            if (numberOfImagesToDisplay >= imagesToDisplay) {
+                break;
+            }
+        }
+
+        // load processes
+        // display configured metadata + title
+        // show images
+
     }
 
 }

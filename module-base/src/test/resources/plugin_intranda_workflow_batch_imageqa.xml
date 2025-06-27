@@ -1,6 +1,10 @@
 <config_plugin>
 	
 	<!-- step name -->
-	<qaTaskName></qaTaskName>
+	<qaTaskName>Image QA</qaTaskName>
 	
+    <!-- percentage of images to display -->
+    <percentage>10</percentage>
+    
+    
 </config_plugin>

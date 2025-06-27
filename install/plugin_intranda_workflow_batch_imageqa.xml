@@ -1,6 +1,10 @@
 <config_plugin>
-	
-	<!-- configuration item as sample -->
-	<value>sample value from config</value>
-	
+    
+    <!-- step name -->
+    <qaTaskName>Image QA</qaTaskName>
+    
+    <!-- percentage of images to display -->
+    <percentage>10</percentage>
+    
+    
 </config_plugin>
