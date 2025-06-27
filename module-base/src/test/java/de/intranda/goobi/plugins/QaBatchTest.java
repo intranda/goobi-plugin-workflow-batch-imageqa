@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.goobi.beans.Batch;
@@ -94,4 +95,10 @@ public class QaBatchTest {
         assertEquals("label", fixture.getBatch().getBatchLabel());
     }
 
+    @Test
+    public void testPooceses() {
+        QaBatch fixture = new QaBatch(batch);
+        Map<String, Integer> proceses = fixture.getProceses();
+        assertEquals(2, proceses.size());
+    }
 }
