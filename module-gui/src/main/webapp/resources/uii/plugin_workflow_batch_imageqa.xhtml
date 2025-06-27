@@ -8,8 +8,62 @@
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:form="http://goobi.io/form"
     xmlns:section="http://goobi.io/section">
     <h:panelGroup>
+
+        <style>
+.goobi-thumbnail .goobi-thumbnail-image a {
+    display: block;
+}
+
+.goobi-thumbnail .goobi-thumbnail-image a img {
+    display: block;
+    max-width: 100%;
+    max-height: 175px;
+    margin: 0 auto;
+    border: 1px solid lightgrey;
+}
+
+.goobi-thumbnail .goobi-thumbnail-caption {
+    float: left;
+    width: 100%;
+    min-height: 20px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.thumb-canvas {
+    /* border: 1px solid #ccc;*/
+    background-color: var(--clr-neutral-200);
+}
+
+.goobi-thumbnail .goobi-thumbnail-controls {
+    float: left;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.goobi-thumbnail {
+    float: left;
+    margin: 7px;
+    width: var(--thumbnail-width);
+    height: var(--thumbnail-height);
+}
+
+.goobi-thumbnail .goobi-thumbnail-image {
+    float: left;
+    width: 100%;
+    min-height: 100px;
+    overflow: hidden;
+    max-height: var(--thumbnail-width);
+}
+</style>
+
+
+
+
+
         <div class="row">
             <div class="col-sm-12">
                 <h:panelGroup
@@ -24,7 +78,7 @@
                     rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='overview'}">
                     <section:section type="primary">
                         <section:header
-                            icon="plug"
+                            icon=""
                             title="#{msgs[NavigationForm.workflowPlugin.title]}" />
                         <section:body padding="false">
                             <h:form
@@ -117,7 +171,7 @@
                     rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='batchEdit'}">
                     <section:section type="neutral">
                         <section:header
-                            icon="plug"
+                            icon=""
                             title="#{msgs[NavigationForm.workflowPlugin.title]} #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
 
                             <h:form
@@ -128,9 +182,111 @@
                                     <f:param value="#{NavigationForm.workflowPlugin.numberOfImagesToDisplay}" />
                                     <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPages}" />
                                 </h:outputFormat>
+                                <button
+                                    jsf:id="changePercentage"
+                                    class="btn btn-blank"
+                                    jsf:rel="tooltip"
+                                    jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                    title="go">
+                                    <i class="fa fa-check"></i>
+
+                                </button>
                             </h:form>
                         </section:header>
-                        <section:body padding="false">
+                        <section:body padding="true">
+                            <ui:repeat
+                                var="displayProcess"
+                                value="#{NavigationForm.workflowPlugin.displayProcesses}">
+                                <h:form id="processform">
+                                    <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
+                                        <section:header
+                                            icon=""
+                                            title="#{displayProcess.title}">
+                                            <button
+                                                class="btn d-flex align-items-center 'btn--title-action-neutral'"
+                                                title="#{msgs.plugin_workflow_batches_error}"
+                                                jsf:rel="tooltip"
+                                                jsf:id="toggle-invalid"
+                                                data-renderimage="true">
+                                                <i
+                                                    class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
+                                                    style="font-size: 25px" />
+                                                <f:ajax
+                                                    render="@form"
+                                                    execute="@form" />
+                                                <f:setPropertyActionListener
+                                                    target="#{displayProcess.invalid}"
+                                                    value="#{not displayProcess.invalid}" />
+                                            </button>
+                                        </section:header>
+                                        <section:body padding="false">
+                                            <div class="row">
+                                                <div
+                                                    class="col-6"
+                                                    style="border-right: 1px solid #{displayProcess.invalid ? 'var(--clr-box-hot);' : 'var(--clr-box-neutral)'}">
+                                                    <ui:repeat
+                                                        var="metadata"
+                                                        value="#{displayProcess.metadata}">
+                                                        <form:field
+                                                            label="#{metadata.one}"
+                                                            required="false"
+                                                            help="">
+                                                            <h:outputText
+                                                                id="lastname"
+                                                                styleClass="form-control"
+                                                                value="#{metadata.two}" />
+                                                        </form:field>
+
+                                                    </ui:repeat>
+                                                </div>
+                                                <div class="col-6">
+                                                    <ui:repeat
+                                                        var="image"
+                                                        value="#{displayProcess.allImages}"
+                                                        varStatus="status">
+
+
+                                                        <div
+                                                            class="goobi-thumbnail 'font-light'"
+                                                            dir="auto"
+                                                            style="--thumbnail-width: #{NavigationForm.workflowPlugin.thumbnailSize +2}px; --thumbnail-height: #{NavigationForm.workflowPlugin.thumbnailSize + 2}px;">
+                                                            <div class="goobi-thumbnail-image">
+
+                                                                <!-- THUMBNAIL DISPLAY -->
+                                                                <div class="thumb text-center">
+
+                                                                    <button
+                                                                        jsf:id="imageClick"
+                                                                        class="border-0 btn"
+                                                                        title="#{image.tooltip}"
+                                                                        jsf:action="#{AktuelleSchritteForm.myPlugin.imageClick}">
+                                                                        <ui:fragment rendered="#{image.type == 'image'}">
+                                                                            <canvas
+                                                                                class="thumb-canvas"
+                                                                                data-image_small="#{image.thumbnailUrl}"
+                                                                                data-image_large="#{image.largeThumbnailUrl}"
+                                                                                title="#{image.tooltip}"
+                                                                                id="thumbnail-#{status.index}"></canvas>
+
+                                                                        </ui:fragment>
+
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ui:repeat>
+
+                                                </div>
+                                            </div>
+
+                                        </section:body>
+
+                                    </section:section>
+
+                                </h:form>
+                            </ui:repeat>
+
+
                         </section:body>
                     </section:section>
 
@@ -150,6 +306,18 @@
                         </button>
                     </h:form>
                 </ui:fragment>
+
+                <script>
+																	faces.ajax
+																			.addOnEvent(function(
+																					data) {
+																				switch (data.status) {
+																				case 'success':
+																					loadImages();
+																					break;
+																				}
+																			})
+																</script>
 
             </div>
         </div>

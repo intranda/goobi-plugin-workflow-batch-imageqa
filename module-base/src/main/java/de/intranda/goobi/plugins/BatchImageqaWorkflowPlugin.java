@@ -9,12 +9,16 @@ import java.util.Map.Entry;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.goobi.beans.Batch;
+import org.goobi.beans.Process;
+import org.goobi.production.cli.helper.StringPair;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
+import de.intranda.goobi.plugins.model.DisplayProcess;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +41,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private String openTaskBatchQuery;
 
     @Getter
+    @Setter
     private int percentage;
     @Getter
     private int numberOfImagesToDisplay = 0;
@@ -50,6 +55,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Getter
     @Setter
     private QaBatch currentBatch;
+
+    @Getter
+    private int thumbnailSize = 300; // TODO
+
+    private List<String> processDisplayList;
+    List<DisplayProcess> displayProcess = new ArrayList<>();
 
     @Override
     public PluginType getType() {
@@ -149,22 +160,44 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         }
         numberOfImagesToDisplay = 0;
         double imagesToDisplay = totalPages * percentage / 100;
-        List<String> processesToDisplay = new ArrayList<>();
+        processDisplayList = new ArrayList<>();
 
         for (Entry<String, Integer> entry : currentBatch.getProceses().entrySet()) {
             String processid = entry.getKey();
-            processesToDisplay.add(processid);
+            processDisplayList.add(processid);
             int numberOfPages = entry.getValue();
             numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
             if (numberOfImagesToDisplay >= imagesToDisplay) {
                 break;
             }
         }
-
+        displayProcess.clear();
         // load processes
         // display configured metadata + title
         // show images
+    }
 
+    public List<DisplayProcess> getDisplayProcesses() {
+
+        // TODO pagination
+        if (displayProcess.isEmpty() && !processDisplayList.isEmpty()) {
+            for (String processId : processDisplayList) {
+                Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
+
+                DisplayProcess dp = new DisplayProcess(process);
+                displayProcess.add(dp);
+                // TODO get display title from configuration
+                dp.setTitle(process.getTitel());
+
+                // TODO get order and diplayable fields from configuration
+                List<StringPair> metadata = MetadataManager.getMetadata(process.getId());
+                dp.setMetadata(metadata);
+
+            }
+
+        }
+
+        return displayProcess;
     }
 
 }
