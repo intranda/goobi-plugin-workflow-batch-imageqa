@@ -63,6 +63,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private List<String> processDisplayList;
     private List<DisplayProcess> displayProcess = new ArrayList<>();
     private List<String> metadataConfiguration;
+    private String titleField;
 
     @Override
     public PluginType getType() {
@@ -91,7 +92,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         thumbnailSize = config.getInt("/thumbnailSize", 200);
 
         metadataConfiguration = Arrays.asList(config.getStringArray("/metadata"));
-
+        titleField = config.getString("/titleField", "");
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT p.prozesseid), p.batchid ");
         sql.append("FROM prozesse p ");
@@ -190,14 +191,22 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             for (String processId : processDisplayList) {
                 Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
 
+                List<StringPair> processMetadata = MetadataManager.getMetadata(process.getId());
+
                 DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
                 displayProcess.add(dp);
-                // TODO get display title from configuration
-                dp.setTitle(process.getTitel());
+
+                // use process title as default, if no field is configured or value is missing
+                String title = process.getTitel();
+                for (StringPair sp : processMetadata) {
+                    if (sp.getOne().equals(titleField)) {
+                        title = sp.getTwo();
+                    }
+                }
+                dp.setTitle(title);
 
                 // get order and diplayable fields from configuration
                 List<StringPair> displayFields = new ArrayList<>();
-                List<StringPair> processMetadata = MetadataManager.getMetadata(process.getId());
                 for (String metadataName : metadataConfiguration) {
                     StringBuilder values = new StringBuilder();
 
