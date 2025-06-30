@@ -1,10 +1,20 @@
 <config_plugin>
-    
+
     <!-- step name -->
     <qaTaskName>Image QA</qaTaskName>
-    
+
     <!-- percentage of images to display -->
     <percentage>10</percentage>
-    
-    
+    <!-- thumbnail size in pixel -->
+    <thumbnailSize>100</thumbnailSize>
+
+    <!-- metadata list-->
+    <metadata>TitleDocMain</metadata>
+    <metadata>CurrentNo</metadata>
+    <metadata>CatalogIDDigital</metadata>
+    <metadata>shelfmarksource</metadata>
+    <metadata>PlaceOfPublication</metadata>
+    <metadata>PublicationYear</metadata>
+    <metadata>PublisherName</metadata>
+    <metadata>singleDigCollection</metadata>
 </config_plugin>

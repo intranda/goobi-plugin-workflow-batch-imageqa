@@ -1,6 +1,7 @@
 package de.intranda.goobi.plugins;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +58,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private QaBatch currentBatch;
 
     @Getter
-    private int thumbnailSize = 300; // TODO
+    private int thumbnailSize = 200;
 
     private List<String> processDisplayList;
-    List<DisplayProcess> displayProcess = new ArrayList<>();
+    private List<DisplayProcess> displayProcess = new ArrayList<>();
+    private List<String> metadataConfiguration;
 
     @Override
     public PluginType getType() {
@@ -85,6 +87,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         qaStepName = config.getString("/qaTaskName");
         percentage = config.getInt("/percentage", 10);
+
+        thumbnailSize = config.getInt("/thumbnailSize", 200);
+
+        metadataConfiguration = Arrays.asList(config.getStringArray("/metadata"));
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT p.prozesseid), p.batchid ");
@@ -179,19 +185,35 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public List<DisplayProcess> getDisplayProcesses() {
 
-        // TODO pagination
+        // TODO sub list with pagination
         if (displayProcess.isEmpty() && !processDisplayList.isEmpty()) {
             for (String processId : processDisplayList) {
                 Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
 
-                DisplayProcess dp = new DisplayProcess(process);
+                DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
                 displayProcess.add(dp);
                 // TODO get display title from configuration
                 dp.setTitle(process.getTitel());
 
-                // TODO get order and diplayable fields from configuration
-                List<StringPair> metadata = MetadataManager.getMetadata(process.getId());
-                dp.setMetadata(metadata);
+                // get order and diplayable fields from configuration
+                List<StringPair> displayFields = new ArrayList<>();
+                List<StringPair> processMetadata = MetadataManager.getMetadata(process.getId());
+                for (String metadataName : metadataConfiguration) {
+                    StringBuilder values = new StringBuilder();
+
+                    for (StringPair sp : processMetadata) {
+                        if (sp.getOne().equals(metadataName)) {
+                            if (!values.isEmpty()) {
+                                values.append("; ");
+                            }
+                            values.append(sp.getTwo());
+                        }
+                    }
+                    StringPair field = new StringPair(metadataName, values.toString());
+                    displayFields.add(field);
+                }
+
+                dp.setMetadata(displayFields);
 
             }
 

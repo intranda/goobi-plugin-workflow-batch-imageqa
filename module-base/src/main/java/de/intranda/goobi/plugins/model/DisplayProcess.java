@@ -31,9 +31,11 @@ public class DisplayProcess {
     private Process process;
 
     private boolean invalid;
+    private int thumbnailSize;
 
-    public DisplayProcess(Process process) {
+    public DisplayProcess(Process process, int thumbnailSize) {
         this.process = process;
+        this.thumbnailSize = thumbnailSize;
         initImageList();
     }
 
@@ -52,7 +54,7 @@ public class DisplayProcess {
             for (String imagename : imageNameList) {
                 Image currentImage;
                 try {
-                    currentImage = new Image(process, imageFolderName, imagename, order, 200); // TODO image size
+                    currentImage = new Image(process, imageFolderName, imagename, order, thumbnailSize);
 
                     allImages.add(currentImage);
                     order++;
