@@ -24,6 +24,12 @@ public class QaBatch {
         this.batch = batch;
         Map<String, Integer> map = new HashMap<>();
         String sql = "SELECT prozesseID, sortHelperImages FROM prozesse WHERE batchID = " + batch.getBatchId();
+
+        // TODO order:
+        //            1. task priority
+        //            2. value in configured metadata field
+        //            3. number of pages
+
         @SuppressWarnings("rawtypes")
         List data = ProcessManager.runSQL(sql);
         for (Object obj : data) {

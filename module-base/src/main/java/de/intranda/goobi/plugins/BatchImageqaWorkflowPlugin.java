@@ -19,6 +19,7 @@ import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import de.intranda.goobi.plugins.model.DisplayProcess;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.metadaten.Image;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
@@ -64,6 +65,15 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private List<DisplayProcess> displayProcess = new ArrayList<>();
     private List<String> metadataConfiguration;
     private String titleField;
+
+    @Getter
+    @Setter
+    private Image currentImage;
+
+    @Getter
+    @Setter
+    private int pageNo = 0;
+    private int numberOfProcessesPerPage = 2; // TODO from config
 
     @Override
     public PluginType getType() {
@@ -147,7 +157,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                         Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
                         allBatches.add(new QaBatch(b));
                     }
-
                 }
 
             }
@@ -158,6 +167,21 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public void reloadBatches() {
         allBatches = null;
+    }
+
+    @Override
+    public void finalize() {
+
+        // check all DisplayProcess objects
+
+        // if all are valid:
+
+        // finalize batch task, continue workflow
+
+        // if some are invalid:
+
+        // create error report, move error tasks to configured previous task
+
     }
 
     public void openBatch() {
@@ -179,12 +203,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             }
         }
         displayProcess.clear();
-        // load processes
-        // display configured metadata + title
-        // show images
+        generateProcessList();
     }
 
-    public List<DisplayProcess> getDisplayProcesses() {
+    public List<DisplayProcess> generateProcessList() {
 
         // TODO sub list with pagination
         if (displayProcess.isEmpty() && !processDisplayList.isEmpty()) {
@@ -223,12 +245,75 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 }
 
                 dp.setMetadata(displayFields);
-
             }
-
         }
-
         return displayProcess;
     }
 
+    /*
+     * Pagination
+     * 
+     */
+
+    public List<DisplayProcess> getDisplayProcesses() {
+
+        List<DisplayProcess> subList;
+        if (displayProcess.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
+            subList = displayProcess.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
+        } else {
+            // Sometimes pageNo is not zero here, although we only have 20 images or so.
+            // This is a quick fix and we should find out why pageNo is not zero in some cases
+            int startIdx = pageNo * numberOfProcessesPerPage;
+            if (startIdx > displayProcess.size()) {
+                startIdx = Math.max(0, displayProcess.size() - numberOfProcessesPerPage);
+            }
+            subList = displayProcess.subList(startIdx, displayProcess.size());
+        }
+        return subList;
+
+    }
+
+    public boolean isDisplayPaginator() {
+        return displayProcess.size() > numberOfProcessesPerPage;
+    }
+
+    public boolean isHasPreviousPages() {
+        return pageNo > 0;
+    }
+
+    public void moveToFirstPage() {
+        pageNo = 0;
+    }
+
+    public void moveToPreviousPage() {
+        pageNo = pageNo - 1;
+    }
+
+    public int getLastPageNumber() {
+        int ret = displayProcess.size() / numberOfProcessesPerPage;
+        if (displayProcess.size() % numberOfProcessesPerPage == 0) {
+            ret--;
+        }
+        return ret;
+    }
+
+    public boolean isLastPage() {
+        return this.pageNo >= getLastPageNumber();
+    }
+
+    public boolean isHasNextPages() {
+        return !isLastPage();
+    }
+
+    public void moveToNextPage() {
+        if (!isLastPage()) {
+            pageNo++;
+        }
+    }
+
+    public void moveToLastPage() {
+        if (pageNo != getLastPageNumber()) {
+            pageNo = getLastPageNumber();
+        }
+    }
 }

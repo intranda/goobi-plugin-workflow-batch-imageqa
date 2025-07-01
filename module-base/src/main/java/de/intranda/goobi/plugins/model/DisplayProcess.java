@@ -31,6 +31,9 @@ public class DisplayProcess {
     private Process process;
 
     private boolean invalid;
+
+    private String errorMessage;
+
     private int thumbnailSize;
 
     public DisplayProcess(Process process, int thumbnailSize) {
@@ -52,11 +55,8 @@ public class DisplayProcess {
             List<String> imageNameList = StorageProvider.getInstance().list(imageFolderName, NIOFileUtils.imageOrObjectNameFilter);
             int order = 1;
             for (String imagename : imageNameList) {
-                Image currentImage;
                 try {
-                    currentImage = new Image(process, imageFolderName, imagename, order, thumbnailSize);
-
-                    allImages.add(currentImage);
+                    allImages.add(new Image(process, imageFolderName, imagename, order, thumbnailSize));
                     order++;
                 } catch (IOException | SwapException | DAOException e) {
                     log.error("Error initializing image " + imagename, e);
