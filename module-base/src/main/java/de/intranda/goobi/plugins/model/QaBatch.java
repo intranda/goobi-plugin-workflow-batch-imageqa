@@ -1,11 +1,8 @@
 package de.intranda.goobi.plugins.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.goobi.beans.Batch;
 
@@ -20,15 +17,16 @@ public class QaBatch {
     @Getter
     private Map<String, Integer> proceses;
 
-    public QaBatch(Batch batch) {
+    public QaBatch(Batch batch, String stepTitle) {
         this.batch = batch;
-        Map<String, Integer> map = new HashMap<>();
-        String sql = "SELECT prozesseID, sortHelperImages FROM prozesse WHERE batchID = " + batch.getBatchId();
+        proceses = new LinkedHashMap<>();
 
-        // TODO order:
+        // order:
         //            1. task priority
-        //            2. value in configured metadata field
-        //            3. number of pages
+        //            2. number of pages
+        String sql =
+                "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '"
+                        + stepTitle + "' WHERE batchID = " + batch.getBatchId() + " ORDER BY s.prioritaet , p.sortHelperImages";
 
         @SuppressWarnings("rawtypes")
         List data = ProcessManager.runSQL(sql);
@@ -36,15 +34,7 @@ public class QaBatch {
             Object[] objArr = (Object[]) obj;
             String processId = objArr[0].toString();
             String pages = objArr[1].toString();
-            map.put(processId, Integer.valueOf(pages));
-        }
-        // sort process list by number of images ascending
-        List<Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
-        list.sort(Entry.comparingByValue());
-
-        proceses = new LinkedHashMap<>();
-        for (Entry<String, Integer> entry : list) {
-            proceses.put(entry.getKey(), entry.getValue());
+            proceses.put(processId, Integer.valueOf(pages));
         }
 
     }

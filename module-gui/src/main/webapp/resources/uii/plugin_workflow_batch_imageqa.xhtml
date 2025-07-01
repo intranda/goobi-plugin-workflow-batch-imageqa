@@ -212,7 +212,7 @@
                                                     class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
                                                     style="font-size: 25px" />
                                                 <f:ajax
-                                                    render="@form"
+                                                    render="@form reportForm"
                                                     execute="@form" />
                                                 <f:setPropertyActionListener
                                                     target="#{displayProcess.invalid}"
@@ -280,25 +280,27 @@
                                                     </ui:repeat>
 
                                                 </div>
-<h:panelGroup layout="block" styleClass="col-12" rendered="#{displayProcess.invalid}">
-<form:field
-                                                            label="#{msgs.plugin_workflow_batches_errorDescription}"
-                                                            required="false"
-                                                            help="">
-                                                            <h:inputTextarea
-                                                                id="errorDescription"
-                                                                styleClass="form-control"
-                                                                value="#{displayProcess.errorMessage}">
-                                                                <f:ajax execute="@this" render="@this" />
-                                                                </h:inputTextarea>
-                                                        </form:field>
+                                                <h:panelGroup
+                                                    layout="block"
+                                                    styleClass="col-12"
+                                                    rendered="#{displayProcess.invalid}">
+                                                    <form:field
+                                                        label="#{msgs.plugin_workflow_batches_errorDescription}"
+                                                        required="false"
+                                                        help="">
+                                                        <h:inputTextarea
+                                                            id="errorDescription"
+                                                            styleClass="form-control"
+                                                            value="#{displayProcess.errorMessage}">
+                                                            <f:ajax
+                                                                execute="@this"
+                                                                render="@this :reportForm" />
+                                                        </h:inputTextarea>
+                                                    </form:field>
 
-</h:panelGroup>
+                                                </h:panelGroup>
                                             </div>
-
-
                                         </section:body>
-
                                     </section:section>
 
                                 </h:form>
@@ -365,21 +367,46 @@
                         </section:footer>
                     </section:section>
 
-                    <h:form>
-                        <button
-                            jsf:id="cancel"
-                            class="btn btn-blank"
-                            jsf:rel="tooltip"
-                            title="#{msgs.cancel}">
-                            <i class="fa fa-ban"></i>
-                            <h:outputText value="#{msgs.cancel}" />
+
+                    <section:section type="action">
+                        <h:form id="reportForm">
+                            <section:header
+                                icon=""
+                                title="#{msgs[NavigationForm.workflowPlugin.title]}" />
+                            <section:body padding="false">
+
+                                <h:outputText
+                                    rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
+                                    value="#{msgs.plugin_workflow_batches_noError}" />
+
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.displayErrorReport}">
+                                    <h:outputText value="#{msgs.plugin_workflow_batches_errorFound}" />
+                                    <br />
+                                    <h:outputText
+                                        styleClass="form-control"
+                                        value="#{NavigationForm.workflowPlugin.errorMessage}"
+                                        escape="false" />
+
+                                </ui:fragment>
+                            </section:body>
+                            <section:footer>
+                                <button
+                                    jsf:id="cancel"
+                                    class="btn btn-blank"
+                                    jsf:rel="tooltip"
+                                    title="#{msgs.cancel}">
+                                    <i class="fa fa-ban"></i>
+                                    <h:outputText value="#{msgs.cancel}" />
 
 
-                            <f:setPropertyActionListener
-                                target="#{NavigationForm.workflowPlugin.displayType}"
-                                value="overview" />
-                        </button>
-                    </h:form>
+                                    <f:setPropertyActionListener
+                                        target="#{NavigationForm.workflowPlugin.displayType}"
+                                        value="overview" />
+                                </button>
+                            </section:footer>
+                        </h:form>
+                    </section:section>
+
                 </ui:fragment>
 
                 <script>

@@ -73,31 +73,31 @@ public class QaBatchTest {
 
     @Test
     public void testConstructor() throws IOException {
-        QaBatch fixture = new QaBatch(batch);
+        QaBatch fixture = new QaBatch(batch, "");
         assertNotNull(fixture);
     }
 
     @Test
     public void testNumberOfProcesses() throws IOException {
-        QaBatch fixture = new QaBatch(batch);
+        QaBatch fixture = new QaBatch(batch, "");
         assertEquals(2, fixture.getNumberOfProcesses());
     }
 
     @Test
     public void testNumberOfPages() throws IOException {
-        QaBatch fixture = new QaBatch(batch);
+        QaBatch fixture = new QaBatch(batch, "");
         assertEquals(150, fixture.getNumberOfPages());
     }
 
     @Test
     public void testGetBatch() throws IOException {
-        QaBatch fixture = new QaBatch(batch);
+        QaBatch fixture = new QaBatch(batch, "");
         assertEquals("label", fixture.getBatch().getBatchLabel());
     }
 
     @Test
     public void testPooceses() {
-        QaBatch fixture = new QaBatch(batch);
+        QaBatch fixture = new QaBatch(batch, "");
         Map<String, Integer> proceses = fixture.getProceses();
         assertEquals(2, proceses.size());
     }

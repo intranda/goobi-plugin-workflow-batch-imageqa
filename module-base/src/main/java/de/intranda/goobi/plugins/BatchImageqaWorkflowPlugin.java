@@ -73,7 +73,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Getter
     @Setter
     private int pageNo = 0;
-    private int numberOfProcessesPerPage = 2; // TODO from config
+    private int numberOfProcessesPerPage = 10;
 
     @Override
     public PluginType getType() {
@@ -99,6 +99,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         qaStepName = config.getString("/qaTaskName");
         percentage = config.getInt("/percentage", 10);
 
+        numberOfProcessesPerPage = config.getInt("/numberOfProcessesPerPage", 10);
         thumbnailSize = config.getInt("/thumbnailSize", 200);
 
         metadataConfiguration = Arrays.asList(config.getStringArray("/metadata"));
@@ -155,7 +156,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                     String currentNumber = batches.get(batchId);
                     if (totalNumberOfProcesses.equals(currentNumber)) {
                         Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
-                        allBatches.add(new QaBatch(b));
+                        allBatches.add(new QaBatch(b, qaStepName));
                     }
                 }
 
@@ -315,5 +316,34 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         if (pageNo != getLastPageNumber()) {
             pageNo = getLastPageNumber();
         }
+    }
+
+    /*
+     * error report
+     * 
+     */
+
+    public boolean isDisplayErrorReport() {
+        for (DisplayProcess dp : displayProcess) {
+            if (dp.isInvalid()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getErrorMessage() {
+        StringBuilder sb = new StringBuilder();
+        for (DisplayProcess dp : displayProcess) {
+            if (dp.isInvalid()) {
+                if (!sb.isEmpty()) {
+                    sb.append("<br />");
+                }
+
+                sb.append(dp.getTitle() + ": " + (dp.getErrorMessage() == null ? "" : dp.getErrorMessage()));
+            }
+        }
+        return sb.toString();
+
     }
 }
