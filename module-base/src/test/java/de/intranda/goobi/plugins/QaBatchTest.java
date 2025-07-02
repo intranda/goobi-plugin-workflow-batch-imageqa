@@ -98,7 +98,7 @@ public class QaBatchTest {
     @Test
     public void testPooceses() {
         QaBatch fixture = new QaBatch(batch, "");
-        Map<String, Integer> proceses = fixture.getProceses();
+        Map<String, Integer> proceses = fixture.getProcesses();
         assertEquals(2, proceses.size());
     }
 }

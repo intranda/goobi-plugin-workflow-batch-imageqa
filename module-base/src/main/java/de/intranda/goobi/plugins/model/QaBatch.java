@@ -1,12 +1,10 @@
 package de.intranda.goobi.plugins.model;
 
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.goobi.beans.Batch;
 
-import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.QaPluginManager;
 import lombok.Getter;
 
 public class QaBatch {
@@ -15,37 +13,20 @@ public class QaBatch {
     private Batch batch;
 
     @Getter
-    private Map<String, Integer> proceses;
+    private Map<String, Integer> processes;
 
     public QaBatch(Batch batch, String stepTitle) {
         this.batch = batch;
-        proceses = new LinkedHashMap<>();
-
-        // order:
-        //            1. task priority
-        //            2. number of pages
-        String sql =
-                "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '"
-                        + stepTitle + "' WHERE batchID = " + batch.getBatchId() + " ORDER BY s.prioritaet desc , p.sortHelperImages";
-
-        @SuppressWarnings("rawtypes")
-        List data = ProcessManager.runSQL(sql);
-        for (Object obj : data) {
-            Object[] objArr = (Object[]) obj;
-            String processId = objArr[0].toString();
-            String pages = objArr[1].toString();
-            proceses.put(processId, Integer.valueOf(pages));
-        }
-
+        processes = QaPluginManager.getProcesses(stepTitle, batch.getBatchId());
     }
 
     public int getNumberOfProcesses() {
-        return proceses.size();
+        return processes.size();
     }
 
     public long getNumberOfPages() {
         long numberOfPages = 0;
-        for (Integer pages : proceses.values()) {
+        for (Integer pages : processes.values()) {
             numberOfPages += pages;
         }
         return numberOfPages;

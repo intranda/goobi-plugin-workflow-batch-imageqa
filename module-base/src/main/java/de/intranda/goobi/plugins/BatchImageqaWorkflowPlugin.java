@@ -4,15 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.goobi.api.mail.SendMail;
-import org.goobi.beans.Batch;
 import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.goobi.beans.JournalEntry;
@@ -42,6 +39,7 @@ import de.sub.goobi.persistence.managers.HistoryManager;
 import de.sub.goobi.persistence.managers.JournalManager;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.QaPluginManager;
 import de.sub.goobi.persistence.managers.StepManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -146,47 +144,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         if (config == null) {
             readConfig();
         }
-
         if (allBatches == null) {
-            // find all batches with open qa steps
-            @SuppressWarnings("rawtypes")
-            List result = ProcessManager.runSQL(openTaskBatchQuery);
-
-            StringBuilder idList = new StringBuilder();
-            Map<String, String> batches = new HashMap<>();
-            for (Object obj : result) {
-                Object[] objArr = (Object[]) obj;
-                String numberOfProcesses = objArr[0].toString();
-                String batchId = objArr[1].toString();
-                batches.put(batchId, numberOfProcesses);
-                if (!idList.isEmpty()) {
-                    idList.append(", ");
-                }
-                idList.append(batchId);
-            }
-            if (!idList.isEmpty()) {
-                allBatches = new ArrayList<>();
-                // compare the number of processes with the total number in each batch
-
-                String completeBatchQuery =
-                        "select batchid, count(prozesseid) from prozesse where batchid in (" + idList.toString() + ") GROUP BY batchid;";
-
-                result = ProcessManager.runSQL(completeBatchQuery);
-
-                // if numbers are equal (all tasks reached the step), load batch, add to list
-                for (Object obj : result) {
-                    Object[] objArr = (Object[]) obj;
-                    String batchId = objArr[0].toString();
-                    String totalNumberOfProcesses = objArr[1].toString();
-                    String currentNumber = batches.get(batchId);
-                    if (totalNumberOfProcesses.equals(currentNumber)) {
-                        Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
-                        allBatches.add(new QaBatch(b, qaStepName));
-                    }
-                }
-
-            }
-
+            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName);
         }
         return allBatches;
     }
@@ -211,10 +170,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void finishBatch() {
-        // TODO use processDisplayList instead
 
         // get all tasks
-        List<Step> steps = new ArrayList<>(displayProcesses.size());
+        List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
+
         for (DisplayProcess dp : displayProcesses) {
             for (Step step : dp.getProcess().getSchritte()) {
                 if (qaStepName.equals(step.getTitel())) {
@@ -339,7 +298,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         double imagesToDisplay = totalPages * percentage / 100;
         processDisplayList = new ArrayList<>();
 
-        for (Entry<String, Integer> entry : currentBatch.getProceses().entrySet()) {
+        for (Entry<String, Integer> entry : currentBatch.getProcesses().entrySet()) {
             String processid = entry.getKey();
             processDisplayList.add(processid);
             int numberOfPages = entry.getValue();
