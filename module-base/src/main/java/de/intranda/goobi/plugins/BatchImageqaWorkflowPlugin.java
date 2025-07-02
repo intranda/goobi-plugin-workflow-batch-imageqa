@@ -1,7 +1,9 @@
 package de.intranda.goobi.plugins;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +11,17 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.api.mail.SendMail;
 import org.goobi.beans.Batch;
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
+import org.goobi.beans.JournalEntry;
+import org.goobi.beans.JournalEntry.EntryType;
 import org.goobi.beans.Process;
+import org.goobi.beans.Step;
+import org.goobi.beans.User;
 import org.goobi.production.cli.helper.StringPair;
+import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
@@ -19,9 +29,20 @@ import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import de.intranda.goobi.plugins.model.DisplayProcess;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.HelperSchritte;
+import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
+import de.sub.goobi.helper.enums.HistoryEventType;
+import de.sub.goobi.helper.enums.PropertyType;
+import de.sub.goobi.helper.enums.StepEditType;
+import de.sub.goobi.helper.enums.StepStatus;
+import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.metadaten.Image;
+import de.sub.goobi.persistence.managers.HistoryManager;
+import de.sub.goobi.persistence.managers.JournalManager;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.StepManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -33,13 +54,15 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     private static final long serialVersionUID = 6658238449519958476L;
 
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     @Getter
     private String title = "intranda_workflow_batch_imageqa";
 
     private List<QaBatch> allBatches = null;
 
     private String qaStepName = "";
-
+    private String errorStepName;
     private String openTaskBatchQuery;
 
     @Getter
@@ -62,7 +85,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private int thumbnailSize = 200;
 
     private List<String> processDisplayList;
-    private List<DisplayProcess> displayProcess = new ArrayList<>();
+    private List<DisplayProcess> displayProcesses = new ArrayList<>();
     private List<String> metadataConfiguration;
     private String titleField;
 
@@ -97,6 +120,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         config.setExpressionEngine(new XPathExpressionEngine());
 
         qaStepName = config.getString("/qaTaskName");
+        errorStepName = config.getString("/errorStepName");
+
         percentage = config.getInt("/percentage", 10);
 
         numberOfProcessesPerPage = config.getInt("/numberOfProcessesPerPage", 10);
@@ -185,6 +210,126 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     }
 
+    public void finishBatch() {
+        // TODO use processDisplayList instead
+
+        // get all tasks
+        List<Step> steps = new ArrayList<>(displayProcesses.size());
+        for (DisplayProcess dp : displayProcesses) {
+            for (Step step : dp.getProcess().getSchritte()) {
+                if (qaStepName.equals(step.getTitel())) {
+                    steps.add(step);
+                }
+            }
+        }
+        // for each task call close step
+        HelperSchritte helper = new HelperSchritte();
+        for (Step step : steps) {
+            helper.CloseStepObjectAutomatic(step);
+        }
+        allBatches = null;
+        displayType = "overview";
+    }
+
+    public void errorBatch() {
+        for (DisplayProcess dp : displayProcesses) {
+            if (dp.isInvalid()) {
+                Step qaStep = null;
+                Step stepToOpen = null;
+                for (Step step : dp.getProcess().getSchritte()) {
+                    if (qaStepName.equals(step.getTitel())) {
+                        qaStep = step;
+                    } else if (errorStepName.equals(step.getTitel())) {
+                        stepToOpen = step;
+                    }
+                }
+
+                if (qaStep != null && stepToOpen != null) {
+                    Date now = new Date();
+                    qaStep.setBearbeitungsstatusEnum(StepStatus.LOCKED);
+                    qaStep.setEditTypeEnum(StepEditType.MANUAL_SINGLE);
+                    qaStep.setPrioritaet(10);
+                    qaStep.setBearbeitungszeitpunkt(now);
+                    User user = Helper.getCurrentUser();
+                    if (user != null) {
+                        qaStep.setBearbeitungsbenutzer(user);
+                    }
+                    qaStep.setBearbeitungsbeginn(null);
+                    try {
+                        SendMail.getInstance().sendMailToAssignedUser(stepToOpen, StepStatus.ERROR);
+                        stepToOpen.setBearbeitungsstatusEnum(StepStatus.ERROR);
+                        stepToOpen.setCorrectionStep();
+                        stepToOpen.setBearbeitungsende(now);
+                        GoobiProperty se = new GoobiProperty(PropertyOwnerType.ERROR);
+
+                        String messageText = dp.getErrorMessage();
+
+                        se.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
+                        if (user == null) {
+                            se.setPropertyValue("[" + this.formatter.format(now) + "] " + messageText);
+                        } else {
+                            se.setPropertyValue("[" + this.formatter.format(now) + ", " + user.getNachVorname() + "] " + messageText);
+                        }
+                        se.setType(PropertyType.MESSAGE_ERROR);
+                        se.setCreationDate(now);
+                        se.setOwner(stepToOpen);
+                        String message = Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText;
+                        String username;
+                        if (user != null) {
+                            username = user.getNachVorname();
+                        } else {
+                            username = "-";
+                        }
+                        JournalEntry logEntry =
+                                new JournalEntry(qaStep.getProzess().getId(), now, username, LogType.ERROR, message,
+                                        EntryType.PROCESS);
+                        JournalManager.saveJournalEntry(logEntry);
+
+                        stepToOpen.getProperties().add(se);
+                        StepManager.saveStep(stepToOpen);
+                        HistoryManager.addHistory(now, stepToOpen.getReihenfolge().doubleValue(), stepToOpen.getTitel(),
+                                HistoryEventType.stepError.getValue(),
+                                stepToOpen.getProzess().getId());
+
+                        List<Step> stepsBetween =
+                                StepManager.getSteps("Reihenfolge desc",
+                                        " schritte.prozesseID = " + qaStep.getProzess().getId() + " AND Reihenfolge <= "
+                                                + qaStep.getReihenfolge() + "  AND Reihenfolge > " + stepToOpen.getReihenfolge(),
+                                        0, Integer.MAX_VALUE, null);
+
+                        for (Step step : stepsBetween) {
+                            if (!StepStatus.DEACTIVATED.equals(step.getBearbeitungsstatusEnum())) {
+                                step.setBearbeitungsstatusEnum(StepStatus.LOCKED);
+                            }
+                            step.setCorrectionStep();
+                            step.setBearbeitungsende(null);
+                            GoobiProperty seg = new GoobiProperty(PropertyOwnerType.ERROR);
+                            seg.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
+                            seg.setPropertyValue(Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText);
+                            seg.setOwner(step);
+                            seg.setType(PropertyType.MESSAGE_IMPORTANT);
+                            seg.setCreationDate(new Date());
+                            step.getProperties().add(seg);
+                            StepManager.saveStep(step);
+                        }
+                        if (stepToOpen.isTypAutomatisch()) {
+                            ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(stepToOpen);
+                            myThread.startOrPutToQueue();
+                        }
+
+                        StepManager.saveStep(qaStep);
+                        ProcessManager.saveProcessInformation(qaStep.getProzess());
+                    } catch (DAOException e) {
+                        log.error(e);
+                    }
+                }
+            }
+
+        }
+        allBatches = null;
+        displayType = "overview";
+    }
+
     public void openBatch() {
         double totalPages = currentBatch.getNumberOfPages();
         if (percentage < 1) {
@@ -203,21 +348,20 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 break;
             }
         }
-        displayProcess.clear();
+        displayProcesses.clear();
         generateProcessList();
     }
 
     public List<DisplayProcess> generateProcessList() {
 
-        // TODO sub list with pagination
-        if (displayProcess.isEmpty() && !processDisplayList.isEmpty()) {
+        if (displayProcesses.isEmpty() && !processDisplayList.isEmpty()) {
             for (String processId : processDisplayList) {
                 Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
 
                 List<StringPair> processMetadata = MetadataManager.getMetadata(process.getId());
 
                 DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
-                displayProcess.add(dp);
+                displayProcesses.add(dp);
 
                 // use process title as default, if no field is configured or value is missing
                 String title = process.getTitel();
@@ -248,7 +392,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 dp.setMetadata(displayFields);
             }
         }
-        return displayProcess;
+        return displayProcesses;
     }
 
     /*
@@ -259,23 +403,23 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     public List<DisplayProcess> getDisplayProcesses() {
 
         List<DisplayProcess> subList;
-        if (displayProcess.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
-            subList = displayProcess.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
+        if (displayProcesses.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
+            subList = displayProcesses.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
         } else {
             // Sometimes pageNo is not zero here, although we only have 20 images or so.
             // This is a quick fix and we should find out why pageNo is not zero in some cases
             int startIdx = pageNo * numberOfProcessesPerPage;
-            if (startIdx > displayProcess.size()) {
-                startIdx = Math.max(0, displayProcess.size() - numberOfProcessesPerPage);
+            if (startIdx > displayProcesses.size()) {
+                startIdx = Math.max(0, displayProcesses.size() - numberOfProcessesPerPage);
             }
-            subList = displayProcess.subList(startIdx, displayProcess.size());
+            subList = displayProcesses.subList(startIdx, displayProcesses.size());
         }
         return subList;
 
     }
 
     public boolean isDisplayPaginator() {
-        return displayProcess.size() > numberOfProcessesPerPage;
+        return displayProcesses.size() > numberOfProcessesPerPage;
     }
 
     public boolean isHasPreviousPages() {
@@ -291,8 +435,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public int getLastPageNumber() {
-        int ret = displayProcess.size() / numberOfProcessesPerPage;
-        if (displayProcess.size() % numberOfProcessesPerPage == 0) {
+        int ret = displayProcesses.size() / numberOfProcessesPerPage;
+        if (displayProcesses.size() % numberOfProcessesPerPage == 0) {
             ret--;
         }
         return ret;
@@ -324,7 +468,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
      */
 
     public boolean isDisplayErrorReport() {
-        for (DisplayProcess dp : displayProcess) {
+        for (DisplayProcess dp : displayProcesses) {
             if (dp.isInvalid()) {
                 return true;
             }
@@ -334,7 +478,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public String getErrorMessage() {
         StringBuilder sb = new StringBuilder();
-        for (DisplayProcess dp : displayProcess) {
+        for (DisplayProcess dp : displayProcesses) {
             if (dp.isInvalid()) {
                 if (!sb.isEmpty()) {
                     sb.append("<br />");

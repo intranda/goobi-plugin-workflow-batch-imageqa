@@ -403,6 +403,34 @@
                                         target="#{NavigationForm.workflowPlugin.displayType}"
                                         value="overview" />
                                 </button>
+
+                                <!-- success button -->
+
+                                <button
+                                    jsf:rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
+                                    jsf:id="finishBatch"
+                                    class="btn btn-success"
+                                    jsf:rel="tooltip"
+                                    jsf:action="#{NavigationForm.workflowPlugin.finishBatch}"
+                                    title="go">
+                                    <i class="fa fa-check"></i>
+                                    <h:outputText value="#{msgs.plugin_workflow_batches_finish}" />
+
+                                </button>
+
+                                <!-- error button -->
+                                <button
+                                    jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
+                                    jsf:id="errorBatch"
+                                    class="btn btn-hot"
+                                    jsf:rel="tooltip"
+                                    jsf:action="#{NavigationForm.workflowPlugin.errorBatch}"
+                                    title="go">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <h:outputText value="#{msgs.plugin_workflow_batches_abort}" />
+                                </button>
+
+
                             </section:footer>
                         </h:form>
                     </section:section>

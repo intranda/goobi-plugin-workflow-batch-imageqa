@@ -26,7 +26,7 @@ public class QaBatch {
         //            2. number of pages
         String sql =
                 "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '"
-                        + stepTitle + "' WHERE batchID = " + batch.getBatchId() + " ORDER BY s.prioritaet , p.sortHelperImages";
+                        + stepTitle + "' WHERE batchID = " + batch.getBatchId() + " ORDER BY s.prioritaet desc , p.sortHelperImages";
 
         @SuppressWarnings("rawtypes")
         List data = ProcessManager.runSQL(sql);
