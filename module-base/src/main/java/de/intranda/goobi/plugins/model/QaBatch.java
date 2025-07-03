@@ -1,6 +1,6 @@
 package de.intranda.goobi.plugins.model;
 
-import java.util.Map;
+import java.util.List;
 
 import org.goobi.beans.Batch;
 
@@ -13,7 +13,7 @@ public class QaBatch {
     private Batch batch;
 
     @Getter
-    private Map<String, Integer> processes;
+    private List<ProcessOverview> processes;
 
     public QaBatch(Batch batch, String stepTitle) {
         this.batch = batch;
@@ -26,8 +26,8 @@ public class QaBatch {
 
     public long getNumberOfPages() {
         long numberOfPages = 0;
-        for (Integer pages : processes.values()) {
-            numberOfPages += pages;
+        for (ProcessOverview proc : processes) {
+            numberOfPages += proc.getNumberOfPages();
         }
         return numberOfPages;
     }

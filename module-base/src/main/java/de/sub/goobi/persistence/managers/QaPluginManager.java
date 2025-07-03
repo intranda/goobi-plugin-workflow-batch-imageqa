@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +12,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.goobi.beans.Batch;
 import org.goobi.beans.Step;
 
+import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import lombok.extern.log4j.Log4j2;
 
@@ -81,12 +81,13 @@ public class QaPluginManager {
         return answer;
     }
 
-    public static Map<String, Integer> getProcesses(String stepTitle, int batchId) {
-        Map<String, Integer> processes = new LinkedHashMap<>();
+    public static List<ProcessOverview> getProcesses(String stepTitle, int batchId) {
+        List<ProcessOverview> processes = new ArrayList<>();
         // order:
         //            1. task priority
         //            2. number of pages
 
+        // TODO
         String sql =
                 "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '"
                         + stepTitle + "' WHERE batchID = " + batchId + " ORDER BY s.prioritaet desc , p.sortHelperImages";
@@ -97,7 +98,8 @@ public class QaPluginManager {
             Object[] objArr = (Object[]) obj;
             String processId = objArr[0].toString();
             String pages = objArr[1].toString();
-            processes.put(processId, Integer.valueOf(pages));
+            String prio = objArr[2].toString();
+            processes.add(new ProcessOverview(processId, Integer.parseInt(pages), "10".equals(prio), false));
         }
         return processes;
 

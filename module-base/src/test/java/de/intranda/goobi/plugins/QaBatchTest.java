@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.goobi.beans.Batch;
@@ -21,6 +20,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.persistence.managers.ProcessManager;
 
@@ -52,14 +52,16 @@ public class QaBatchTest {
 
         List<Object[]> data = new ArrayList<>();
 
-        Object[] row = new Object[2];
+        Object[] row = new Object[4];
         row[0] = "1";
         row[1] = "100";
+        row[2] = "0";
         data.add(row);
 
-        Object[] row2 = new Object[2];
+        Object[] row2 = new Object[4];
         row2[0] = "2";
         row2[1] = "50";
+        row2[2] = "10";
         data.add(row2);
 
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString())).andReturn(data).anyTimes();
@@ -98,7 +100,7 @@ public class QaBatchTest {
     @Test
     public void testPooceses() {
         QaBatch fixture = new QaBatch(batch, "");
-        Map<String, Integer> proceses = fixture.getProcesses();
+        List<ProcessOverview> proceses = fixture.getProcesses();
         assertEquals(2, proceses.size());
     }
 }

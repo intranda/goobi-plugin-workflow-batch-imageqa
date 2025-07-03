@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -24,6 +23,7 @@ import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
 import de.intranda.goobi.plugins.model.DisplayProcess;
+import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.Helper;
@@ -298,13 +298,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         double imagesToDisplay = totalPages * percentage / 100;
         processDisplayList = new ArrayList<>();
 
-        for (Entry<String, Integer> entry : currentBatch.getProcesses().entrySet()) {
-            String processid = entry.getKey();
-            processDisplayList.add(processid);
-            int numberOfPages = entry.getValue();
-            numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
-            if (numberOfImagesToDisplay >= imagesToDisplay) {
-                break;
+        for (ProcessOverview entry : currentBatch.getProcesses()) {
+            if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfImagesToDisplay < imagesToDisplay)) {
+                String processid = entry.getProcessid();
+                processDisplayList.add(processid);
+                int numberOfPages = entry.getNumberOfPages();
+                numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
             }
         }
         displayProcesses.clear();
