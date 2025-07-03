@@ -34,13 +34,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
-@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class })
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class })
 
 public class BatchImageqaWorkflowPluginTest {
 
@@ -118,7 +119,7 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(proc.getId()).andReturn(1).anyTimes();
         EasyMock.expect(proc.getTitel()).andReturn("title").anyTimes();
         File imageFolder = folder.newFolder("iamges");
-
+        imageFolder.mkdir();
         EasyMock.expect(proc.getImagesOrigDirectory(false)).andReturn(imageFolder.toString()).anyTimes();
 
         EasyMock.expect(ProcessManager.getProcessById(EasyMock.anyInt())).andReturn(proc).anyTimes();
@@ -237,6 +238,6 @@ public class BatchImageqaWorkflowPluginTest {
         assertTrue(fixture.getErrorMessage().isEmpty());
         fixture.getDisplayProcesses().get(0).setInvalid(true);
         fixture.getDisplayProcesses().get(0).setErrorMessage("error");
-        assertEquals("error", fixture.getErrorMessage());
+        assertEquals("title: error", fixture.getErrorMessage());
     }
 }
