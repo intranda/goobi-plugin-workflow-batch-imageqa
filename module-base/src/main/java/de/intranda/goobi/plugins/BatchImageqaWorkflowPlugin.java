@@ -86,6 +86,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private List<DisplayProcess> displayProcesses = new ArrayList<>();
     private List<String> metadataConfiguration;
     private String titleField;
+    private List<String> metadataToCheck;
 
     @Getter
     @Setter
@@ -126,6 +127,9 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         thumbnailSize = config.getInt("/thumbnailSize", 200);
 
         metadataConfiguration = Arrays.asList(config.getStringArray("/metadata"));
+
+        metadataToCheck = Arrays.asList(config.getStringArray("/metadataToCheck"));
+
         titleField = config.getString("/titleField", "");
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT p.prozesseid), p.batchid ");
@@ -145,7 +149,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             readConfig();
         }
         if (allBatches == null) {
-            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName);
+            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName, metadataToCheck);
         }
         return allBatches;
     }
@@ -156,17 +160,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     @Override
     public void finalize() {
-
-        // check all DisplayProcess objects
-
-        // if all are valid:
-
-        // finalize batch task, continue workflow
-
-        // if some are invalid:
-
-        // create error report, move error tasks to configured previous task
-
+        finishBatch();
     }
 
     public void finishBatch() {

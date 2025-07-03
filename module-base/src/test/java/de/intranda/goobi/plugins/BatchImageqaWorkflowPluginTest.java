@@ -1,9 +1,12 @@
 package de.intranda.goobi.plugins;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,10 +19,13 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.goobi.beans.Batch;
+import org.goobi.beans.Process;
+import org.goobi.production.cli.helper.StringPair;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -28,16 +34,20 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
-@PrepareForTest({ ConfigPlugins.class, ProcessManager.class })
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class })
 
-public class BatchImageqaPluginTest {
+public class BatchImageqaWorkflowPluginTest {
 
     private static String resourcesFolder;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -66,7 +76,7 @@ public class BatchImageqaPluginTest {
 
     @SuppressWarnings("rawtypes")
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         PowerMock.mockStatic(ConfigPlugins.class);
         EasyMock.expect(ConfigPlugins.getPluginConfig(EasyMock.anyString())).andReturn(getConfig()).anyTimes();
 
@@ -104,12 +114,28 @@ public class BatchImageqaPluginTest {
                 )
                 .anyTimes();
 
+        Process proc = EasyMock.createMock(Process.class);
+        EasyMock.expect(proc.getId()).andReturn(1).anyTimes();
+        EasyMock.expect(proc.getTitel()).andReturn("title").anyTimes();
+        File imageFolder = folder.newFolder("iamges");
+
+        EasyMock.expect(proc.getImagesOrigDirectory(false)).andReturn(imageFolder.toString()).anyTimes();
+
+        EasyMock.expect(ProcessManager.getProcessById(EasyMock.anyInt())).andReturn(proc).anyTimes();
+
+        PowerMock.mockStatic(MetadataManager.class);
+        List<StringPair> metadataList = new ArrayList<>();
+        metadataList.add(new StringPair("TitleDocMain", "label"));
+        EasyMock.expect(MetadataManager.getMetadata(EasyMock.anyInt())).andReturn(metadataList).anyTimes();
+
         // initialize individual batches
         Batch b = new Batch();
         b.setBatchId(1);
         b.setBatchLabel("label");
         EasyMock.expect(ProcessManager.getBatchById(EasyMock.anyInt())).andReturn(b).anyTimes();
-        PowerMock.replay(ProcessManager.class, ConfigPlugins.class);
+        EasyMock.replay(proc);
+
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class);
     }
 
     @Test
@@ -143,13 +169,74 @@ public class BatchImageqaPluginTest {
         assertEquals("label", fixture.getCurrentBatch().getBatch().getBatchLabel());
     }
 
-    @Ignore
+    @Test
     public void testOpenBatch() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
-
         fixture.openBatch();
+        assertEquals(5, fixture.getNumberOfImagesToDisplay());
     }
 
+    @Test
+    public void testDisplayProcesses() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        fixture.setPercentage(50);
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+        fixture.openBatch();
+        assertEquals(1, fixture.getDisplayProcesses().size());
+    }
+
+    @Test
+    public void testPagination() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        fixture.setPercentage(50);
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+        fixture.openBatch();
+        assertFalse(fixture.isDisplayPaginator());
+        assertFalse(fixture.isHasPreviousPages());
+        assertTrue(fixture.isLastPage());
+        assertFalse(fixture.isHasNextPages());
+        assertEquals(0, fixture.getLastPageNumber());
+
+        fixture.moveToFirstPage();
+        assertEquals(0, fixture.getPageNo());
+
+        fixture.moveToPreviousPage();
+        assertEquals(-1, fixture.getPageNo());
+
+        fixture.moveToNextPage();
+        assertEquals(0, fixture.getPageNo());
+
+        fixture.moveToLastPage();
+        assertEquals(0, fixture.getPageNo());
+    }
+
+    @Test
+    public void testDisplayErrorReport() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        fixture.setPercentage(50);
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+        fixture.openBatch();
+        assertFalse(fixture.isDisplayErrorReport());
+        fixture.getDisplayProcesses().get(0).setInvalid(true);
+        assertTrue(fixture.isDisplayErrorReport());
+    }
+
+    @Test
+    public void testErrorMessage() {
+        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
+        fixture.setPercentage(50);
+        List<QaBatch> batches = fixture.getAllBatches();
+        fixture.setCurrentBatch(batches.get(0));
+        fixture.openBatch();
+        assertTrue(fixture.getErrorMessage().isEmpty());
+        fixture.getDisplayProcesses().get(0).setInvalid(true);
+        fixture.getDisplayProcesses().get(0).setErrorMessage("error");
+        assertEquals("error", fixture.getErrorMessage());
+    }
 }

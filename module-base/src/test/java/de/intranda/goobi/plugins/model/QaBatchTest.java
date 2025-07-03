@@ -1,4 +1,4 @@
-package de.intranda.goobi.plugins;
+package de.intranda.goobi.plugins.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -20,8 +21,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import de.intranda.goobi.plugins.model.ProcessOverview;
-import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.persistence.managers.ProcessManager;
 
 @RunWith(PowerMockRunner.class)
@@ -75,31 +74,34 @@ public class QaBatchTest {
 
     @Test
     public void testConstructor() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "");
+        QaBatch fixture = new QaBatch(batch, "", null);
         assertNotNull(fixture);
     }
 
     @Test
     public void testNumberOfProcesses() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "");
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
         assertEquals(2, fixture.getNumberOfProcesses());
     }
 
     @Test
     public void testNumberOfPages() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "");
+        List<String> metadata = new ArrayList<>();
+        metadata.add("md1");
+        metadata.add("md2");
+        QaBatch fixture = new QaBatch(batch, "", metadata);
         assertEquals(150, fixture.getNumberOfPages());
     }
 
     @Test
     public void testGetBatch() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "");
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
         assertEquals("label", fixture.getBatch().getBatchLabel());
     }
 
     @Test
     public void testPooceses() {
-        QaBatch fixture = new QaBatch(batch, "");
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
         List<ProcessOverview> proceses = fixture.getProcesses();
         assertEquals(2, proceses.size());
     }

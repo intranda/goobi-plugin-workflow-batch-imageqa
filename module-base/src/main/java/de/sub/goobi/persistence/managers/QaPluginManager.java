@@ -39,7 +39,7 @@ public class QaPluginManager {
         return Collections.emptyList();
     }
 
-    public static List<QaBatch> getAllQaBatches(String openTaskBatchQuery, String qaStepName) {
+    public static List<QaBatch> getAllQaBatches(String openTaskBatchQuery, String qaStepName, List<String> metadataNames) {
         List<QaBatch> answer = new ArrayList<>();
         // find all batches with open qa steps
         @SuppressWarnings("rawtypes")
@@ -73,7 +73,7 @@ public class QaPluginManager {
                 String currentNumber = batches.get(batchId);
                 if (totalNumberOfProcesses.equals(currentNumber)) {
                     Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
-                    answer.add(new QaBatch(b, qaStepName));
+                    answer.add(new QaBatch(b, qaStepName, metadataNames));
                 }
             }
 
@@ -81,19 +81,67 @@ public class QaPluginManager {
         return answer;
     }
 
-    public static List<ProcessOverview> getProcesses(String stepTitle, int batchId) {
+    public static List<ProcessOverview> getProcesses(String stepTitle, int batchId, List<String> metadataToCheck) {
         List<ProcessOverview> processes = new ArrayList<>();
         // order:
-        //            1. task priority
-        //            2. number of pages
+        //            1. metadata to check exists
+        //            2. task priority
+        //            3. number of pages
 
-        // TODO
-        String sql =
-                "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '"
-                        + stepTitle + "' WHERE batchID = " + batchId + " ORDER BY s.prioritaet desc , p.sortHelperImages";
+        StringBuilder sb = new StringBuilder();
+
+        if (metadataToCheck == null || metadataToCheck.isEmpty()) {
+            sb.append(
+                    "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
+            sb.append(stepTitle);
+            sb.append("' WHERE batchID = ");
+            sb.append(batchId);
+            sb.append(" ORDER BY s.prioritaet desc , p.sortHelperImages");
+
+        } else {
+
+            sb.append("SELECT ");
+            sb.append("p.prozesseID, ");
+            sb.append("p.sortHelperImages, ");
+            sb.append("s.prioritaet, ");
+            sb.append("CASE ");
+            sb.append("WHEN val IS NULL THEN 0 ");
+            sb.append("ELSE 1 ");
+            sb.append("END as val ");
+            sb.append("FROM ");
+            sb.append("prozesse p ");
+            sb.append("JOIN ");
+            sb.append("schritte s ON s.ProzesseID = p.ProzesseID ");
+            sb.append("AND s.titel = '");
+            sb.append(stepTitle);
+            sb.append("' LEFT JOIN ");
+            sb.append("(SELECT  ");
+            sb.append("processid, GROUP_CONCAT(value) AS val ");
+            sb.append("FROM ");
+            sb.append("metadata ");
+            sb.append("WHERE ");
+            sb.append("name IN (");
+
+            StringBuilder mdlist = new StringBuilder();
+            for (String metadata : metadataToCheck) {
+                if (!mdlist.isEmpty()) {
+                    mdlist.append(", ");
+                }
+                mdlist.append("'");
+                mdlist.append(metadata);
+                mdlist.append("'");
+            }
+            sb.append(mdlist.toString());
+            sb.append(") GROUP BY processid) AS mtd ON mtd.processid = p.prozesseID ");
+            sb.append("WHERE ");
+            sb.append("batchID = ");
+            sb.append(batchId);
+            sb.append(" ORDER BY val desc, s.prioritaet desc, p.sortHelperImages; ");
+
+        }
 
         @SuppressWarnings("rawtypes")
-        List data = ProcessManager.runSQL(sql);
+        List data = ProcessManager.runSQL(sb.toString());
         for (Object obj : data) {
             Object[] objArr = (Object[]) obj;
             String processId = objArr[0].toString();

@@ -27,4 +27,8 @@
     <metadata>PublicationYear</metadata>
     <metadata>PublisherName</metadata>
     <metadata>singleDigCollection</metadata>
+
+    <!-- images are always displayed, if one of the configured metadata fields exists -->
+    <metadataToCheck>DocLanguages</metadataToCheck>
+    <metadataToCheck>PublicationYear</metadataToCheck>
 </config_plugin>

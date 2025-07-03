@@ -15,9 +15,9 @@ public class QaBatch {
     @Getter
     private List<ProcessOverview> processes;
 
-    public QaBatch(Batch batch, String stepTitle) {
+    public QaBatch(Batch batch, String stepTitle, List<String> metadataToCheck) {
         this.batch = batch;
-        processes = QaPluginManager.getProcesses(stepTitle, batch.getBatchId());
+        processes = QaPluginManager.getProcesses(stepTitle, batch.getBatchId(), metadataToCheck);
     }
 
     public int getNumberOfProcesses() {
