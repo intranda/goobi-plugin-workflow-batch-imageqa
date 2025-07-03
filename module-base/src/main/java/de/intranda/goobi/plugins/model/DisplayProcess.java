@@ -50,7 +50,6 @@ public class DisplayProcess {
         }
         allImages.clear();
         Path path = Paths.get(imageFolderName);
-
         if (StorageProvider.getInstance().isFileExists(path)) {
             List<String> imageNameList = StorageProvider.getInstance().list(imageFolderName, NIOFileUtils.imageOrObjectNameFilter);
             int order = 1;

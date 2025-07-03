@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,9 +22,7 @@ import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -35,20 +32,19 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
+import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
-@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class })
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class })
 
 public class BatchImageqaWorkflowPluginTest {
 
     private static String resourcesFolder;
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -118,9 +114,9 @@ public class BatchImageqaWorkflowPluginTest {
         Process proc = EasyMock.createMock(Process.class);
         EasyMock.expect(proc.getId()).andReturn(1).anyTimes();
         EasyMock.expect(proc.getTitel()).andReturn("title").anyTimes();
-        File imageFolder = folder.newFolder("iamges");
-        imageFolder.mkdir();
-        EasyMock.expect(proc.getImagesOrigDirectory(false)).andReturn(imageFolder.toString()).anyTimes();
+        EasyMock.expect(proc.getImagesOrigDirectory(false)).andReturn(resourcesFolder + "/tmp").anyTimes();
+        EasyMock.expect(proc.getImagesDirectory()).andReturn(resourcesFolder + "/tmp").anyTimes();
+        EasyMock.expect(proc.getThumbsDirectory()).andReturn(resourcesFolder + "/tmp").anyTimes();
 
         EasyMock.expect(ProcessManager.getProcessById(EasyMock.anyInt())).andReturn(proc).anyTimes();
 
@@ -136,7 +132,13 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(ProcessManager.getBatchById(EasyMock.anyInt())).andReturn(b).anyTimes();
         EasyMock.replay(proc);
 
-        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class);
+        PowerMock.mockStatic(StorageProvider.class);
+        StorageProviderInterface spi = EasyMock.createMock(StorageProviderInterface.class);
+        EasyMock.expect(StorageProvider.getInstance()).andReturn(spi).anyTimes();
+
+        EasyMock.expect(spi.isFileExists(EasyMock.anyObject())).andReturn(false).anyTimes();
+
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class);
     }
 
     @Test
