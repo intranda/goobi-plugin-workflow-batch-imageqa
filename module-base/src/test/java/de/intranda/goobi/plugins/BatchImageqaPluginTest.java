@@ -83,16 +83,16 @@ public class BatchImageqaPluginTest {
                                 List answer = new ArrayList();
                                 if (query.startsWith("SELECT COUNT")) {
                                     // first column: number of processes, second column: batch id
-                                    String[] row1 = { "5", "1" };
-                                    String[] row2 = { "10", "2" };
-                                    String[] row3 = { "5", "3" }; // only 5 of 10 reached the task
+                                    String[] row1 = { "5", "1", "0", "1" };
+                                    String[] row2 = { "10", "2", "0", "0" };
+                                    String[] row3 = { "5", "3", "10", "0" }; // only 5 of 10 reached the task
                                     answer.add(row1);
                                     answer.add(row2);
                                     answer.add(row3);
                                 } else {
-                                    String[] row1 = { "1", "5" };
-                                    String[] row2 = { "2", "10" };
-                                    String[] row3 = { "3", "10" };
+                                    String[] row1 = { "1", "5", "0", "0" };
+                                    String[] row2 = { "2", "10", "0", "0" };
+                                    String[] row3 = { "3", "10", "0", "0" };
                                     answer.add(row1);
                                     answer.add(row2);
                                     answer.add(row3);
