@@ -1,5 +1,7 @@
 package de.intranda.goobi.plugins;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.lang3.StringUtils;
 import org.goobi.api.mail.SendMail;
 import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.GoobiProperty.PropertyOwnerType;
@@ -26,6 +29,7 @@ import de.intranda.goobi.plugins.model.DisplayProcess;
 import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.HelperSchritte;
 import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
@@ -41,6 +45,9 @@ import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
 import de.sub.goobi.persistence.managers.StepManager;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -436,6 +443,43 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             }
         }
         return errors;
+    }
 
+    public void generateCSV() {
+        StringBuilder csv = new StringBuilder();
+
+        String batchName = currentBatch.getBatch().getBatchName();
+        if (StringUtils.isBlank(batchName)) {
+            batchName = "report_" + currentBatch.getBatch().getBatchId();
+        }
+        batchName = batchName.replaceAll("\\W", "_");
+        String reportName = currentBatch.getBatch().getBatchName() + ".csv";
+        csv.append("Vorgang, Fehler");
+        csv.append("\n");
+        for (DisplayProcess dp : displayProcesses) {
+            csv.append("\"" + dp.getTitle() + "\"");
+            csv.append(",");
+            csv.append("\"");
+            csv.append(dp.getErrorMessage() == null ? "" : dp.getErrorMessage());
+            csv.append("\"");
+            csv.append("\n");
+        }
+
+        FacesContext facesContext = FacesContextHelper.getCurrentFacesContext();
+        try {
+            if (!facesContext.getResponseComplete()) {
+                HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+                ServletContext servletContext = (ServletContext) facesContext.getExternalContext().getContext();
+                String contentType = servletContext.getMimeType(reportName) + "; charset=UTF-8";
+                response.setContentType(contentType);
+                response.setHeader("Content-Disposition", "attachment;filename=\"" + reportName + "\"");
+
+                PrintWriter pw = response.getWriter();
+                pw.write(csv.toString());
+                pw.close();
+                facesContext.responseComplete();
+            }
+        } catch (IOException e) {
+        }
     }
 }

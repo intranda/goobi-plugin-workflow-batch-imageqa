@@ -373,6 +373,20 @@
                                         <span> #{msgs.plugin_workflow_batches_finish} </span>
                                     </button>
 
+  <!-- download report button -->
+                                    <button
+                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
+                                        jsf:id="downloadCsv"
+                                        class="btn btn-blank"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}"
+                                        title="go">
+                                        <span
+                                            class="fa fa-download"
+                                            aria-hidden="true" />
+                                        <span> #{msgs.downloadCsv} </span>
+                                    </button>
+
                                     <!-- error button -->
                                     <button
                                         jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
