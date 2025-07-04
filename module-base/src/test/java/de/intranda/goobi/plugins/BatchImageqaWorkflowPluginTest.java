@@ -240,6 +240,7 @@ public class BatchImageqaWorkflowPluginTest {
         assertTrue(fixture.getErrorMessage().isEmpty());
         fixture.getDisplayProcesses().get(0).setInvalid(true);
         fixture.getDisplayProcesses().get(0).setErrorMessage("error");
-        assertEquals("title: error", fixture.getErrorMessage());
+        assertEquals("title", fixture.getErrorMessage().get(0).getOne());
+        assertEquals("error", fixture.getErrorMessage().get(0).getTwo());
     }
 }

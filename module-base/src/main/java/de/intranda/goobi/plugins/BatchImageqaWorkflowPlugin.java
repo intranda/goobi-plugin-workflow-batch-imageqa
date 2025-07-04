@@ -428,18 +428,14 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return false;
     }
 
-    public String getErrorMessage() {
-        StringBuilder sb = new StringBuilder();
+    public List<StringPair> getErrorMessage() {
+        List<StringPair> errors = new ArrayList<>();
         for (DisplayProcess dp : displayProcesses) {
             if (dp.isInvalid()) {
-                if (!sb.isEmpty()) {
-                    sb.append("<br />");
-                }
-
-                sb.append(dp.getTitle() + ": " + (dp.getErrorMessage() == null ? "" : dp.getErrorMessage()));
+                errors.add(new StringPair(dp.getTitle(), dp.getErrorMessage() == null ? "" : dp.getErrorMessage()));
             }
         }
-        return sb.toString();
+        return errors;
 
     }
 }
