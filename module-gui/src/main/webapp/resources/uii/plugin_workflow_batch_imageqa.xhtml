@@ -9,14 +9,9 @@
     xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
     xmlns:form="http://goobi.io/form"
-    xmlns:section="http://goobi.io/section">
+    xmlns:section="http://goobi.io/section"
+    xmlns:dl="http://goobi.io/dl">
     <h:panelGroup>
-
-
-
-
-
-
         <div class="row">
             <div class="col-sm-12">
                 <h:panelGroup
@@ -132,7 +127,9 @@
                                 <section:header-actions form="true">
                                     <h:inputText
                                         value="#{NavigationForm.workflowPlugin.percentage}"
-                                        styleClass="form-control" />
+                                        styleClass="form-control form-control-compact"
+                                        style="&#45;&#45;form-control-compact-width: 4em"
+                                        pt:data-submit-on-enter="changePercentage" />
                                     <span class="align-self-center">
                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
                                             <f:param value="#{NavigationForm.workflowPlugin.numberOfImagesToDisplay}" />
@@ -141,14 +138,11 @@
                                     </span>
                                     <button
                                         jsf:id="changePercentage"
-                                        class="btn"
+                                        class="visually-hidden"
                                         jsf:rel="tooltip"
                                         jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
-                                        title="#{msgs.filterAnwenden}"
-                                        data-bs-toggle="tooltip">
-                                        <span
-                                            class="fa fa-check"
-                                            aria-hidden="true" />
+                                        >
+                                        #{msgs.filterAnwenden}
                                     </button>
                                 </section:header-actions>
                             </section:header>
@@ -198,7 +192,7 @@
                                                         </div>
                                                         <div class="col-6">
                                                             <div
-                                                                class="thumbnails"
+                                                                class="thumbnails p-3"
                                                                 dir="auto"
                                                                 style="&#45;&#45;thumb-size: #{NavigationForm.workflowPlugin.thumbnailSize + 2}px;">
                                                                 <ui:repeat
@@ -333,13 +327,15 @@
 
                                     <ui:fragment rendered="#{NavigationForm.workflowPlugin.displayErrorReport}">
                                         <h:outputText value="#{msgs.plugin_workflow_batches_errorFound}" />
-                                        <div class="border d-flex flex-column gap-2">
-                                            <ui:repeat
-                                                var="error"
-                                                value="#{NavigationForm.workflowPlugin.errorMessage}">
-                                                <h:outputText value="#{error.one}: #{error.two}" />
-                                                <br />
-                                            </ui:repeat>
+                                        <div class="border-start border-top border-end">
+                                            <dl:list>
+                                                <ui:repeat
+                                                    var="error"
+                                                    value="#{NavigationForm.workflowPlugin.errorMessage}">
+                                                    <dl:term>#{error.one}</dl:term>
+                                                    <dl:description>#{error.two}</dl:description>
+                                                </ui:repeat>
+                                            </dl:list>
                                         </div>
 
                                     </ui:fragment>
@@ -348,12 +344,8 @@
                                     <button
                                         jsf:id="cancel"
                                         class="btn btn-blank"
-                                        jsf:rel="tooltip"
-                                        title="#{msgs.cancel}">
-                                        <span
-                                            class="fa fa-ban"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.cancel} </span>
+                                        jsf:rel="tooltip">
+                                        #{msgs.cancel}
                                         <f:setPropertyActionListener
                                             target="#{NavigationForm.workflowPlugin.displayType}"
                                             value="overview" />
@@ -365,22 +357,20 @@
                                         jsf:id="finishBatch"
                                         class="btn btn-success"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.finishBatch}"
-                                        title="go">
+                                        jsf:action="#{NavigationForm.workflowPlugin.finishBatch}">
                                         <span
                                             class="fa fa-check"
                                             aria-hidden="true" />
                                         <span> #{msgs.plugin_workflow_batches_finish} </span>
                                     </button>
 
-  <!-- download report button -->
+                                    <!-- download report button -->
                                     <button
                                         jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
                                         jsf:id="downloadCsv"
                                         class="btn btn-blank"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}"
-                                        title="go">
+                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
                                         <span
                                             class="fa fa-download"
                                             aria-hidden="true" />
@@ -393,8 +383,7 @@
                                         jsf:id="errorBatch"
                                         class="btn btn-hot"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.errorBatch}"
-                                        title="go">
+                                        jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
                                         <span
                                             class="fa fa-exclamation-triangle"
                                             aria-hidden="true" />
@@ -436,7 +425,7 @@
         <h:panelGroup
             layout="block"
             id="imageBoxContent"
-            class="modal-dialog modal-fullscreen p-5"
+            class="modal-dialog modal-xl p-5"
             role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
