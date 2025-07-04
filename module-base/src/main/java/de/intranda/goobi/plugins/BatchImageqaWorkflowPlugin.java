@@ -453,7 +453,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             batchName = "report_" + currentBatch.getBatch().getBatchId();
         }
         batchName = batchName.replaceAll("\\W", "_");
-        String reportName = currentBatch.getBatch().getBatchName() + ".csv";
+        String reportName = batchName + ".csv";
         csv.append("Vorgang, Fehler");
         csv.append("\n");
         for (DisplayProcess dp : displayProcesses) {
