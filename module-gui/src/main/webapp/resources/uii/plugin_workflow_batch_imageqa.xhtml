@@ -1,41 +1,458 @@
 <ui:composition
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-	xmlns:composite="http://xmlns.jcp.org/jsf/composite"
-	xmlns:h="http://xmlns.jcp.org/jsf/html"
-	xmlns:f="http://xmlns.jcp.org/jsf/core"
-	xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:p="http://primefaces.org/ui"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:form="http://goobi.io/form"
     xmlns:section="http://goobi.io/section"
->
-	<h:panelGroup>
-		<div class="row">
-			<div class="col-sm-12">
-				<h:panelGroup
-					rendered="#{!LoginForm.hasRole('Plugin_workflow_batch_imageqa')}"
-					styleClass="color-box bg-hot text-white d-flex flex-row p-3">
-					<h:outputText
-						styleClass="fw-bold"
-						value="#{msgs.plugin_administration_missingPermission} Plugin_workflow_batch_imageqa" />
-				</h:panelGroup>
-				
-				<ui:fragment
-					rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa')}">
-					<section:section type="neutral">
-						<section:header
-							icon="plug"
-							title="#{msgs[NavigationForm.workflowPlugin.title]}" />
-						<section:body padding="true">
-							<div class="row">
-								<h:form id="actionForm">
-									hello workflow plugin: #{NavigationForm.workflowPlugin.value}
-								</h:form>
-							</div>
-						</section:body>
-					</section:section>
-				</ui:fragment>
-			</div>
-		</div>
-	</h:panelGroup>
+    xmlns:dl="http://goobi.io/dl">
+    <h:panelGroup>
+        <div class="row">
+            <div class="col-sm-12">
+                <h:panelGroup
+                    rendered="#{!LoginForm.hasRole('Plugin_workflow_batch_imageqa')}"
+                    styleClass="color-box bg-hot text-white d-flex flex-row p-3">
+                    <h:outputText
+                        styleClass="fw-bold"
+                        value="#{msgs.plugin_administration_missingPermission} Plugin_workflow_batch_imageqa" />
+                </h:panelGroup>
+
+                <ui:fragment
+                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='overview'}">
+                    <section:section type="primary">
+                        <section:header
+                            icon="archive"
+                            title="#{msgs.intranda_workflow_batch_selection}" />
+                        <section:body padding="false">
+                            <h:form
+                                id="batches"
+                                prependId="false"
+                                styleClass="table--scrollx">
+
+                                <div class="gw-table">
+
+                                    <div class="gw-table__wrapper">
+                                        <table
+                                            role="grid"
+                                            id="complexTableExample"
+                                            class="table table-bordered table-hover table-resizable">
+
+                                            <!-- COLUMNHEADER -->
+                                            <thead>
+                                                <tr role="row">
+                                                    <intranda:columnheader
+                                                        name="name"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_time}" />
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfProcesses}" />
+                                                    <intranda:columnheader
+                                                        name="location"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPages}" />
+                                                    <intranda:columnheader
+                                                        value="#{msgs.auswahl}"
+                                                        sortable="false"
+                                                        addClass="gw-table-fixed__actions" />
+                                                </tr>
+                                            </thead>
+                                            <!-- // COLUMNHEADER -->
+
+                                            <!-- CONTENT ROWS -->
+                                            <ui:repeat
+                                                var="item"
+                                                value="#{NavigationForm.workflowPlugin.allBatches}"
+                                                varStatus="status">
+                                                <tr role="row">
+                                                    <td>
+                                                        <h:outputText
+                                                            value="#{item.batch.batchName}"
+                                                            title="#{item.batch.batchName}" />
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="#{item.numberOfProcesses}" />
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="#{item.numberOfPages}" />
+                                                    </td>
+                                                    <td>
+                                                        <div class="gw-table__actions__container">
+                                                            <button
+                                                                jsf:id="edit"
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                                                title="#{msgs.plugin_workflow_batches_open}">
+                                                                <span
+                                                                    class="fa fa-pencil"
+                                                                    aria-hidden="true" />
+
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                    value="batchEdit" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </ui:repeat>
+                                        </table>
+                                    </div>
+                                </div>
+                            </h:form>
+
+
+                        </section:body>
+                    </section:section>
+                </ui:fragment>
+
+
+
+                <ui:fragment
+                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='batchEdit'}">
+                    <div class="flow">
+                        <section:section type="neutral">
+                            <section:header
+                                icon="list"
+                                title="#{msgs.plugin_workflow_batches_delivery} #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
+                                <section:header-actions form="true">
+                                    <h:inputText
+                                        value="#{NavigationForm.workflowPlugin.percentage}"
+                                        styleClass="form-control form-control-compact"
+                                        style="&#45;&#45;form-control-compact-width: 4em"
+                                        pt:data-submit-on-enter="changePercentage" />
+                                    <span class="align-self-center">
+                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
+                                            <f:param value="#{NavigationForm.workflowPlugin.numberOfImagesToDisplay}" />
+                                            <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPages}" />
+                                        </h:outputFormat>
+                                    </span>
+                                    <button
+                                        jsf:id="changePercentage"
+                                        class="visually-hidden"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                        >
+                                        #{msgs.filterAnwenden}
+                                    </button>
+                                </section:header-actions>
+                            </section:header>
+                            <section:body padding="true">
+                                <div class="flow">
+                                    <ui:repeat
+                                        var="displayProcess"
+                                        value="#{NavigationForm.workflowPlugin.displayProcesses}">
+                                        <h:form id="processform">
+                                            <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
+                                                <section:header title="#{displayProcess.title}">
+                                                    <button
+                                                        class="btn d-flex align-items-center 'btn--title-action-neutral'"
+                                                        title="#{msgs.plugin_workflow_batches_error}"
+                                                        jsf:rel="tooltip"
+                                                        jsf:id="toggle-invalid"
+                                                        data-renderimage="true"
+                                                        data-bs-toggle="tooltip">
+                                                        <span
+                                                            class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
+                                                            aria-hidden="true" />
+                                                        <f:ajax
+                                                            render="@form reportForm"
+                                                            execute="@form" />
+                                                        <f:setPropertyActionListener
+                                                            target="#{displayProcess.invalid}"
+                                                            value="#{not displayProcess.invalid}" />
+                                                    </button>
+                                                </section:header>
+                                                <section:body padding="false">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="col-6 border-end#{displayProcess.invalid ? ' border-danger' : ''}">
+                                                            <ui:repeat
+                                                                var="metadata"
+                                                                value="#{displayProcess.metadata}">
+                                                                <form:field
+                                                                    label="#{msgs['process_grid_'.concat(metadata.one)]}"
+                                                                    required="false"
+                                                                    help="">
+                                                                    <h:outputText
+                                                                        id="lastname"
+                                                                        styleClass="form-control"
+                                                                        value="#{metadata.two}" />
+                                                                </form:field>
+
+                                                            </ui:repeat>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div
+                                                                class="thumbnails p-3"
+                                                                dir="auto"
+                                                                style="&#45;&#45;thumb-size: #{NavigationForm.workflowPlugin.thumbnailSize + 2}px;">
+                                                                <ui:repeat
+                                                                    var="image"
+                                                                    value="#{displayProcess.allImages}"
+                                                                    varStatus="status">
+                                                                    <div class="thumbnails__thumb">
+                                                                        <!-- THUMBNAIL DISPLAY -->
+                                                                        <button
+                                                                            jsf:id="imageClick"
+                                                                            class="border-0 btn"
+                                                                            title="#{image.imageName}"
+                                                                            jsf:onclick="$('#imageBox').modal('show');">
+                                                                            <canvas
+                                                                                class="thumb-canvas"
+                                                                                data-image_small="#{image.thumbnailUrl}"
+                                                                                data-image_large="#{image.largeThumbnailUrl}"
+                                                                                title="#{image.tooltip}"
+                                                                                id="thumbnail-#{status.index}"></canvas>
+                                                                            <f:ajax
+                                                                                execute="@this"
+                                                                                render="imageBoxContent" />
+                                                                            <f:setPropertyActionListener
+                                                                                value="#{image}"
+                                                                                target="#{NavigationForm.workflowPlugin.currentImage}" />
+
+                                                                        </button>
+                                                                    </div>
+                                                                </ui:repeat>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <h:panelGroup
+                                                        layout="block"
+                                                        styleClass="w-100 border-top border-danger"
+                                                        rendered="#{displayProcess.invalid}">
+                                                        <form:field
+                                                            label="#{msgs.plugin_workflow_batches_errorDescription}"
+                                                            required="false"
+                                                            help="">
+                                                            <div class="grow-wrap">
+                                                                <h:inputTextarea
+                                                                    id="errorDescription"
+                                                                    styleClass="form-control"
+                                                                    value="#{displayProcess.errorMessage}">
+                                                                    <f:ajax
+                                                                        execute="@this"
+                                                                        render="@this :reportForm" />
+                                                                </h:inputTextarea>
+                                                            </div>
+                                                        </form:field>
+
+                                                    </h:panelGroup>
+                                                </section:body>
+                                            </section:section>
+
+                                        </h:form>
+                                    </ui:repeat>
+                                </div>
+
+                            </section:body>
+
+                            <section:footer>
+
+
+                                <h:panelGroup rendered="#{NavigationForm.workflowPlugin.displayPaginator}">
+                                    <h:form id="pagination">
+                                        <div class="dataTables__paginator">
+
+                                            <button
+                                                class="btn btn-blank"
+                                                aria-label="#{msgs.firstPage}"
+                                                jsf:action="#{NavigationForm.workflowPlugin.moveToFirstPage}"
+                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
+                                                jsf:id="navfirst">
+                                                <span class="fa fa-angle-double-left" />
+                                                <f:ajax render="@all" />
+                                            </button>
+                                            <button
+                                                class="btn btn-primary-400"
+                                                jsf:action="#{NavigationForm.workflowPlugin.moveToPreviousPage}"
+                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
+                                                jsf:id="navprev">
+                                                <span class="fa fa-angle-left" />
+                                                <h:outputText value=" #{msgs.pagePrevious}" />
+                                                <f:ajax render="@all" />
+                                            </button>
+
+                                            <div class="dataTables__paginator__page-count">
+                                                <h:outputText
+                                                    id="txtMoveTo1"
+                                                    value="#{msgs.seite} #{NavigationForm.workflowPlugin.pageNo +1} #{msgs.von} #{NavigationForm.workflowPlugin.lastPageNumber +1}" />
+                                            </div>
+
+                                            <button
+                                                class="btn btn-primary-400"
+                                                jsf:action="#{NavigationForm.workflowPlugin.moveToNextPage}"
+                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
+                                                jsf:id="navnext">
+                                                <h:outputText value="#{msgs.pageNext} " />
+                                                <span class="fa fa-angle-right" />
+                                                <f:ajax render="@all" />
+                                            </button>
+                                            <button
+                                                class="btn btn-blank"
+                                                aria-label="#{msgs.lastPage}"
+                                                jsf:action="#{NavigationForm.workflowPlugin.moveToLastPage}"
+                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
+                                                jsf:id="navlast">
+                                                <span class="fa fa-angle-double-right" />
+                                                <f:ajax render="@all" />
+                                            </button>
+
+                                        </div>
+                                    </h:form>
+                                </h:panelGroup>
+
+                            </section:footer>
+                        </section:section>
+
+                        <section:section type="action">
+                            <h:form id="reportForm">
+                                <section:header
+                                    icon=""
+                                    title="#{msgs.intranda_workflow_batch_result}" />
+                                <section:body padding="true">
+
+                                    <h:outputText
+                                        rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
+                                        value="#{msgs.plugin_workflow_batches_noError}" />
+
+                                    <ui:fragment rendered="#{NavigationForm.workflowPlugin.displayErrorReport}">
+                                        <h:outputText value="#{msgs.plugin_workflow_batches_errorFound}" />
+                                        <div class="border-start border-top border-end">
+                                            <dl:list>
+                                                <ui:repeat
+                                                    var="error"
+                                                    value="#{NavigationForm.workflowPlugin.errorMessage}">
+                                                    <dl:term>#{error.one}</dl:term>
+                                                    <dl:description>#{error.two}</dl:description>
+                                                </ui:repeat>
+                                            </dl:list>
+                                        </div>
+
+                                    </ui:fragment>
+                                </section:body>
+                                <section:footer>
+                                    <button
+                                        jsf:id="cancel"
+                                        class="btn btn-blank"
+                                        jsf:rel="tooltip">
+                                        #{msgs.cancel}
+                                        <f:setPropertyActionListener
+                                            target="#{NavigationForm.workflowPlugin.displayType}"
+                                            value="overview" />
+                                    </button>
+
+                                    <!-- success button -->
+                                    <button
+                                        jsf:rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
+                                        jsf:id="finishBatch"
+                                        class="btn btn-success"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.finishBatch}">
+                                        <span
+                                            class="fa fa-check"
+                                            aria-hidden="true" />
+                                        <span> #{msgs.plugin_workflow_batches_finish} </span>
+                                    </button>
+
+                                    <!-- download report button -->
+                                    <button
+                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
+                                        jsf:id="downloadCsv"
+                                        class="btn btn-blank"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
+                                        <span
+                                            class="fa fa-download"
+                                            aria-hidden="true" />
+                                        <span> #{msgs.downloadCsv} </span>
+                                    </button>
+
+                                    <!-- error button -->
+                                    <button
+                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
+                                        jsf:id="errorBatch"
+                                        class="btn btn-hot"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
+                                        <span
+                                            class="fa fa-exclamation-triangle"
+                                            aria-hidden="true" />
+                                        <span> #{msgs.plugin_workflow_batches_abort} </span>
+                                    </button>
+
+                                </section:footer>
+                            </h:form>
+                        </section:section>
+                    </div>
+
+                </ui:fragment>
+
+                <script>
+																	faces.ajax
+																			.addOnEvent(function(
+																					data) {
+																				switch (data.status) {
+																				case 'success':
+																					loadImages();
+																					break;
+																				}
+																			})
+																</script>
+
+            </div>
+        </div>
+    </h:panelGroup>
+
+
+    <!-- modal for large image -->
+    <h:panelGroup
+        styleClass="modal"
+        layout="block"
+        id="imageBox"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="imageBoxTitle">
+        <h:panelGroup
+            layout="block"
+            id="imageBoxContent"
+            class="modal-dialog modal-xl p-5"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h4
+                        class="modal-title"
+                        id="imageBoxTitle">
+                        <h:outputText value="#{NavigationForm.workflowPlugin.currentImage.imageName}" />
+                    </h4>
+                    <button
+                        type="button"
+                        class="btn text-white"
+                        title="#{msgs.abbrechen}"
+                        data-bs-dismiss="modal"
+                        data-toggle="tooltip">
+                        <span
+                            class="fa fa-times"
+                            aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img
+                        data-bs-dismiss="modal"
+                        src="#{NavigationForm.workflowPlugin.currentImage.largeThumbnailUrl}"
+                        style="width: 100%" />
+                </div>
+            </div>
+        </h:panelGroup>
+    </h:panelGroup>
+
 </ui:composition>

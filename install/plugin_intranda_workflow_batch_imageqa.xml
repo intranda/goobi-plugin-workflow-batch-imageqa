@@ -1,6 +1,34 @@
 <config_plugin>
-	
-	<!-- configuration item as sample -->
-	<value>sample value from config</value>
-	
+
+    <!-- step name -->
+    <qaTaskName>Image QA</qaTaskName>
+
+    <!--step to open in case of errors -->
+    <errorStepName>Image capturing</errorStepName>
+
+    <!-- percentage of images to display -->
+    <percentage>25</percentage>
+    <!-- number of processes per page -->
+    <numberOfProcessesPerPage>2</numberOfProcessesPerPage>
+    <!-- thumbnail size in pixel -->
+    <thumbnailSize>200</thumbnailSize>
+
+
+
+    <!--display as box title -->
+    <titleField>TitleDocMain</titleField>
+
+
+    <!-- metadata list-->
+    <metadata>CurrentNo</metadata>
+    <metadata>CatalogIDDigital</metadata>
+    <metadata>shelfmarksource</metadata>
+    <metadata>PlaceOfPublication</metadata>
+    <metadata>PublicationYear</metadata>
+    <metadata>PublisherName</metadata>
+    <metadata>singleDigCollection</metadata>
+
+    <!-- images are always displayed, if one of the configured metadata fields exists -->
+    <metadataToCheck>DocLanguages</metadataToCheck>
+    <metadataToCheck>PublicationYear</metadataToCheck>
 </config_plugin>
