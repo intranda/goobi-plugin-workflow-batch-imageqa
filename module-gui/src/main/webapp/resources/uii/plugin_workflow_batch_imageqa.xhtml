@@ -154,6 +154,45 @@
                                         <h:form id="processform">
                                             <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
                                                 <section:header title="#{displayProcess.title}">
+
+                                                    <h:commandLink
+                                                        onclick="sessionStorage.removeItem('columnWidths');"
+                                                        action="#{Metadaten.XMLlesen}"
+                                                        id="action15"
+                                                        class="btn btn-blank d-flex align-items-center 'btn--title-action-neutral'" 
+                                                        title="#{msgs.metadatenBearbeiten}"
+                                                        pt:aria-label="#{msgs.metadatenBearbeiten}"
+                                                        rel="tooltip">
+                                                        <span class="fa fa-book " />
+                                                        <f:passThroughAttribute
+                                                            name="data-toggle"
+                                                            value="tooltip" />
+                                                        <f:param
+                                                            name="ProzesseID"
+                                                            value="#{displayProcess.process.id}" />
+                                                        <f:param
+                                                            name="BenutzerID"
+                                                            value="#{LoginForm.myBenutzer.id}" />
+                                                        <f:param
+                                                            name="zurueck"
+                                                            value="workflow" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc1}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc2}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc3}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc4}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc5}" />
+                                                    </h:commandLink>
+
                                                     <button
                                                         class="btn d-flex align-items-center 'btn--title-action-neutral'"
                                                         title="#{msgs.plugin_workflow_batches_error}"
