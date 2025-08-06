@@ -379,6 +379,9 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                         if (logical.getAllMetadataGroups() != null) {
                             for (MetadataGroup mg : logical.getAllMetadataGroups()) {
                                 if (mg.getType().getName().equals(metadataName)) {
+                                    if (!values.isEmpty()) {
+                                        values.append("<br />");
+                                    }
                                     for (Metadata md : mg.getMetadataList()) {
                                         if (StringUtils.isNotBlank(md.getValue())) {
                                             if (!values.isEmpty()) {
