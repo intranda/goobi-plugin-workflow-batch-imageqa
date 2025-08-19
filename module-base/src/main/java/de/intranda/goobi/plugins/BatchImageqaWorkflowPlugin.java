@@ -378,34 +378,34 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                         // third case: group
                         if (logical.getAllMetadataGroups() != null) {
                             for (MetadataGroup mg : logical.getAllMetadataGroups()) {
-                                if (!values.isEmpty()) {
-                                    values.append("<br />");
-                                }
-
-                                for (Metadata md : mg.getMetadataList()) {
-                                    if (StringUtils.isNotBlank(md.getValue())) {
-                                        if (!values.isEmpty()) {
-                                            values.append("<br />");
-                                        }
-                                        // TODO from locale
-                                        values.append(md.getType().getLanguage("de"));
-                                        values.append(": ").append(md.getValue());
-                                    }
-
-                                }
-                                for (MetadataGroup subGroup : mg.getAllMetadataGroups()) {
-                                    StringBuilder subValues = new StringBuilder();
-                                    for (Metadata md : subGroup.getMetadataList()) {
-                                        if (StringUtils.isNotBlank(md.getValue())) {
-                                            subValues.append("<br />");
-                                            subValues.append(md.getType().getLanguage("de"));
-                                            subValues.append(": ").append(md.getValue());
-                                        }
-                                    }
-
-                                    if (!subValues.isEmpty()) {
+                                if (mg.getType().getName().equals(metadataName)) {
+                                    if (!values.isEmpty()) {
                                         values.append("<br />");
-                                        values.append(subValues.toString());
+                                    }
+                                    for (Metadata md : mg.getMetadataList()) {
+                                        if (StringUtils.isNotBlank(md.getValue())) {
+                                            if (!values.isEmpty()) {
+                                                values.append("<br />");
+                                            }
+                                            // TODO from locale
+                                            values.append(md.getType().getLanguage("de"));
+                                            values.append(": ").append(md.getValue());
+                                        }
+                                    }
+                                    for (MetadataGroup subGroup : mg.getAllMetadataGroups()) {
+                                        StringBuilder subValues = new StringBuilder();
+                                        for (Metadata md : subGroup.getMetadataList()) {
+                                            if (StringUtils.isNotBlank(md.getValue())) {
+                                                subValues.append("<br />");
+                                                subValues.append(md.getType().getLanguage("de"));
+                                                subValues.append(": ").append(md.getValue());
+                                            }
+                                        }
+
+                                        if (!subValues.isEmpty()) {
+                                            values.append("<br />");
+                                            values.append(subValues.toString());
+                                        }
                                     }
                                 }
                             }
