@@ -284,7 +284,11 @@
                                                                                 id="thumbnail-#{status.index}"></canvas>
                                                                             <f:ajax
                                                                                 execute="@this"
-                                                                                render="imageBoxContent" />
+                                                                                render="imageBoxContent"
+                                                                                onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#imageBox').modal('show');
+                                                                                }}"
+                                                                                 />
                                                                             <f:setPropertyActionListener
                                                                                 value="#{image}"
                                                                                 target="#{NavigationForm.workflowPlugin.currentImage}" />
