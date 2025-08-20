@@ -140,11 +140,19 @@
                                     </span>
                                     <button
                                         jsf:id="changePercentage"
-                                        class="visually-hidden"
+                                        class="btn btn--title-action"
                                         jsf:rel="tooltip"
                                         jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                        title="#{msgs.filterAnwenden}"
+                                        data-bs-toggle="tooltip"
                                         >
-                                        #{msgs.filterAnwenden}
+                                        <span
+                                            aria-hidden="true"
+                                            class="fa fa-refresh">
+                                        </span>
+                                        <span class="visually-hidden">
+                                            #{msgs.filterAnwenden}
+                                        </span>
                                     </button>
                                 </section:header-actions>
                             </section:header>
