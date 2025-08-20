@@ -152,7 +152,8 @@
                                 <div class="flow">
                                     <ui:repeat
                                         var="displayProcess"
-                                        value="#{NavigationForm.workflowPlugin.displayProcesses}">
+                                        value="#{NavigationForm.workflowPlugin.displayProcesses}"
+                                        varStatus="process">
                                         <h:form id="processform">
                                             <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
                                                 <section:header title="#{displayProcess.title}">
@@ -162,7 +163,7 @@
 	                                                        onclick="sessionStorage.removeItem('columnWidths');"
 	                                                        action="#{Metadaten.XMLlesen}"
 	                                                        id="action15"
-	                                                        class="btn d-flex align-items-center border" 
+	                                                        class="btn d-flex align-items-center border"
 	                                                        title="#{msgs.metadatenBearbeiten}"
 	                                                        pt:aria-label="#{msgs.metadatenBearbeiten}"
 	                                                        rel="tooltip">
@@ -195,7 +196,7 @@
 	                                                            value="#{null}"
 	                                                            target="#{NavigationForm.uiStatus.mets_toc5}" />
 	                                                    </h:commandLink>
-	
+
 	                                                    <button
 	                                                        class="btn border"
 	                                                        title="#{msgs.plugin_workflow_batches_error}"
@@ -214,7 +215,7 @@
 	                                                            value="#{not displayProcess.invalid}" />
 	                                                    </button>
 													</section:header-actions>
-													
+
                                                 </section:header>
                                                 <section:body padding="false">
                                                     <div class="d-flex flex-nowrap">
@@ -229,12 +230,12 @@
                                                                     <h:outputText
                                                                         id="lastname"
                                                                         styleClass="form-control"
-                                                                        value="#{metadata.two}" 
+                                                                        value="#{metadata.two}"
                                                                         escape="false" />
                                                                 </form:field>
 
                                                             </ui:repeat>
-                                                            
+
                                                             <h:panelGroup
 		                                                        layout="block"
 		                                                        styleClass="w-100 border-top border-danger"
@@ -257,7 +258,7 @@
 		                                                                <util:icon icon="alert-triangle" filled="true" styleClass="text-hot"/>
 		                                                            </div>
 		                                                        </form:field>
-		
+
 		                                                    </h:panelGroup>
                                                         </div>
                                                         <div class="col-6">
@@ -274,14 +275,13 @@
                                                                         <button
                                                                             jsf:id="imageClick"
                                                                             class="border-0 btn"
-                                                                            title="#{image.imageName}"
-                                                                            jsf:onclick="$('#imageBox').modal('show');">
+                                                                            title="#{image.imageName}">
                                                                             <canvas
                                                                                 class="thumb-canvas"
                                                                                 data-image_small="#{image.thumbnailUrl}"
                                                                                 data-image_large="#{image.largeThumbnailUrl}"
                                                                                 title="#{image.tooltip}"
-                                                                                id="thumbnail-#{status.index}"></canvas>
+                                                                                id="thumbnail-#{process.index}-#{status.index}"></canvas>
                                                                             <f:ajax
                                                                                 execute="@this"
                                                                                 render="imageBoxContent"
@@ -300,7 +300,7 @@
 
                                                         </div>
                                                     </div>
-                                                    
+
                                                 </section:body>
                                             </section:section>
 
