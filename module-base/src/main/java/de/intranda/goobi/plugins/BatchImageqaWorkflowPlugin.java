@@ -173,7 +173,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     @Override
     public void finalize() {
-        finishBatch();
+
     }
 
     public void finishBatch() {
