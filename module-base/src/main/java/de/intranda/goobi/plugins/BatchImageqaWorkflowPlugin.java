@@ -38,10 +38,10 @@ import de.sub.goobi.helper.enums.PropertyType;
 import de.sub.goobi.helper.enums.StepEditType;
 import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.helper.exceptions.DAOException;
+import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.metadaten.Image;
 import de.sub.goobi.persistence.managers.HistoryManager;
 import de.sub.goobi.persistence.managers.JournalManager;
-import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
 import de.sub.goobi.persistence.managers.StepManager;
@@ -52,6 +52,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import ugh.dl.DocStruct;
+import ugh.dl.Fileformat;
+import ugh.dl.Metadata;
+import ugh.dl.MetadataGroup;
+import ugh.dl.Person;
+import ugh.exceptions.UGHException;
 
 @PluginImplementation
 @Log4j2
@@ -167,7 +173,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     @Override
     public void finalize() {
-        finishBatch();
+
     }
 
     public void finishBatch() {
@@ -317,41 +323,111 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             for (String processId : processDisplayList) {
                 Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
 
-                List<StringPair> processMetadata = MetadataManager.getMetadata(process.getId());
-
                 DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
                 displayProcesses.add(dp);
 
                 // use process title as default, if no field is configured or value is missing
                 String title = process.getTitel();
-                for (StringPair sp : processMetadata) {
-                    if (sp.getOne().equals(titleField)) {
-                        title = sp.getTwo();
+                List<StringPair> displayFields = new ArrayList<>();
+                try {
+                    Fileformat ff = process.readMetadataFile();
+                    DocStruct logical = ff.getDigitalDocument().getLogicalDocStruct();
+                    if (logical.getType().isAnchor()) {
+                        logical = logical.getAllChildren().get(0);
                     }
+                    for (Metadata md : logical.getAllMetadata()) {
+                        if (md.getType().getName().equals(titleField)) {
+                            title = md.getValue();
+                        }
+                    }
+                    // get order and diplayable fields from configuration
+                    for (String metadataName : metadataConfiguration) {
+                        StringBuilder values = new StringBuilder();
+                        // first case: metadata
+                        if (logical.getAllMetadata() != null) {
+                            for (Metadata md : logical.getAllMetadata()) {
+                                if (md.getType().getName().equals(metadataName)) {
+                                    if (!values.isEmpty()) {
+                                        values.append("; ");
+                                    }
+                                    values.append(md.getValue());
+                                }
+                            }
+                        }
+
+                        // second case: person
+                        if (logical.getAllPersons() != null) {
+                            for (Person p : logical.getAllPersons()) {
+                                if (p.getType().getName().equals(metadataName)) {
+                                    if (!values.isEmpty()) {
+                                        values.append("; ");
+                                    }
+                                    if (StringUtils.isNotBlank(p.getLastname())) {
+                                        values.append(p.getLastname());
+                                    }
+                                    if (StringUtils.isNotBlank(p.getFirstname())) {
+                                        if (StringUtils.isNotBlank(p.getLastname())) {
+                                            values.append(", ");
+                                        }
+                                        values.append(p.getFirstname());
+                                    }
+                                }
+                            }
+                        }
+
+                        // third case: group
+                        if (logical.getAllMetadataGroups() != null) {
+                            for (MetadataGroup mg : logical.getAllMetadataGroups()) {
+                                if (mg.getType().getName().equals(metadataName)) {
+                                    if (!values.isEmpty()) {
+                                        values.append("<br />");
+                                    }
+                                    for (Metadata md : mg.getMetadataList()) {
+                                        if (StringUtils.isNotBlank(md.getValue())) {
+                                            if (!values.isEmpty()) {
+                                                values.append("<br />");
+                                            }
+                                            // TODO from locale
+                                            values.append(md.getType().getLanguage("de"));
+                                            values.append(": ").append(md.getValue());
+                                        }
+                                    }
+                                    for (MetadataGroup subGroup : mg.getAllMetadataGroups()) {
+                                        StringBuilder subValues = new StringBuilder();
+                                        for (Metadata md : subGroup.getMetadataList()) {
+                                            if (StringUtils.isNotBlank(md.getValue())) {
+                                                subValues.append("<br />");
+                                                subValues.append(md.getType().getLanguage("de"));
+                                                subValues.append(": ").append(md.getValue());
+                                            }
+                                        }
+
+                                        if (!subValues.isEmpty()) {
+                                            values.append("<br />");
+                                            values.append(subValues.toString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!values.isEmpty()) {
+                            StringPair field = new StringPair(metadataName, values.toString());
+                            displayFields.add(field);
+                        }
+                    }
+
+                } catch (UGHException | IOException | SwapException e) {
+                    log.error(e);
                 }
                 dp.setTitle(title);
 
-                // get order and diplayable fields from configuration
-                List<StringPair> displayFields = new ArrayList<>();
-                for (String metadataName : metadataConfiguration) {
-                    StringBuilder values = new StringBuilder();
-
-                    for (StringPair sp : processMetadata) {
-                        if (sp.getOne().equals(metadataName)) {
-                            if (!values.isEmpty()) {
-                                values.append("; ");
-                            }
-                            values.append(sp.getTwo());
-                        }
-                    }
-                    StringPair field = new StringPair(metadataName, values.toString());
-                    displayFields.add(field);
-                }
-
                 dp.setMetadata(displayFields);
             }
+
         }
         return displayProcesses;
+
     }
 
     /*

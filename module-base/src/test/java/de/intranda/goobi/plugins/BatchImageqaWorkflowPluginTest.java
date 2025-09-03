@@ -36,6 +36,9 @@ import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import ugh.dl.Fileformat;
+import ugh.dl.Prefs;
+import ugh.fileformats.mets.MetsMods;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
@@ -78,6 +81,7 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(ConfigPlugins.getPluginConfig(EasyMock.anyString())).andReturn(getConfig()).anyTimes();
 
         PowerMock.mockStatic(ProcessManager.class);
+        // TODO read mets file
 
         // search for batches
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString()))
@@ -120,6 +124,12 @@ public class BatchImageqaWorkflowPluginTest {
 
         EasyMock.expect(ProcessManager.getProcessById(EasyMock.anyInt())).andReturn(proc).anyTimes();
 
+        Prefs prefs = new Prefs();
+        prefs.loadPrefs(resourcesFolder + "ruleset.xml");
+        Fileformat fileformat = new MetsMods(prefs);
+        fileformat.read(resourcesFolder + "/meta.xml");
+
+        EasyMock.expect(proc.readMetadataFile()).andReturn(fileformat).anyTimes();
         PowerMock.mockStatic(MetadataManager.class);
         List<StringPair> metadataList = new ArrayList<>();
         metadataList.add(new StringPair("TitleDocMain", "label"));
@@ -243,4 +253,5 @@ public class BatchImageqaWorkflowPluginTest {
         assertEquals("title", fixture.getErrorMessage().get(0).getOne());
         assertEquals("error", fixture.getErrorMessage().get(0).getTwo());
     }
+
 }
