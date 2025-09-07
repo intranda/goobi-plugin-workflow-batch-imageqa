@@ -3,6 +3,10 @@ title: Prozentuale Qualitätskontrolle von Lieferungen
 identifier: intranda_workflow_batch_imageqa
 description: Workflow Plugin für die Durchführung einer prozentualen Qualitätskontrolle von Lieferungen
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Workflow Plugin
 ---
 
 ## Einführung
