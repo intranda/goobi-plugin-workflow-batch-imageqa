@@ -55,12 +55,14 @@ public class QaBatchTest {
         row[0] = "1";
         row[1] = "100";
         row[2] = "0";
+        row[3] = "0";
         data.add(row);
 
         Object[] row2 = new Object[4];
         row2[0] = "2";
         row2[1] = "50";
         row2[2] = "10";
+        row2[3] = "1";
         data.add(row2);
 
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString())).andReturn(data).anyTimes();
