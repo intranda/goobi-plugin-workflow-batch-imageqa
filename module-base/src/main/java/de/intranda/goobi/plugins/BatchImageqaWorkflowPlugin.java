@@ -110,6 +110,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private int pageNo = 0;
     private int numberOfProcessesPerPage = 10;
 
+    @Getter
+    @Setter
+    private DisplayProcess currentProcess;
+
     @Override
     public PluginType getType() {
         return PluginType.Workflow;

@@ -171,6 +171,26 @@
                                                             style="color: var(--bs-green)"
                                                             rendered="#{displayProcess.metadataStep}" />
 
+                                                        <button
+                                                            jsf:id="journalClick"
+                                                            class="btn border"
+                                                            title="#{msgs.plugin_workflow_batches_showLog}">
+                                                            <span
+                                                                class="fa fa-list-ol"
+                                                                aria-hidden="true" />
+                                                            <f:ajax
+                                                                execute="@this"
+                                                                render="journalBox"
+                                                                onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#journalBox').modal('show');
+                                                                                }}" />
+                                                            <f:setPropertyActionListener
+                                                                value="#{displayProcess}"
+                                                                target="#{NavigationForm.workflowPlugin.currentProcess}" />
+
+                                                        </button>
+
+
                                                         <h:commandLink
                                                             onclick="sessionStorage.removeItem('columnWidths');"
                                                             action="#{Metadaten.XMLlesen}"
@@ -483,44 +503,11 @@
 
 
     <!-- modal for large image -->
-    <h:panelGroup
-        styleClass="modal"
-        layout="block"
-        id="imageBox"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="imageBoxTitle">
-        <h:panelGroup
-            layout="block"
-            id="imageBoxContent"
-            class="modal-dialog modal-xl p-5"
-            role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h4
-                        class="modal-title"
-                        id="imageBoxTitle">
-                        <h:outputText value="#{NavigationForm.workflowPlugin.currentImage.imageName}" />
-                    </h4>
-                    <button
-                        type="button"
-                        class="btn text-white"
-                        title="#{msgs.abbrechen}"
-                        data-bs-dismiss="modal"
-                        data-toggle="tooltip">
-                        <span
-                            class="fa fa-times"
-                            aria-hidden="true" />
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <img
-                        data-bs-dismiss="modal"
-                        src="#{NavigationForm.workflowPlugin.currentImage.largeThumbnailUrl}"
-                        style="width: 100%" />
-                </div>
-            </div>
-        </h:panelGroup>
-    </h:panelGroup>
+    <ui:include src="imageModal.xhtml" />
+
+
+    <!-- process journal -->
+    <ui:include src="journalModal.xhtml" />
+
 
 </ui:composition>
