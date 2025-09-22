@@ -92,7 +92,7 @@ public class QaPluginManager {
 
         if (metadataToCheck == null || metadataToCheck.isEmpty()) {
             sb.append(
-                    "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
+                    "SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0' FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
             sb.append(stepTitle);
             sb.append("' WHERE batchID = ");
             sb.append(batchId);
@@ -147,7 +147,8 @@ public class QaPluginManager {
             String processId = objArr[0].toString();
             String pages = objArr[1].toString();
             String prio = objArr[2].toString();
-            processes.add(new ProcessOverview(processId, Integer.parseInt(pages), "10".equals(prio), false));
+            String val = objArr[3].toString();
+            processes.add(new ProcessOverview(processId, Integer.parseInt(pages), "10".equals(prio), "1".equals(val)));
         }
         return processes;
 

@@ -95,7 +95,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Getter
     private int thumbnailSize = 200;
 
-    private List<String> processDisplayList;
+    private List<ProcessOverview> processDisplayList;
     private List<DisplayProcess> displayProcesses = new ArrayList<>();
     private List<String> metadataConfiguration;
     private String titleField;
@@ -307,8 +307,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         for (ProcessOverview entry : currentBatch.getProcesses()) {
             if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfImagesToDisplay < imagesToDisplay)) {
-                String processid = entry.getProcessid();
-                processDisplayList.add(processid);
+                processDisplayList.add(entry);
                 int numberOfPages = entry.getNumberOfPages();
                 numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
             }
@@ -320,10 +319,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     public List<DisplayProcess> generateProcessList() {
 
         if (displayProcesses.isEmpty() && !processDisplayList.isEmpty()) {
-            for (String processId : processDisplayList) {
-                Process process = ProcessManager.getProcessById(Integer.parseInt(processId));
+            for (ProcessOverview entry : processDisplayList) {
+                Process process = ProcessManager.getProcessById(Integer.parseInt(entry.getProcessid()));
 
                 DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
+                dp.setMetadataStep(entry.isMetadataAvailable());
+                dp.setErrorStep(entry.isPriorityStep());
                 displayProcesses.add(dp);
 
                 // use process title as default, if no field is configured or value is missing
