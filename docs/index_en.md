@@ -3,6 +3,10 @@ title: Percentage-based quality control of deliveries
 identifier: intranda_workflow_batch_imageqa
 description: Workflow plugin for performing percentage-based quality control of deliveries
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Workflow Plugin
 ---
 
 ## Introduction

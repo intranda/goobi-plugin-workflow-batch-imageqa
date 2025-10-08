@@ -36,6 +36,9 @@ public class DisplayProcess {
 
     private int thumbnailSize;
 
+    private boolean errorStep;
+    private boolean metadataStep;
+
     public DisplayProcess(Process process, int thumbnailSize) {
         this.process = process;
         this.thumbnailSize = thumbnailSize;
