@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.goobi.beans.Process;
+import org.goobi.beans.ImageList;
 import org.goobi.production.cli.helper.StringPair;
 
 import de.sub.goobi.helper.NIOFileUtils;
@@ -27,7 +28,7 @@ public class DisplayProcess {
     private List<StringPair> metadata;
 
     private String imageFolderName;
-    private List<Image> allImages = new ArrayList<>();
+    private ImageList allImages = new ImageList();
     private Process process;
 
     private boolean invalid;
@@ -55,16 +56,17 @@ public class DisplayProcess {
         Path path = Paths.get(imageFolderName);
         if (StorageProvider.getInstance().isFileExists(path)) {
             List<String> imageNameList = StorageProvider.getInstance().list(imageFolderName, NIOFileUtils.imageOrObjectNameFilter);
+            List<Image> imageList = new ArrayList<>();
             int order = 1;
             for (String imagename : imageNameList) {
                 try {
-                    allImages.add(new Image(process, imageFolderName, imagename, order, thumbnailSize));
+                    imageList.add(new Image(process, imageFolderName, imagename, order, thumbnailSize));
                     order++;
                 } catch (IOException | SwapException | DAOException e) {
                     log.error("Error initializing image " + imagename, e);
                 }
             }
-
+            allImages.setImages(imageList);
         }
 
     }
