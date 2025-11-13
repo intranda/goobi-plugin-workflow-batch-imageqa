@@ -242,8 +242,7 @@
                                                                 class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
                                                                 aria-hidden="true" />
                                                             <f:ajax
-                                                                render="@form reportForm"
-                                                                execute="@form" />
+                                                                render="@form reportForm" />
                                                             <f:setPropertyActionListener
                                                                 target="#{displayProcess.invalid}"
                                                                 value="#{not displayProcess.invalid}" />
