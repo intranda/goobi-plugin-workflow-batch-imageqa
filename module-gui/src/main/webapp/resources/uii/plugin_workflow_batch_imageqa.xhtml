@@ -11,7 +11,9 @@
     xmlns:form="http://goobi.io/form"
     xmlns:section="http://goobi.io/section"
     xmlns:dl="http://goobi.io/dl"
-    xmlns:util="http://goobi.io/util">
+    xmlns:util="http://goobi.io/util"
+    xmlns:image="http://goobi.io/image"
+    >
     <h:panelGroup>
         <div class="row">
             <div class="col-sm-12">
@@ -240,8 +242,7 @@
                                                                 class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
                                                                 aria-hidden="true" />
                                                             <f:ajax
-                                                                render="@form reportForm"
-                                                                execute="@form" />
+                                                                render="@form reportForm" />
                                                             <f:setPropertyActionListener
                                                                 target="#{displayProcess.invalid}"
                                                                 value="#{not displayProcess.invalid}" />
@@ -297,41 +298,9 @@
                                                             </h:panelGroup>
                                                         </div>
                                                         <div class="col-6">
-                                                            <div
-                                                                class="thumbnails p-3"
-                                                                dir="auto"
-                                                                style="&#45;&#45;thumb-size: #{NavigationForm.workflowPlugin.thumbnailSize + 2}px;">
-                                                                <ui:repeat
-                                                                    var="image"
-                                                                    value="#{displayProcess.allImages}"
-                                                                    varStatus="status">
-                                                                    <div class="thumbnails__thumb">
-                                                                        <!-- THUMBNAIL DISPLAY -->
-                                                                        <button
-                                                                            jsf:id="imageClick"
-                                                                            class="border-0 btn"
-                                                                            title="#{image.imageName}">
-                                                                            <canvas
-                                                                                class="thumb-canvas"
-                                                                                data-image_small="#{image.thumbnailUrl}"
-                                                                                data-image_large="#{image.largeThumbnailUrl}"
-                                                                                title="#{image.tooltip}"
-                                                                                id="thumbnail-#{process.index}-#{status.index}"></canvas>
-                                                                            <f:ajax
-                                                                                execute="@this"
-                                                                                render="imageBoxContent"
-                                                                                onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#imageBox').modal('show');
-                                                                                }}" />
-                                                                            <f:setPropertyActionListener
-                                                                                value="#{image}"
-                                                                                target="#{NavigationForm.workflowPlugin.currentImage}" />
-
-                                                                        </button>
-                                                                    </div>
-                                                                </ui:repeat>
-                                                            </div>
-
+                                                            <image:lightbox-gallery
+                                                                images="#{displayProcess.allImages}"
+                                                                thumbnailSize="#{NavigationForm.workflowPlugin.thumbnailSize}" />
                                                         </div>
                                                     </div>
 
