@@ -43,6 +43,7 @@ import de.sub.goobi.metadaten.Image;
 import de.sub.goobi.persistence.managers.HistoryManager;
 import de.sub.goobi.persistence.managers.JournalManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
 import de.sub.goobi.persistence.managers.StepManager;
 import io.goobi.workflow.locking.LockingBean;
@@ -77,9 +78,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private String errorStepName;
     private String openTaskBatchQuery;
 
-    @Getter
-    @Setter
-    private int percentage;
+    private int defaultPercentage;
     @Getter
     private int numberOfImagesToDisplay = 0;
 
@@ -117,6 +116,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     private String username = "";
 
+    @Getter
+    @Setter
+    private GoobiProperty percentageProperty = null;
+
     @Override
     public PluginType getType() {
         return PluginType.Workflow;
@@ -146,7 +149,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         qaStepName = config.getString("/qaTaskName");
         errorStepName = config.getString("/errorStepName");
 
-        percentage = config.getInt("/percentage", 10);
+        defaultPercentage = config.getInt("/percentage", 10);
 
         numberOfProcessesPerPage = config.getInt("/numberOfProcessesPerPage", 10);
         thumbnailSize = config.getInt("/thumbnailSize", 200);
@@ -312,6 +315,25 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void openBatch() {
+        int percentage = 0;
+        // check if batch has a percentage property
+        percentageProperty = null;
+        for (GoobiProperty gp : currentBatch.getBatch().getProperties()) {
+            // if yes, use this value
+            if ("BatchPercentage".equals(gp.getPropertyName())) {
+                percentageProperty = gp;
+            }
+        }
+        // otherwise create new property with default value
+        if (percentageProperty == null) {
+            percentageProperty = new GoobiProperty(PropertyOwnerType.BATCH);
+            percentageProperty.setOwner(currentBatch.getBatch());
+            percentageProperty.setPropertyName("BatchPercentage");
+            percentageProperty.setPropertyValue("" + defaultPercentage);
+            PropertyManager.saveProperty(percentageProperty);
+        }
+
+        percentage = Integer.parseInt(percentageProperty.getPropertyValue());
 
         if (LockingBean.isLockedByAnotherUser("" + currentBatch.getBatch().getBatchId(), username)) {
             Helper.setFehlerMeldung("plugin_workflow_batches_locked");
@@ -582,6 +604,20 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 facesContext.responseComplete();
             }
         } catch (IOException e) {
+        }
+    }
+
+    public int getPercentage() {
+        if (percentageProperty == null) {
+            return 0;
+        }
+        return Integer.parseInt(percentageProperty.getPropertyValue());
+    }
+
+    public void setPercentage(int percentage) {
+        if (percentageProperty != null) {
+            percentageProperty.setPropertyValue("" + percentage);
+            PropertyManager.saveProperty(percentageProperty);
         }
     }
 }

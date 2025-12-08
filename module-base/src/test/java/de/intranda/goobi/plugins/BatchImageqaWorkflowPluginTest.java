@@ -18,6 +18,8 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.goobi.beans.Batch;
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
 import org.junit.Before;
@@ -36,6 +38,7 @@ import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.PropertyManager;
 import ugh.dl.Fileformat;
 import ugh.dl.Prefs;
 import ugh.fileformats.mets.MetsMods;
@@ -43,7 +46,8 @@ import ugh.fileformats.mets.MetsMods;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
-@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class })
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class,
+        PropertyManager.class })
 
 public class BatchImageqaWorkflowPluginTest {
 
@@ -82,7 +86,7 @@ public class BatchImageqaWorkflowPluginTest {
 
         PowerMock.mockStatic(ProcessManager.class);
         // TODO read mets file
-
+        PowerMock.mockStatic(PropertyManager.class);
         // search for batches
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString()))
                 .andAnswer(
@@ -142,13 +146,21 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(ProcessManager.getBatchById(EasyMock.anyInt())).andReturn(b).anyTimes();
         EasyMock.replay(proc);
 
+        List<GoobiProperty> gpl = new ArrayList<>();
+        GoobiProperty gp = new GoobiProperty(PropertyOwnerType.BATCH);
+        gp.setOwner(b);
+        gp.setPropertyName("BatchPercentage");
+        gp.setPropertyValue("20");
+        gpl.add(gp);
+        EasyMock.expect(PropertyManager.getPropertiesForObject(EasyMock.anyInt(), EasyMock.anyObject())).andReturn(gpl).anyTimes();
+
         PowerMock.mockStatic(StorageProvider.class);
         StorageProviderInterface spi = EasyMock.createMock(StorageProviderInterface.class);
         EasyMock.expect(StorageProvider.getInstance()).andReturn(spi).anyTimes();
 
         EasyMock.expect(spi.isFileExists(EasyMock.anyObject())).andReturn(false).anyTimes();
-
-        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class);
+        EasyMock.replay(spi);
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class, PropertyManager.class);
     }
 
     @Test
