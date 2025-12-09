@@ -6,8 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.goobi.beans.Process;
 import org.goobi.beans.ImageList;
+import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
 
 import de.sub.goobi.helper.NIOFileUtils;
@@ -39,6 +39,8 @@ public class DisplayProcess {
 
     private boolean errorStep;
     private boolean metadataStep;
+
+    // TODO status: new, in progress, done, error
 
     public DisplayProcess(Process process, int thumbnailSize) {
         this.process = process;

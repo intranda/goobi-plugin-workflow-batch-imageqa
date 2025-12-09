@@ -13,4 +13,6 @@ public class ProcessOverview {
     private int numberOfPages;
     private boolean priorityStep;
     private boolean metadataAvailable;
+
+    private String processStatus;
 }
