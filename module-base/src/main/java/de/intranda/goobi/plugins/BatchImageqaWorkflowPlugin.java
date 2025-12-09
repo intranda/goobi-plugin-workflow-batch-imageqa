@@ -46,7 +46,6 @@ import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
 import de.sub.goobi.persistence.managers.StepManager;
-import io.goobi.workflow.locking.LockingBean;
 import jakarta.faces.context.FacesContext;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
@@ -211,7 +210,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         allBatches = null;
         displayType = "overview";
 
-        LockingBean.freeObject("" + currentBatch.getBatch().getBatchId());
     }
 
     public void errorBatch() {
@@ -311,7 +309,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         }
         allBatches = null;
         displayType = "overview";
-        LockingBean.freeObject("" + currentBatch.getBatch().getBatchId());
     }
 
     public void openBatch() {
@@ -334,15 +331,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         }
 
         percentage = Integer.parseInt(percentageProperty.getPropertyValue());
-
-        if (LockingBean.isLockedByAnotherUser("" + currentBatch.getBatch().getBatchId(), username)) {
-            Helper.setFehlerMeldung("plugin_workflow_batches_locked");
-
-            displayType = "overview";
-            return;
-        }
-
-        LockingBean.lockObject("" + currentBatch.getBatch().getBatchId(), username);
 
         double totalPages = currentBatch.getNumberOfPages();
         if (percentage < 1) {
@@ -484,7 +472,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
      */
 
     public List<DisplayProcess> getDisplayProcesses() {
-        LockingBean.updateLocking("" + currentBatch.getBatch().getBatchId());
         List<DisplayProcess> subList;
         if (displayProcesses.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
             subList = displayProcesses.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
