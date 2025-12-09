@@ -51,18 +51,20 @@ public class QaBatchTest {
 
         List<Object[]> data = new ArrayList<>();
 
-        Object[] row = new Object[4];
+        Object[] row = new Object[5];
         row[0] = "1";
         row[1] = "100";
         row[2] = "0";
         row[3] = "0";
+        row[4] = "done";
         data.add(row);
 
-        Object[] row2 = new Object[4];
+        Object[] row2 = new Object[5];
         row2[0] = "2";
         row2[1] = "50";
         row2[2] = "10";
         row2[3] = "1";
+        row2[4] = null;
         data.add(row2);
 
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString())).andReturn(data).anyTimes();
