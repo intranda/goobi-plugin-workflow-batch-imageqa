@@ -215,32 +215,6 @@ public class BatchImageqaWorkflowPluginTest {
         assertEquals(1, fixture.getDisplayProcesses().size());
     }
 
-    //    @Test
-    //    public void testPagination() {
-    //        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-    //        fixture.setPercentage(50);
-    //        List<QaBatch> batches = fixture.getAllBatches();
-    //        fixture.setCurrentBatch(batches.get(0));
-    //        fixture.openBatch();
-    //        assertFalse(fixture.isDisplayPaginator());
-    //        assertFalse(fixture.isHasPreviousPages());
-    //        assertTrue(fixture.isLastPage());
-    //        assertFalse(fixture.isHasNextPages());
-    //        assertEquals(0, fixture.getLastPageNumber());
-    //
-    //        fixture.moveToFirstPage();
-    //        assertEquals(0, fixture.getPageNo());
-    //
-    //        fixture.moveToPreviousPage();
-    //        assertEquals(-1, fixture.getPageNo());
-    //
-    //        fixture.moveToNextPage();
-    //        assertEquals(0, fixture.getPageNo());
-    //
-    //        fixture.moveToLastPage();
-    //        assertEquals(0, fixture.getPageNo());
-    //    }
-
     @Test
     public void testDisplayErrorReport() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
