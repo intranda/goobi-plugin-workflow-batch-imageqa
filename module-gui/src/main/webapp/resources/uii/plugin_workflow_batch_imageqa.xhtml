@@ -316,57 +316,7 @@
                             <section:footer>
 
 
-                                <h:panelGroup rendered="#{NavigationForm.workflowPlugin.displayPaginator}">
-                                    <h:form id="pagination">
-                                        <div class="dataTables__paginator">
-
-                                            <button
-                                                class="btn btn-blank"
-                                                aria-label="#{msgs.firstPage}"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToFirstPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
-                                                jsf:id="navfirst">
-                                                <span class="fa fa-angle-double-left" />
-                                                <f:ajax render="@all" />
-                                            </button>
-                                            <button
-                                                class="btn btn-primary-400"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToPreviousPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
-                                                jsf:id="navprev">
-                                                <span class="fa fa-angle-left" />
-                                                <h:outputText value=" #{msgs.pagePrevious}" />
-                                                <f:ajax render="@all" />
-                                            </button>
-
-                                            <div class="dataTables__paginator__page-count">
-                                                <h:outputText
-                                                    id="txtMoveTo1"
-                                                    value="#{msgs.seite} #{NavigationForm.workflowPlugin.pageNo +1} #{msgs.von} #{NavigationForm.workflowPlugin.lastPageNumber +1}" />
-                                            </div>
-
-                                            <button
-                                                class="btn btn-primary-400"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToNextPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
-                                                jsf:id="navnext">
-                                                <h:outputText value="#{msgs.pageNext} " />
-                                                <span class="fa fa-angle-right" />
-                                                <f:ajax render="@all" />
-                                            </button>
-                                            <button
-                                                class="btn btn-blank"
-                                                aria-label="#{msgs.lastPage}"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToLastPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
-                                                jsf:id="navlast">
-                                                <span class="fa fa-angle-double-right" />
-                                                <f:ajax render="@all" />
-                                            </button>
-
-                                        </div>
-                                    </h:form>
-                                </h:panelGroup>
+                                
 
                             </section:footer>
                         </section:section>
@@ -409,6 +359,10 @@
                                     </button>
 
                                     <!-- success button -->
+                                    
+                                    <!-- TODO next button, to display next bunch of processes -->
+                                    
+                                    <!-- TODO: display finalize button only when all images are processed -->
                                     <button
                                         jsf:rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
                                         jsf:id="finishBatch"

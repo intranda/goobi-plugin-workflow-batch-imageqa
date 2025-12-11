@@ -12,7 +12,8 @@
     <numberOfProcessesPerPage>2</numberOfProcessesPerPage>
     <!-- thumbnail size in pixel -->
     <thumbnailSize>200</thumbnailSize>
-
+    <!-- Project to which error batches are moved -->
+    <inactiveProject>Archive_Project</inactiveProject>
 
 
     <!--display as box title -->

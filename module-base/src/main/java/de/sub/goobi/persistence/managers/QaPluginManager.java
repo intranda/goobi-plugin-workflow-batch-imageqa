@@ -39,7 +39,8 @@ public class QaPluginManager {
         return Collections.emptyList();
     }
 
-    public static List<QaBatch> getAllQaBatches(String openTaskBatchQuery, String qaStepName, List<String> metadataNames) {
+    public static List<QaBatch> getAllQaBatches(String openTaskBatchQuery, String qaStepName, List<String> metadataNames,
+            String inactiveProjectName) {
         List<QaBatch> answer = new ArrayList<>();
         // find all batches with open qa steps
         @SuppressWarnings("rawtypes")
@@ -61,7 +62,9 @@ public class QaPluginManager {
             // compare the number of processes with the total number in each batch
 
             String completeBatchQuery =
-                    "select batchid, count(prozesseid) from prozesse where batchid in (" + idList.toString() + ") GROUP BY batchid;";
+                    "select batchid, count(prozesseid) from prozesse where batchid in (" + idList.toString()
+                            + ") and projekteid not in (select projekteid from projekte where titel = '" + inactiveProjectName
+                            + "') GROUP BY batchid;";
 
             result = ProcessManager.runSQL(completeBatchQuery);
 
@@ -151,6 +154,7 @@ public class QaPluginManager {
             String prio = objArr[2].toString();
             String val = objArr[3].toString();
             String status = objArr[4] == null ? "" : objArr[4].toString();
+
             processes.add(new ProcessOverview(processId, Integer.parseInt(pages), "10".equals(prio), "1".equals(val), status));
         }
         return processes;

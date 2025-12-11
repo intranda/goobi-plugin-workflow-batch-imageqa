@@ -32,4 +32,14 @@ public class QaBatch {
         return numberOfPages;
     }
 
+    public long getProcessedNumberOfPages() {
+        long numberOfPages = 0;
+        for (ProcessOverview proc : processes) {
+            if ("done".equals(proc.getProcessStatus())) {
+                numberOfPages += proc.getNumberOfPages();
+            }
+        }
+        return numberOfPages;
+    }
+
 }

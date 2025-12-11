@@ -2,25 +2,21 @@ package de.intranda.goobi.plugins;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang3.StringUtils;
-import org.goobi.api.mail.SendMail;
 import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.GoobiProperty.PropertyOwnerType;
-import org.goobi.beans.JournalEntry;
-import org.goobi.beans.JournalEntry.EntryType;
 import org.goobi.beans.Process;
 import org.goobi.beans.Step;
 import org.goobi.beans.User;
 import org.goobi.production.cli.helper.StringPair;
-import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
@@ -32,20 +28,12 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.HelperSchritte;
-import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
-import de.sub.goobi.helper.enums.HistoryEventType;
-import de.sub.goobi.helper.enums.PropertyType;
-import de.sub.goobi.helper.enums.StepEditType;
-import de.sub.goobi.helper.enums.StepStatus;
-import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.metadaten.Image;
-import de.sub.goobi.persistence.managers.HistoryManager;
-import de.sub.goobi.persistence.managers.JournalManager;
+import de.sub.goobi.persistence.managers.DatabaseVersion;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
-import de.sub.goobi.persistence.managers.StepManager;
 import jakarta.faces.context.FacesContext;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
@@ -95,10 +83,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private int thumbnailSize = 200;
 
     private List<ProcessOverview> processDisplayList;
+    @Getter
     private List<DisplayProcess> displayProcesses = new ArrayList<>();
     private List<String> metadataConfiguration;
     private String titleField;
     private List<String> metadataToCheck;
+    private String inactiveProjectName;
 
     @Getter
     @Setter
@@ -147,6 +137,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         qaStepName = config.getString("/qaTaskName");
         errorStepName = config.getString("/errorStepName");
+        inactiveProjectName = config.getString("/inactiveProject");
 
         defaultPercentage = config.getInt("/percentage", 10);
 
@@ -176,7 +167,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             readConfig();
         }
         if (allBatches == null) {
-            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName, metadataToCheck);
+            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName, metadataToCheck, inactiveProjectName);
         }
         return allBatches;
     }
@@ -193,6 +184,16 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     public void finishBatch() {
 
         // get all tasks
+
+        // TODO:
+        // if processed processes exceed batch percentage:
+
+        //     1. if error exists: move to separate project
+
+        //     2. if all are valid: close steps and continue
+
+        // if not: load next processes
+
         List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
 
         for (DisplayProcess dp : displayProcesses) {
@@ -213,100 +214,122 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void errorBatch() {
-        for (DisplayProcess dp : displayProcesses) {
-            if (dp.isInvalid()) {
-                Step qaStep = null;
-                Step stepToOpen = null;
-                for (Step step : dp.getProcess().getSchritte()) {
-                    if (qaStepName.equals(step.getTitel())) {
-                        qaStep = step;
-                    } else if (errorStepName.equals(step.getTitel())) {
-                        stepToOpen = step;
-                    }
-                }
 
-                if (qaStep != null && stepToOpen != null) {
-                    Date now = new Date();
-                    qaStep.setBearbeitungsstatusEnum(StepStatus.LOCKED);
-                    qaStep.setEditTypeEnum(StepEditType.MANUAL_SINGLE);
-                    qaStep.setPrioritaet(10);
-                    qaStep.setBearbeitungszeitpunkt(now);
-                    User user = Helper.getCurrentUser();
-                    if (user != null) {
-                        qaStep.setBearbeitungsbenutzer(user);
-                    }
-                    qaStep.setBearbeitungsbeginn(null);
-                    try {
-                        SendMail.getInstance().sendMailToAssignedUser(stepToOpen, StepStatus.ERROR);
-                        stepToOpen.setBearbeitungsstatusEnum(StepStatus.ERROR);
-                        stepToOpen.setCorrectionStep();
-                        stepToOpen.setBearbeitungsende(now);
-                        GoobiProperty se = new GoobiProperty(PropertyOwnerType.ERROR);
-
-                        String messageText = dp.getErrorMessage();
-
-                        se.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
-                        if (user == null) {
-                            se.setPropertyValue("[" + this.formatter.format(now) + "] " + messageText);
-                        } else {
-                            se.setPropertyValue("[" + this.formatter.format(now) + ", " + user.getNachVorname() + "] " + messageText);
-                        }
-                        se.setType(PropertyType.MESSAGE_ERROR);
-                        se.setCreationDate(now);
-                        se.setOwner(stepToOpen);
-                        String message = Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText;
-                        String username;
-                        if (user != null) {
-                            username = user.getNachVorname();
-                        } else {
-                            username = "-";
-                        }
-                        JournalEntry logEntry =
-                                new JournalEntry(qaStep.getProzess().getId(), now, username, LogType.ERROR, message,
-                                        EntryType.PROCESS);
-                        JournalManager.saveJournalEntry(logEntry);
-
-                        stepToOpen.getProperties().add(se);
-                        StepManager.saveStep(stepToOpen);
-                        HistoryManager.addHistory(now, stepToOpen.getReihenfolge().doubleValue(), stepToOpen.getTitel(),
-                                HistoryEventType.stepError.getValue(),
-                                stepToOpen.getProzess().getId());
-
-                        List<Step> stepsBetween =
-                                StepManager.getSteps("Reihenfolge desc",
-                                        " schritte.prozesseID = " + qaStep.getProzess().getId() + " AND Reihenfolge <= "
-                                                + qaStep.getReihenfolge() + "  AND Reihenfolge > " + stepToOpen.getReihenfolge(),
-                                        0, Integer.MAX_VALUE, null);
-
-                        for (Step step : stepsBetween) {
-                            if (!StepStatus.DEACTIVATED.equals(step.getBearbeitungsstatusEnum())) {
-                                step.setBearbeitungsstatusEnum(StepStatus.LOCKED);
-                            }
-                            step.setCorrectionStep();
-                            step.setBearbeitungsende(null);
-                            GoobiProperty seg = new GoobiProperty(PropertyOwnerType.ERROR);
-                            seg.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
-                            seg.setPropertyValue(Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText);
-                            seg.setOwner(step);
-                            seg.setType(PropertyType.MESSAGE_IMPORTANT);
-                            seg.setCreationDate(new Date());
-                            step.getProperties().add(seg);
-                            StepManager.saveStep(step);
-                        }
-                        if (stepToOpen.isTypAutomatisch()) {
-                            ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(stepToOpen);
-                            myThread.startOrPutToQueue();
-                        }
-
-                        StepManager.saveStep(qaStep);
-                        ProcessManager.saveProcessInformation(qaStep.getProzess());
-                    } catch (DAOException e) {
-                        log.error(e);
-                    }
-                }
+        StringBuilder ids = new StringBuilder();
+        for (ProcessOverview po : currentBatch.getProcesses()) {
+            if (!ids.isEmpty()) {
+                ids.append(", ");
             }
-
+            ids.append(po.getProcessid());
         }
+
+        StringBuilder query = new StringBuilder();
+        query.append("UPDATE prozesse SET projekteid = (SELECT ProjekteID FROM projekte WHERE titel = '")
+                .append(inactiveProjectName)
+                .append("') WHERE prozesseId in (")
+                .append(ids.toString())
+                .append(");");
+
+        try {
+            DatabaseVersion.runSql(query.toString());
+        } catch (SQLException e) {
+            log.error(e);
+        }
+
+        //        for (DisplayProcess dp : displayProcesses) {
+        //            if (dp.isInvalid()) {
+        //                Step qaStep = null;
+        //                Step stepToOpen = null;
+        //                for (Step step : dp.getProcess().getSchritte()) {
+        //                    if (qaStepName.equals(step.getTitel())) {
+        //                        qaStep = step;
+        //                    } else if (errorStepName.equals(step.getTitel())) {
+        //                        stepToOpen = step;
+        //                    }
+        //                }
+        //
+        //                if (qaStep != null && stepToOpen != null) {
+        //                    Date now = new Date();
+        //                    qaStep.setBearbeitungsstatusEnum(StepStatus.LOCKED);
+        //                    qaStep.setEditTypeEnum(StepEditType.MANUAL_SINGLE);
+        //                    qaStep.setPrioritaet(10);
+        //                    qaStep.setBearbeitungszeitpunkt(now);
+        //                    User user = Helper.getCurrentUser();
+        //                    if (user != null) {
+        //                        qaStep.setBearbeitungsbenutzer(user);
+        //                    }
+        //                    qaStep.setBearbeitungsbeginn(null);
+        //                    try {
+        //                        SendMail.getInstance().sendMailToAssignedUser(stepToOpen, StepStatus.ERROR);
+        //                        stepToOpen.setBearbeitungsstatusEnum(StepStatus.ERROR);
+        //                        stepToOpen.setCorrectionStep();
+        //                        stepToOpen.setBearbeitungsende(now);
+        //                        GoobiProperty se = new GoobiProperty(PropertyOwnerType.ERROR);
+        //
+        //                        String messageText = dp.getErrorMessage();
+        //
+        //                        se.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
+        //                        if (user == null) {
+        //                            se.setPropertyValue("[" + this.formatter.format(now) + "] " + messageText);
+        //                        } else {
+        //                            se.setPropertyValue("[" + this.formatter.format(now) + ", " + user.getNachVorname() + "] " + messageText);
+        //                        }
+        //                        se.setType(PropertyType.MESSAGE_ERROR);
+        //                        se.setCreationDate(now);
+        //                        se.setOwner(stepToOpen);
+        //                        String message = Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText;
+        //                        String username;
+        //                        if (user != null) {
+        //                            username = user.getNachVorname();
+        //                        } else {
+        //                            username = "-";
+        //                        }
+        //                        JournalEntry logEntry =
+        //                                new JournalEntry(qaStep.getProzess().getId(), now, username, LogType.ERROR, message,
+        //                                        EntryType.PROCESS);
+        //                        JournalManager.saveJournalEntry(logEntry);
+        //
+        //                        stepToOpen.getProperties().add(se);
+        //                        StepManager.saveStep(stepToOpen);
+        //                        HistoryManager.addHistory(now, stepToOpen.getReihenfolge().doubleValue(), stepToOpen.getTitel(),
+        //                                HistoryEventType.stepError.getValue(),
+        //                                stepToOpen.getProzess().getId());
+        //
+        //                        List<Step> stepsBetween =
+        //                                StepManager.getSteps("Reihenfolge desc",
+        //                                        " schritte.prozesseID = " + qaStep.getProzess().getId() + " AND Reihenfolge <= "
+        //                                                + qaStep.getReihenfolge() + "  AND Reihenfolge > " + stepToOpen.getReihenfolge(),
+        //                                        0, Integer.MAX_VALUE, null);
+        //
+        //                        for (Step step : stepsBetween) {
+        //                            if (!StepStatus.DEACTIVATED.equals(step.getBearbeitungsstatusEnum())) {
+        //                                step.setBearbeitungsstatusEnum(StepStatus.LOCKED);
+        //                            }
+        //                            step.setCorrectionStep();
+        //                            step.setBearbeitungsende(null);
+        //                            GoobiProperty seg = new GoobiProperty(PropertyOwnerType.ERROR);
+        //                            seg.setPropertyName(Helper.getTranslation("Korrektur notwendig"));
+        //                            seg.setPropertyValue(Helper.getTranslation("KorrekturFuer") + " " + stepToOpen.getTitel() + ": " + messageText);
+        //                            seg.setOwner(step);
+        //                            seg.setType(PropertyType.MESSAGE_IMPORTANT);
+        //                            seg.setCreationDate(new Date());
+        //                            step.getProperties().add(seg);
+        //                            StepManager.saveStep(step);
+        //                        }
+        //                        if (stepToOpen.isTypAutomatisch()) {
+        //                            ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(stepToOpen);
+        //                            myThread.startOrPutToQueue();
+        //                        }
+        //
+        //                        StepManager.saveStep(qaStep);
+        //                        ProcessManager.saveProcessInformation(qaStep.getProzess());
+        //                    } catch (DAOException e) {
+        //                        log.error(e);
+        //                    }
+        //                }
+        //            }
+        //
+        //        }
         allBatches = null;
         displayType = "overview";
     }
@@ -342,11 +365,24 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         for (ProcessOverview entry : currentBatch.getProcesses()) {
             if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfImagesToDisplay < imagesToDisplay)) {
-                processDisplayList.add(entry);
                 int numberOfPages = entry.getNumberOfPages();
                 numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
+                if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
+                    // TODO or status is in progress and status update date is to old?
+                    processDisplayList.add(entry);
+                    entry.setProcessStatus("in progress");
+                    GoobiProperty gp = new GoobiProperty(PropertyOwnerType.PROCESS);
+                    gp.setPropertyName("BatchQAStatus");
+                    gp.setPropertyValue("in progress");
+                    gp.setObjectId(Integer.valueOf(entry.getProcessid()));
+                    PropertyManager.saveProperty(gp);
+                }
             }
         }
+        if (processDisplayList.isEmpty()) {
+            // TODO: all processes are processed or currently in progress by someone else, stay on overview page
+        }
+
         displayProcesses.clear();
         generateProcessList();
     }
@@ -463,7 +499,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         }
         return displayProcesses;
-
     }
 
     /*
@@ -471,66 +506,66 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
      * 
      */
 
-    public List<DisplayProcess> getDisplayProcesses() {
-        List<DisplayProcess> subList;
-        if (displayProcesses.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
-            subList = displayProcesses.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
-        } else {
-            // Sometimes pageNo is not zero here, although we only have 20 images or so.
-            // This is a quick fix and we should find out why pageNo is not zero in some cases
-            int startIdx = pageNo * numberOfProcessesPerPage;
-            if (startIdx > displayProcesses.size()) {
-                startIdx = Math.max(0, displayProcesses.size() - numberOfProcessesPerPage);
-            }
-            subList = displayProcesses.subList(startIdx, displayProcesses.size());
-        }
-        return subList;
-
-    }
-
-    public boolean isDisplayPaginator() {
-        return displayProcesses.size() > numberOfProcessesPerPage;
-    }
-
-    public boolean isHasPreviousPages() {
-        return pageNo > 0;
-    }
-
-    public void moveToFirstPage() {
-        pageNo = 0;
-    }
-
-    public void moveToPreviousPage() {
-        pageNo = pageNo - 1;
-    }
-
-    public int getLastPageNumber() {
-        int ret = displayProcesses.size() / numberOfProcessesPerPage;
-        if (displayProcesses.size() % numberOfProcessesPerPage == 0) {
-            ret--;
-        }
-        return ret;
-    }
-
-    public boolean isLastPage() {
-        return this.pageNo >= getLastPageNumber();
-    }
-
-    public boolean isHasNextPages() {
-        return !isLastPage();
-    }
-
-    public void moveToNextPage() {
-        if (!isLastPage()) {
-            pageNo++;
-        }
-    }
-
-    public void moveToLastPage() {
-        if (pageNo != getLastPageNumber()) {
-            pageNo = getLastPageNumber();
-        }
-    }
+    //    public List<DisplayProcess> getDisplayProcesses() {
+    //        List<DisplayProcess> subList;
+    //        if (displayProcesses.size() > (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage) {
+    //            subList = displayProcesses.subList(pageNo * numberOfProcessesPerPage, (pageNo * numberOfProcessesPerPage) + numberOfProcessesPerPage);
+    //        } else {
+    //            // Sometimes pageNo is not zero here, although we only have 20 images or so.
+    //            // This is a quick fix and we should find out why pageNo is not zero in some cases
+    //            int startIdx = pageNo * numberOfProcessesPerPage;
+    //            if (startIdx > displayProcesses.size()) {
+    //                startIdx = Math.max(0, displayProcesses.size() - numberOfProcessesPerPage);
+    //            }
+    //            subList = displayProcesses.subList(startIdx, displayProcesses.size());
+    //        }
+    //        return subList;
+    //
+    //    }
+    //
+    //    public boolean isDisplayPaginator() {
+    //        return displayProcesses.size() > numberOfProcessesPerPage;
+    //    }
+    //
+    //    public boolean isHasPreviousPages() {
+    //        return pageNo > 0;
+    //    }
+    //
+    //    public void moveToFirstPage() {
+    //        pageNo = 0;
+    //    }
+    //
+    //    public void moveToPreviousPage() {
+    //        pageNo = pageNo - 1;
+    //    }
+    //
+    //    public int getLastPageNumber() {
+    //        int ret = displayProcesses.size() / numberOfProcessesPerPage;
+    //        if (displayProcesses.size() % numberOfProcessesPerPage == 0) {
+    //            ret--;
+    //        }
+    //        return ret;
+    //    }
+    //
+    //    public boolean isLastPage() {
+    //        return this.pageNo >= getLastPageNumber();
+    //    }
+    //
+    //    public boolean isHasNextPages() {
+    //        return !isLastPage();
+    //    }
+    //
+    //    public void moveToNextPage() {
+    //        if (!isLastPage()) {
+    //            pageNo++;
+    //        }
+    //    }
+    //
+    //    public void moveToLastPage() {
+    //        if (pageNo != getLastPageNumber()) {
+    //            pageNo = getLastPageNumber();
+    //        }
+    //    }
 
     /*
      * error report

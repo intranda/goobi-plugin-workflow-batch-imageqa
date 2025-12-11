@@ -14,5 +14,9 @@ public class ProcessOverview {
     private boolean priorityStep;
     private boolean metadataAvailable;
 
+    // possible values: '' (not processed at all), 'in work', 'done', 'error'
     private String processStatus;
+
+    // TODO: check if status change is to old to free up old processes?
+    //  private Date processStatusDate;
 }
