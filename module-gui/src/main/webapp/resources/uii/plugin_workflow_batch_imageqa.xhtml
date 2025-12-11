@@ -351,11 +351,9 @@
                                     <button
                                         jsf:id="cancel"
                                         class="btn btn-blank"
-                                        jsf:rel="tooltip">
-                                        #{msgs.cancel}
-                                        <f:setPropertyActionListener
-                                            target="#{NavigationForm.workflowPlugin.displayType}"
-                                            value="overview" />
+                                        jsf:rel="tooltip"
+                                         jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
+                                        <span>#{msgs.cancel}</span>
                                     </button>
 
                                     <!-- success button -->

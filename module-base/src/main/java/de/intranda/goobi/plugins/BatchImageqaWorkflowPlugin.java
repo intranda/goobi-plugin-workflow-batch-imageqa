@@ -642,4 +642,22 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             PropertyManager.saveProperty(percentageProperty);
         }
     }
+
+    public void cancelEdition() {
+        // reset all processes from current view, so they can be picked up again
+        for (ProcessOverview po : processDisplayList) {
+            // remove status property
+            try {
+                DatabaseVersion.runSql("delete from properties where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
+                        + po.getProcessid());
+            } catch (SQLException e) {
+                log.error(e);
+            }
+            // set status back to open
+            po.setProcessStatus("");
+        }
+
+        allBatches = null;
+        displayType = "overview";
+    }
 }
