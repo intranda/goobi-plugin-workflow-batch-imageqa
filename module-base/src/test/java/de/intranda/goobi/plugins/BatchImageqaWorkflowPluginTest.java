@@ -105,8 +105,8 @@ public class BatchImageqaWorkflowPluginTest {
                                     answer.add(row2);
                                     answer.add(row3);
                                 } else {
-                                    String[] row1 = { "1", "5", "0", "0", "done" };
-                                    String[] row2 = { "2", "10", "0", "0", "in progress" };
+                                    String[] row1 = { "1", "5", "0", "0", "" };
+                                    String[] row2 = { "2", "10", "0", "0", "" };
                                     String[] row3 = { "3", "10", "0", "0", "" };
                                     answer.add(row1);
                                     answer.add(row2);
@@ -153,6 +153,7 @@ public class BatchImageqaWorkflowPluginTest {
         gp.setPropertyValue("20");
         gpl.add(gp);
         EasyMock.expect(PropertyManager.getPropertiesForObject(EasyMock.anyInt(), EasyMock.anyObject())).andReturn(gpl).anyTimes();
+        PropertyManager.saveProperty(EasyMock.anyObject());
 
         PowerMock.mockStatic(StorageProvider.class);
         StorageProviderInterface spi = EasyMock.createMock(StorageProviderInterface.class);
