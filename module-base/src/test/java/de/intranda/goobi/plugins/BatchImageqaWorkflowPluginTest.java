@@ -198,19 +198,18 @@ public class BatchImageqaWorkflowPluginTest {
     @Test
     public void testOpenBatch() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
-        assertEquals(5, fixture.getThumbnailSize());
+        assertEquals(200, fixture.getThumbnailSize());
     }
 
     @Test
     public void testDisplayProcesses() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
+
         fixture.openBatch();
         assertEquals(1, fixture.getDisplayProcesses().size());
     }
@@ -218,7 +217,6 @@ public class BatchImageqaWorkflowPluginTest {
     @Test
     public void testDisplayErrorReport() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
