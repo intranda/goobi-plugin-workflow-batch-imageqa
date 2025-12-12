@@ -167,7 +167,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     }
 
-    public void finishBatch() {
+    public void continueBatch() {
 
         // mark new processed images as done
         for (DisplayProcess dp : displayProcesses) {
@@ -177,6 +177,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
+                    // TODO store error message
                 } else {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='done' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
@@ -208,44 +209,45 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
             }
         }
-        if (numberOfFinishedPages >= imagesToDisplay) {
-            // threshold exceeded, finalize batch
-            boolean errors = false;
-            for (ProcessOverview entry : processDisplayList) {
-                if ("error".equals(entry.getProcessStatus())) {
-                    errors = true;
-                    break;
-                }
-            }
-            if (errors) {
-                // if error exists: move to separate project
-                errorBatch();
-            } else {
-                // if all processes are valid: close steps and continue to overview screen
-                List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
-
-                for (DisplayProcess dp : displayProcesses) {
-                    for (Step step : dp.getProcess().getSchritte()) {
-                        if (qaStepName.equals(step.getTitel())) {
-                            steps.add(step);
-                        }
-                    }
-                }
-                // for each task call close step
-                HelperSchritte helper = new HelperSchritte();
-                for (Step step : steps) {
-                    helper.CloseStepObjectAutomatic(step);
-                }
-                allBatches = null;
-                displayType = "overview";
-
-            }
-
-        } else {
+        if (numberOfFinishedPages < imagesToDisplay) {
             // threshold not exceeded, get new set of images
             openBatch();
+        } else {
+            // batch is finished, move to overview screeen
+            allBatches = null;
+            displayType = "overview";
         }
 
+    }
+
+    public void finalizeBatch() {
+        boolean errors = false;
+        for (ProcessOverview entry : processDisplayList) {
+            if ("error".equals(entry.getProcessStatus())) {
+                errors = true;
+                break;
+            }
+        }
+        if (errors) {
+            // if error exists: move to separate project
+            errorBatch();
+        } else {
+            // if all processes are valid: close steps and continue to overview screen
+            List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
+
+            for (DisplayProcess dp : displayProcesses) {
+                for (Step step : dp.getProcess().getSchritte()) {
+                    if (qaStepName.equals(step.getTitel())) {
+                        steps.add(step);
+                    }
+                }
+            }
+            // for each task call close step
+            HelperSchritte helper = new HelperSchritte();
+            for (Step step : steps) {
+                helper.CloseStepObjectAutomatic(step);
+            }
+        }
     }
 
     public void errorBatch() {
@@ -264,12 +266,13 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 .append("') WHERE prozesseId in (")
                 .append(ids.toString())
                 .append(");");
-
         try {
             DatabaseVersion.runSql(query.toString());
         } catch (SQLException e) {
             log.error(e);
         }
+        // TODO change workflow, add 6 weeks delay and deletion step (only files or process too?)
+
         allBatches = null;
         displayType = "overview";
     }

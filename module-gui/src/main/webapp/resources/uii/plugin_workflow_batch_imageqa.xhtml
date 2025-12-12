@@ -322,30 +322,13 @@
                         </section:section>
 
                         <h:form id="reportForm">
-                            <section:section type="#{!NavigationForm.workflowPlugin.displayErrorReport ? 'success' : 'hot'}">
+                            <section:section type="success">
                                 <section:header
                                     icon=""
                                     title="#{msgs.intranda_workflow_batch_result}" />
                                 <section:body padding="true">
 
-                                    <h:outputText
-                                        rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
-                                        value="#{msgs.plugin_workflow_batches_noError}" />
-
-                                    <ui:fragment rendered="#{NavigationForm.workflowPlugin.displayErrorReport}">
-                                        <h:outputText value="#{msgs.plugin_workflow_batches_errorFound}" />
-                                        <div class="border-start border-top border-end mt-3">
-                                            <dl:list>
-                                                <ui:repeat
-                                                    var="error"
-                                                    value="#{NavigationForm.workflowPlugin.errorMessage}">
-                                                    <dl:term>#{error.one}</dl:term>
-                                                    <dl:description>#{error.two}</dl:description>
-                                                </ui:repeat>
-                                            </dl:list>
-                                        </div>
-
-                                    </ui:fragment>
+                                 
                                 </section:body>
                                 <section:footer>
                                     <button
@@ -356,47 +339,16 @@
                                         <span>#{msgs.cancel}</span>
                                     </button>
 
-                                    <!-- success button -->
-                                    
-                                    <!-- TODO next button, to display next bunch of processes -->
-                                    
-                                    <!-- TODO: display finalize button only when all images are processed -->
+                         
                                     <button
-                                        jsf:rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="finishBatch"
+                                        jsf:id="continue"
                                         class="btn btn-success"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.finishBatch}">
+                                        jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
                                         <span
                                             class="fa fa-check"
                                             aria-hidden="true" />
-                                        <span> #{msgs.plugin_workflow_batches_finish} </span>
-                                    </button>
-
-                                    <!-- download report button -->
-                                    <button
-                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="downloadCsv"
-                                        class="btn btn-blank"
-                                        jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
-                                        <span
-                                            class="fa fa-download"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.downloadCsv} </span>
-                                    </button>
-
-                                    <!-- error button -->
-                                    <button
-                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="errorBatch"
-                                        class="btn btn-hot"
-                                        jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
-                                        <span
-                                            class="fa fa-exclamation-triangle"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.plugin_workflow_batches_abort} </span>
+                                        <span> #{msgs.pageNext} </span>
                                     </button>
 
                                 </section:footer>
