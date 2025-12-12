@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.easymock.EasyMock;
 import org.goobi.beans.Batch;
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,9 +24,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.PropertyManager;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ ProcessManager.class })
+@PrepareForTest({ ProcessManager.class, PropertyManager.class })
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 public class QaBatchTest {
 
@@ -43,11 +46,13 @@ public class QaBatchTest {
         String log4jFile = resourcesFolder + "log4j2.xml"; // for junit tests in eclipse
 
         System.setProperty("log4j.configurationFile", log4jFile);
+
     }
 
     @Before
     public void setUp() throws Exception {
         PowerMock.mockStatic(ProcessManager.class);
+        PowerMock.mockStatic(PropertyManager.class);
 
         List<Object[]> data = new ArrayList<>();
 
@@ -73,7 +78,15 @@ public class QaBatchTest {
 
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString())).andReturn(data).anyTimes();
 
-        PowerMock.replay(ProcessManager.class);
+        List<GoobiProperty> gpl = new ArrayList<>();
+        GoobiProperty gp = new GoobiProperty(PropertyOwnerType.BATCH);
+        gp.setPropertyName("BatchPercentage");
+        gp.setPropertyValue("20");
+        gpl.add(gp);
+        EasyMock.expect(PropertyManager.getPropertiesForObject(EasyMock.anyInt(), EasyMock.anyObject())).andReturn(gpl).anyTimes();
+        PropertyManager.saveProperty(EasyMock.anyObject());
+
+        PowerMock.replay(ProcessManager.class, PropertyManager.class);
 
         batch = new Batch();
         batch.setBatchId(1);
@@ -82,13 +95,13 @@ public class QaBatchTest {
 
     @Test
     public void testConstructor() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "", null);
+        QaBatch fixture = new QaBatch(batch, "", null, 10);
         assertNotNull(fixture);
     }
 
     @Test
     public void testNumberOfProcesses() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList(), 10);
         assertEquals(2, fixture.getNumberOfProcesses());
     }
 
@@ -97,19 +110,19 @@ public class QaBatchTest {
         List<String> metadata = new ArrayList<>();
         metadata.add("md1");
         metadata.add("md2");
-        QaBatch fixture = new QaBatch(batch, "", metadata);
-        assertEquals(150, fixture.getNumberOfPages());
+        QaBatch fixture = new QaBatch(batch, "", metadata, 10);
+        assertEquals(150, fixture.getTotalNumberOfPages());
     }
 
     @Test
     public void testGetBatch() throws IOException {
-        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList(), 10);
         assertEquals("label", fixture.getBatch().getBatchLabel());
     }
 
     @Test
     public void testPooceses() {
-        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList());
+        QaBatch fixture = new QaBatch(batch, "", Collections.emptyList(), 10);
         List<ProcessOverview> proceses = fixture.getProcesses();
         assertEquals(2, proceses.size());
     }

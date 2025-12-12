@@ -83,7 +83,7 @@
                                                         <h:outputText value="#{item.numberOfProcesses}" />
                                                     </td>
                                                     <td>
-                                                        <h:outputText value="#{item.numberOfPages}" />
+                                                        <h:outputText value="#{item.totalNumberOfPages}" />
                                                     </td>
                                                     <td>
                                                         <div class="gw-table__actions__container">
@@ -135,8 +135,8 @@
                                         pt:data-submit-on-enter="changePercentage" />
                                     <span class="align-self-center">
                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
-                                            <f:param value="#{NavigationForm.workflowPlugin.numberOfImagesToDisplay}" />
-                                            <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPages}" />
+                                            <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPagesToProcess}" />
+                                            <f:param value="#{NavigationForm.workflowPlugin.currentBatch.totalNumberOfPages}" />
                                         </h:outputFormat>
                                     </span>
                                     <button

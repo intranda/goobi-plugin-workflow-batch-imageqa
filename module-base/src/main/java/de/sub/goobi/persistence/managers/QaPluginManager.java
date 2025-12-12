@@ -40,7 +40,7 @@ public class QaPluginManager {
     }
 
     public static List<QaBatch> getAllQaBatches(String openTaskBatchQuery, String qaStepName, List<String> metadataNames,
-            String inactiveProjectName) {
+            String inactiveProjectName, int defaultPercentage) {
         List<QaBatch> answer = new ArrayList<>();
         // find all batches with open qa steps
         @SuppressWarnings("rawtypes")
@@ -76,7 +76,7 @@ public class QaPluginManager {
                 String currentNumber = batches.get(batchId);
                 if (totalNumberOfProcesses.equals(currentNumber)) {
                     Batch b = ProcessManager.getBatchById(Integer.parseInt(batchId));
-                    answer.add(new QaBatch(b, qaStepName, metadataNames));
+                    answer.add(new QaBatch(b, qaStepName, metadataNames, defaultPercentage));
                 }
             }
 
@@ -101,7 +101,7 @@ public class QaPluginManager {
             sb.append("' LEFT JOIN properties ON p.prozesseID = object_id AND object_type='process' AND property_name='BatchQAStatus' ");
             sb.append("WHERE batchID = ");
             sb.append(batchId);
-            sb.append(" ORDER BY s.prioritaet desc, properties.property_value, p.sortHelperImages");
+            sb.append(" ORDER BY s.prioritaet desc, properties.property_value,, rand()");
         } else {
             sb.append("SELECT ");
             sb.append("p.prozesseID, ");
@@ -141,7 +141,7 @@ public class QaPluginManager {
             sb.append("WHERE ");
             sb.append("batchID = ");
             sb.append(batchId);
-            sb.append(" ORDER BY val desc, properties.property_value, s.prioritaet desc, p.sortHelperImages; ");
+            sb.append(" ORDER BY val desc, properties.property_value, s.prioritaet desc, rand(); ");
 
         }
 

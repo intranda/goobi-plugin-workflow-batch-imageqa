@@ -60,8 +60,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private String openTaskBatchQuery;
 
     private int defaultPercentage;
-    @Getter
-    private int numberOfImagesToDisplay = 0;
 
     private XMLConfiguration config = null;
 
@@ -88,18 +86,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Setter
     private Image currentImage;
 
-    @Getter
-    @Setter
-    private int pageNo = 0;
     private int numberOfProcessesPerPage = 10;
 
     @Getter
     @Setter
     private DisplayProcess currentProcess;
-
-    @Getter
-    @Setter
-    private GoobiProperty percentageProperty = null;
 
     @Override
     public PluginType getType() {
@@ -153,7 +144,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             readConfig();
         }
         if (allBatches == null) {
-            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName, metadataToCheck, inactiveProjectName);
+            allBatches = QaPluginManager.getAllQaBatches(openTaskBatchQuery, qaStepName, metadataToCheck, inactiveProjectName, defaultPercentage);
         }
         return allBatches;
     }
@@ -195,20 +186,9 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             }
         }
 
-        // calculate if processed processes exceed batch percentage:
-        int percentage = Integer.parseInt(percentageProperty.getPropertyValue());
+        double numberOfFinishedPages = currentBatch.getFinishedNumberOfPages() + currentBatch.getErrorNumberOfPages();
+        double imagesToDisplay = currentBatch.getThresholdPages();
 
-        double totalPages = currentBatch.getNumberOfPages();
-        if (percentage < 1) {
-            percentage = 1;
-        }
-        int numberOfFinishedPages = 0;
-        double imagesToDisplay = totalPages * percentage / 100;
-        for (ProcessOverview entry : currentBatch.getProcesses()) {
-            if ("done".equals(entry.getProcessStatus()) || "error".equals(entry.getProcessStatus())) {
-                numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
-            }
-        }
         if (numberOfFinishedPages < imagesToDisplay) {
             // threshold not exceeded, get new set of images
             openBatch();
@@ -278,42 +258,25 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void openBatch() {
-        int percentage = 0;
+        int percentage = currentBatch.getPercentage();
         // check if batch has a percentage property
-        percentageProperty = null;
-        for (GoobiProperty gp : currentBatch.getBatch().getProperties()) {
-            // if yes, use this value
-            if ("BatchPercentage".equals(gp.getPropertyName())) {
-                percentageProperty = gp;
-            }
-        }
-        // otherwise create new property with default value
-        if (percentageProperty == null) {
-            percentageProperty = new GoobiProperty(PropertyOwnerType.BATCH);
-            percentageProperty.setOwner(currentBatch.getBatch());
-            percentageProperty.setPropertyName("BatchPercentage");
-            percentageProperty.setPropertyValue("" + defaultPercentage);
-            PropertyManager.saveProperty(percentageProperty);
-        }
 
-        percentage = Integer.parseInt(percentageProperty.getPropertyValue());
+        double numberOfFinishedPages = currentBatch.getFinishedNumberOfPages() + currentBatch.getErrorNumberOfPages();
+        double imagesToDisplay = currentBatch.getThresholdPages();
 
-        double totalPages = currentBatch.getNumberOfPages();
         if (percentage < 1) {
             percentage = 1;
         }
-        numberOfImagesToDisplay = 0;
-        double imagesToDisplay = totalPages * percentage / 100;
+
         processDisplayList = new ArrayList<>();
 
         for (ProcessOverview entry : currentBatch.getProcesses()) {
 
-            if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfImagesToDisplay < imagesToDisplay)) {
-                int numberOfPages = entry.getNumberOfPages();
-                numberOfImagesToDisplay = numberOfImagesToDisplay + numberOfPages;
+            if (entry.isMetadataAvailable() || entry.isPriorityStep() || (imagesToDisplay < numberOfFinishedPages)) {
                 // exclude already processed images
                 if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
                     // TODO or status is in progress and status update date is to old?
+                    numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
                     processDisplayList.add(entry);
                     entry.setProcessStatus("in progress");
                     GoobiProperty gp = new GoobiProperty(PropertyOwnerType.PROCESS);
@@ -509,16 +472,16 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public int getPercentage() {
-        if (percentageProperty == null) {
+        if (currentBatch == null) {
             return 0;
         }
-        return Integer.parseInt(percentageProperty.getPropertyValue());
+        return Integer.parseInt(currentBatch.getPercentageProperty().getPropertyValue());
     }
 
     public void setPercentage(int percentage) {
-        if (percentageProperty != null) {
-            percentageProperty.setPropertyValue("" + percentage);
-            PropertyManager.saveProperty(percentageProperty);
+        if (currentBatch.getPercentageProperty() != null) {
+            currentBatch.getPercentageProperty().setPropertyValue("" + percentage);
+            PropertyManager.saveProperty(currentBatch.getPercentageProperty());
         }
     }
 

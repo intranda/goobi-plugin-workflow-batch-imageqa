@@ -202,7 +202,7 @@ public class BatchImageqaWorkflowPluginTest {
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
-        assertEquals(5, fixture.getNumberOfImagesToDisplay());
+        assertEquals(5, fixture.getThumbnailSize());
     }
 
     @Test
