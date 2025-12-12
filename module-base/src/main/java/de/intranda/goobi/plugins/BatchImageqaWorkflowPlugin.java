@@ -274,8 +274,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
             if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfFinishedPages < imagesToDisplay)) {
                 // exclude already processed images
+                // TODO update process, if it is in progress and status update date is to old?
                 if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
-                    // TODO or status is in progress and status update date is to old?
                     numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
                     processDisplayList.add(entry);
                     entry.setProcessStatus("in progress");

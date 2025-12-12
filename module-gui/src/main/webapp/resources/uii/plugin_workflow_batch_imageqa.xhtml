@@ -12,8 +12,7 @@
     xmlns:section="http://goobi.io/section"
     xmlns:dl="http://goobi.io/dl"
     xmlns:util="http://goobi.io/util"
-    xmlns:image="http://goobi.io/image"
-    >
+    xmlns:image="http://goobi.io/image">
     <h:panelGroup>
         <div class="row">
             <div class="col-sm-12">
@@ -61,6 +60,27 @@
                                                         sortable="false"
                                                         value="#{msgs.plugin_workflow_batches_numberOfPages}" />
                                                     <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesError}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}" />
+
+
+                                                    <intranda:columnheader
                                                         value="#{msgs.auswahl}"
                                                         sortable="false"
                                                         addClass="gw-table-fixed__actions" />
@@ -79,12 +99,44 @@
                                                             value="#{item.batch.batchName}"
                                                             title="#{item.batch.batchName}" />
                                                     </td>
+
                                                     <td>
                                                         <h:outputText value="#{item.numberOfProcesses}" />
                                                     </td>
                                                     <td>
                                                         <h:outputText value="#{item.totalNumberOfPages}" />
                                                     </td>
+
+                                                    <td>
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.finishedPercentage}" />
+                                                            <f:param value="#{item.finishedNumberOfPages}" />
+                                                        </h:outputFormat>
+                                                    </td>
+                                                    <td>
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.inWorkPercentage}" />
+                                                            <f:param value="#{item.numberOfPagesInProcess}" />
+                                                        </h:outputFormat>
+                                                    </td>
+                                                    <td>
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.errorPercentage}" />
+                                                            <f:param value="#{item.errorNumberOfPages}" />
+                                                        </h:outputFormat>
+                                                    </td>
+                                                    <td>
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.percentage}" />
+                                                            <f:param value="#{item.thresholdPages}" />
+                                                        </h:outputFormat>
+                                                    </td>
+
+
+
+
+
+
                                                     <td>
                                                         <div class="gw-table__actions__container">
                                                             <button
@@ -104,6 +156,11 @@
                                                                     target="#{NavigationForm.workflowPlugin.displayType}"
                                                                     value="batchEdit" />
                                                             </button>
+
+                                                            <!-- TODO: Button to open all errors -->
+                                                            <!-- TODO button to open all finished  -->
+                                                            <!-- TODO: button(s) to accept / reject batch -->
+                                                            <!-- TODO: download error csv  -->
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -241,8 +298,7 @@
                                                             <span
                                                                 class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
                                                                 aria-hidden="true" />
-                                                            <f:ajax
-                                                                render="@form reportForm" />
+                                                            <f:ajax render="@form reportForm" />
                                                             <f:setPropertyActionListener
                                                                 target="#{displayProcess.invalid}"
                                                                 value="#{not displayProcess.invalid}" />
@@ -282,7 +338,7 @@
                                                                             <h:inputTextarea
                                                                                 id="errorDescription"
                                                                                 styleClass="form-control"
-                                                                                value="#{displayProcess.errorMessage}">
+                                                                                value="#{displayProcess.processOverview.errorMessage}">
                                                                                 <f:ajax
                                                                                     execute="@this"
                                                                                     render="@this :reportForm" />
@@ -316,33 +372,33 @@
                             <section:footer>
 
 
-                                
+
 
                             </section:footer>
                         </section:section>
 
                         <h:form id="reportForm">
-                            <section:section type="success">
+                            <section:section type="primary">
                                 <section:header
                                     icon=""
                                     title="#{msgs.intranda_workflow_batch_result}" />
                                 <section:body padding="true">
 
-                                 
+
                                 </section:body>
                                 <section:footer>
                                     <button
                                         jsf:id="cancel"
                                         class="btn btn-blank"
                                         jsf:rel="tooltip"
-                                         jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
+                                        jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
                                         <span>#{msgs.cancel}</span>
                                     </button>
 
-                         
+
                                     <button
                                         jsf:id="continue"
-                                        class="btn btn-success"
+                                        class="btn btn-primary"
                                         jsf:rel="tooltip"
                                         jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
                                         <span

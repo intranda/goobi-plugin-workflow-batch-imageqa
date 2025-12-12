@@ -73,6 +73,7 @@ public class QaBatch {
         if (percentage < 1) {
             percentage = 1;
         }
+
     }
 
     public int getNumberOfProcesses() {
@@ -81,25 +82,30 @@ public class QaBatch {
 
     public double getFinishedPercentage() {
         double d = 0;
-
+        if (finishedNumberOfPages > 0) {
+            d = finishedNumberOfPages * 100 / getThresholdPages();
+        }
         return d;
     }
 
     public double getErrorPercentage() {
         double d = 0;
-
+        if (errorNumberOfPages > 0) {
+            d = errorNumberOfPages * 100 / getThresholdPages();
+        }
         return d;
     }
 
     public double getInWorkPercentage() {
         double d = 0;
-
+        if (numberOfPagesInProcess > 0) {
+            d = numberOfPagesInProcess * 100 / getThresholdPages();
+        }
         return d;
     }
 
     public double getThresholdPages() {
-        double imagesToDisplay = totalNumberOfPages * percentage / 100;
-        return imagesToDisplay;
+        return totalNumberOfPages * percentage / 100;
     }
 
 }
