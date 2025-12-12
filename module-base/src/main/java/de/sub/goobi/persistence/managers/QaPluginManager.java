@@ -95,13 +95,14 @@ public class QaPluginManager {
         StringBuilder sb = new StringBuilder();
 
         if (metadataToCheck == null || metadataToCheck.isEmpty()) {
-            sb.append("SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0', properties.property_value, p.titel ");
+            sb.append("SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0', p1.property_value, p.titel, p2.property_value ");
             sb.append("FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
             sb.append(stepTitle);
-            sb.append("' LEFT JOIN properties ON p.prozesseID = object_id AND object_type='process' AND property_name='BatchQAStatus' ");
+            sb.append("' LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='BatchQAStatus' ");
+            sb.append("' LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='BatchQAError' ");
             sb.append("WHERE batchID = ");
             sb.append(batchId);
-            sb.append(" ORDER BY s.prioritaet desc, properties.property_value,, rand()");
+            sb.append(" ORDER BY s.prioritaet desc, p1.property_value,rand()");
         } else {
             sb.append("SELECT ");
             sb.append("p.prozesseID, ");
@@ -111,7 +112,7 @@ public class QaPluginManager {
             sb.append("WHEN val IS NULL THEN 0 ");
             sb.append("ELSE 1 ");
             sb.append("END as val ");
-            sb.append(", properties.property_value, p.titel ");
+            sb.append(", p1.property_value, p.titel, p2.property_value ");
             sb.append("FROM ");
             sb.append("prozesse p ");
             sb.append("JOIN ");
@@ -137,11 +138,12 @@ public class QaPluginManager {
             }
             sb.append(mdlist.toString());
             sb.append(") GROUP BY processid) AS mtd ON mtd.processid = p.prozesseID ");
-            sb.append("LEFT JOIN properties ON p.prozesseID = object_id AND object_type='process' AND property_name='BatchQAStatus' ");
+            sb.append("LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='BatchQAStatus' ");
+            sb.append("LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='BatchQAError' ");
             sb.append("WHERE ");
             sb.append("batchID = ");
             sb.append(batchId);
-            sb.append(" ORDER BY val desc, properties.property_value, s.prioritaet desc, rand(); ");
+            sb.append(" ORDER BY val desc, p1.property_value, s.prioritaet desc, rand(); ");
 
         }
 
@@ -155,7 +157,7 @@ public class QaPluginManager {
             String val = objArr[3].toString();
             String status = objArr[4] == null ? "" : objArr[4].toString();
             String processTitle = objArr[5].toString();
-            String errorMessage = ""; // TODO
+            String errorMessage = objArr[6] == null ? "" : objArr[6].toString();
             processes.add(
                     new ProcessOverview(processTitle, processId, Integer.parseInt(pages), "10".equals(prio), "1".equals(val), status, errorMessage));
         }

@@ -168,7 +168,23 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
-                    // TODO store error message
+
+                    //  store error message as property
+                    String errorMessage = dp.getProcessOverview().getErrorMessage();
+                    GoobiProperty errorProperty = null;
+                    for (GoobiProperty gp : dp.getProcess().getProperties()) {
+                        if ("BatchQAError".equals(gp.getPropertyName())) {
+                            errorProperty = gp;
+                            break;
+                        }
+                    }
+                    if (errorProperty == null) {
+                        errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
+                        errorProperty.setOwner(dp.getProcess());
+                        errorProperty.setPropertyName("BatchQAError");
+                    }
+                    errorProperty.setPropertyValue(errorMessage);
+                    PropertyManager.saveProperty(errorProperty);
                 } else {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='done' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
@@ -289,6 +305,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         }
         if (processDisplayList.isEmpty()) {
             // TODO: all processes are processed or currently in progress by someone else, stay on overview page
+            displayType = "overview";
+            return;
         }
 
         displayProcesses.clear();
@@ -367,7 +385,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                                             if (!values.isEmpty()) {
                                                 values.append("<br />");
                                             }
-                                            // TODO from locale
                                             values.append(md.getType().getLanguage("de"));
                                             values.append(": ").append(md.getValue());
                                         }
