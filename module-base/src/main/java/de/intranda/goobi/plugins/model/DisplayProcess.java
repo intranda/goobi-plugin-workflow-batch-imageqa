@@ -33,18 +33,17 @@ public class DisplayProcess {
 
     private boolean invalid;
 
-    private String errorMessage;
-
     private int thumbnailSize;
 
     private boolean errorStep;
     private boolean metadataStep;
 
-    // TODO status: new, in progress, done, error
+    private ProcessOverview processOverview;
 
-    public DisplayProcess(Process process, int thumbnailSize) {
+    public DisplayProcess(Process process, int thumbnailSize, ProcessOverview entry) {
         this.process = process;
         this.thumbnailSize = thumbnailSize;
+        processOverview = entry;
         initImageList();
     }
 
@@ -70,6 +69,5 @@ public class DisplayProcess {
             }
             allImages.setImages(imageList);
         }
-
     }
 }

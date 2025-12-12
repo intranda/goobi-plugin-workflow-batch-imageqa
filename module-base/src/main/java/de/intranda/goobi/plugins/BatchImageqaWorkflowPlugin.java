@@ -338,7 +338,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             for (ProcessOverview entry : processDisplayList) {
                 Process process = ProcessManager.getProcessById(Integer.parseInt(entry.getProcessid()));
 
-                DisplayProcess dp = new DisplayProcess(process, thumbnailSize);
+                DisplayProcess dp = new DisplayProcess(process, thumbnailSize, entry);
                 dp.setMetadataStep(entry.isMetadataAvailable());
                 dp.setErrorStep(entry.isPriorityStep());
                 displayProcesses.add(dp);
@@ -462,9 +462,9 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public List<StringPair> getErrorMessage() {
         List<StringPair> errors = new ArrayList<>();
-        for (DisplayProcess dp : displayProcesses) {
-            if (dp.isInvalid()) {
-                errors.add(new StringPair(dp.getTitle(), dp.getErrorMessage() == null ? "" : dp.getErrorMessage()));
+        for (ProcessOverview po : processDisplayList) {
+            if (po.getErrorMessage() != null) {
+                errors.add(new StringPair(po.getProcessTitle(), po.getErrorMessage()));
             }
         }
         return errors;
@@ -481,11 +481,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         String reportName = batchName + ".csv";
         csv.append("Vorgang, Fehler");
         csv.append("\n");
-        for (DisplayProcess dp : displayProcesses) {
-            csv.append("\"" + dp.getTitle() + "\"");
+        for (ProcessOverview po : processDisplayList) {
+            csv.append("\"" + po.getProcessTitle() + "\"");
             csv.append(",");
             csv.append("\"");
-            csv.append(dp.getErrorMessage() == null ? "" : dp.getErrorMessage());
+            csv.append(po.getErrorMessage() == null ? "" : po.getErrorMessage());
             csv.append("\"");
             csv.append("\n");
         }

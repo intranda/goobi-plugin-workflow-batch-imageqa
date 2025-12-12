@@ -95,7 +95,7 @@ public class QaPluginManager {
         StringBuilder sb = new StringBuilder();
 
         if (metadataToCheck == null || metadataToCheck.isEmpty()) {
-            sb.append("SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0', properties.property_value ");
+            sb.append("SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0', properties.property_value, p.titel ");
             sb.append("FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
             sb.append(stepTitle);
             sb.append("' LEFT JOIN properties ON p.prozesseID = object_id AND object_type='process' AND property_name='BatchQAStatus' ");
@@ -111,7 +111,7 @@ public class QaPluginManager {
             sb.append("WHEN val IS NULL THEN 0 ");
             sb.append("ELSE 1 ");
             sb.append("END as val ");
-            sb.append(", properties.property_value ");
+            sb.append(", properties.property_value, p.titel ");
             sb.append("FROM ");
             sb.append("prozesse p ");
             sb.append("JOIN ");
@@ -154,8 +154,10 @@ public class QaPluginManager {
             String prio = objArr[2].toString();
             String val = objArr[3].toString();
             String status = objArr[4] == null ? "" : objArr[4].toString();
-
-            processes.add(new ProcessOverview(processId, Integer.parseInt(pages), "10".equals(prio), "1".equals(val), status));
+            String processTitle = objArr[5].toString();
+            String errorMessage = ""; // TODO
+            processes.add(
+                    new ProcessOverview(processTitle, processId, Integer.parseInt(pages), "10".equals(prio), "1".equals(val), status, errorMessage));
         }
         return processes;
 
