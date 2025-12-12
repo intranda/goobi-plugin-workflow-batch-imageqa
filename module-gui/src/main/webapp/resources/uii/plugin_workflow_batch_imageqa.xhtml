@@ -118,12 +118,45 @@
                                                             <f:param value="#{item.inWorkPercentage}" />
                                                             <f:param value="#{item.numberOfPagesInProcess}" />
                                                         </h:outputFormat>
+
+                                                        <button
+                                                            class="btn btn-blank"
+                                                            jsf:rel="tooltip"
+                                                            jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcesses}"
+                                                            title="#{msgs.plugin_workflow_batches_open}">
+                                                            <span
+                                                                class="fa fa-pencil"
+                                                                aria-hidden="true" />
+                                                            <f:setPropertyActionListener
+                                                                target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                value="#{item}" />
+                                                            <f:setPropertyActionListener
+                                                                target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                value="batchEdit" />
+                                                        </button>
+
                                                     </td>
                                                     <td>
                                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
                                                             <f:param value="#{item.errorPercentage}" />
                                                             <f:param value="#{item.errorNumberOfPages}" />
                                                         </h:outputFormat>
+
+                                                        <button
+                                                            class="btn btn-blank"
+                                                            jsf:rel="tooltip"
+                                                            jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcesses}"
+                                                            title="#{msgs.plugin_workflow_batches_open}">
+                                                            <span
+                                                                class="fa fa-pencil"
+                                                                aria-hidden="true" />
+                                                            <f:setPropertyActionListener
+                                                                target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                value="#{item}" />
+                                                            <f:setPropertyActionListener
+                                                                target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                value="batchEdit" />
+                                                        </button>
                                                     </td>
                                                     <td>
                                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
@@ -159,8 +192,46 @@
 
                                                             <!-- TODO: Button to open all errors -->
                                                             <!-- TODO button to open all finished  -->
-                                                            <!-- TODO: button(s) to accept / reject batch -->
-                                                            <!-- TODO: download error csv  -->
+                                                            <!-- TODO: button to accept / reject batch -->
+
+                                                            <button
+                                                                jsf:id="errorBatch"
+                                                                class="btn btn-danger"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
+                                                                <span
+                                                                    class="fa fa-exclamation"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
+                                                            <button
+                                                                jsf:id="finalizeBatch"
+                                                                class="btn btn-success"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}">
+                                                                <span
+                                                                    class="fa fa-check"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
+
+                                                            <!--  download csv report -->
+                                                            <button
+                                                                jsf:id="downloadCsv"
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
+                                                                <span
+                                                                    class="fa fa-download"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>

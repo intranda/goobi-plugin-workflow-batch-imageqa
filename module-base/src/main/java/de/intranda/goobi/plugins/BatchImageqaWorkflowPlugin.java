@@ -158,6 +158,28 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     }
 
+    public void loadErrorProcesses() {
+        processDisplayList = new ArrayList<>();
+        for (ProcessOverview entry : currentBatch.getProcesses()) {
+            if ("error".equals(entry.getProcessStatus())) {
+                processDisplayList.add(entry);
+            }
+        }
+        displayProcesses.clear();
+        generateProcessList();
+    }
+
+    public void loadInWorkProcesses() {
+        processDisplayList = new ArrayList<>();
+        for (ProcessOverview entry : currentBatch.getProcesses()) {
+            if ("in progress".equals(entry.getProcessStatus())) {
+                processDisplayList.add(entry);
+            }
+        }
+        displayProcesses.clear();
+        generateProcessList();
+    }
+
     public void continueBatch() {
 
         // mark new processed images as done
@@ -217,33 +239,25 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void finalizeBatch() {
-        boolean errors = false;
-        for (ProcessOverview entry : processDisplayList) {
-            if ("error".equals(entry.getProcessStatus())) {
-                errors = true;
-                break;
-            }
-        }
-        if (errors) {
-            // if error exists: move to separate project
-            errorBatch();
-        } else {
-            // if all processes are valid: close steps and continue to overview screen
-            List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
 
-            for (DisplayProcess dp : displayProcesses) {
-                for (Step step : dp.getProcess().getSchritte()) {
-                    if (qaStepName.equals(step.getTitel())) {
-                        steps.add(step);
-                    }
+        // if all processes are valid: close steps and continue to overview screen
+        List<Step> steps = QaPluginManager.getStepsForBatch(qaStepName, currentBatch.getBatch().getBatchId());
+
+        for (DisplayProcess dp : displayProcesses) {
+            for (Step step : dp.getProcess().getSchritte()) {
+                if (qaStepName.equals(step.getTitel())) {
+                    steps.add(step);
                 }
             }
-            // for each task call close step
-            HelperSchritte helper = new HelperSchritte();
-            for (Step step : steps) {
-                helper.CloseStepObjectAutomatic(step);
-            }
         }
+        // for each task call close step
+        HelperSchritte helper = new HelperSchritte();
+        for (Step step : steps) {
+            helper.CloseStepObjectAutomatic(step);
+        }
+
+        allBatches = null;
+        displayType = "overview";
     }
 
     public void errorBatch() {
@@ -461,7 +475,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         String reportName = batchName + ".csv";
         csv.append("Vorgang, Fehler");
         csv.append("\n");
-        for (ProcessOverview po : processDisplayList) {
+        for (ProcessOverview po : currentBatch.getProcesses()) {
             csv.append("\"" + po.getProcessTitle() + "\"");
             csv.append(",");
             csv.append("\"");
