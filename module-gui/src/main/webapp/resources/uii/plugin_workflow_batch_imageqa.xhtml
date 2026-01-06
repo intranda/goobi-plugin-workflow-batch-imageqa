@@ -165,13 +165,9 @@
                                                         </h:outputFormat>
                                                     </td>
 
-
-
-
-
-
                                                     <td>
                                                         <div class="gw-table__actions__container">
+                                                            <!-- edit batch -->
                                                             <button
                                                                 jsf:id="edit"
                                                                 class="btn btn-blank"
@@ -190,22 +186,28 @@
                                                                     value="batchEdit" />
                                                             </button>
 
-                                                            <!-- TODO: Button to open all errors -->
-                                                            <!-- TODO button to open all finished  -->
-                                                            <!-- TODO: button to accept / reject batch -->
-
+                                                            <!-- open reject modal -->
                                                             <button
-                                                                jsf:id="errorBatch"
+                                                                jsf:id="rejectClick"
                                                                 class="btn btn-danger"
-                                                                jsf:rel="tooltip"
-                                                                jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
+                                                                title="#{msgs.plugin_workflow_batches_reject}">
                                                                 <span
                                                                     class="fa fa-exclamation"
                                                                     aria-hidden="true" />
+                                                                <f:ajax
+                                                                    execute="@this"
+                                                                    render="finishBox"
+                                                                    onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#finishBox').modal('show');
+                                                                                }}" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
                                                             </button>
+
+
+
+                                                            <!-- finalize batch -->
                                                             <button
                                                                 jsf:id="finalizeBatch"
                                                                 class="btn btn-success"
@@ -219,19 +221,7 @@
                                                                     value="#{item}" />
                                                             </button>
 
-                                                            <!--  download csv report -->
-                                                            <button
-                                                                jsf:id="downloadCsv"
-                                                                class="btn btn-blank"
-                                                                jsf:rel="tooltip"
-                                                                jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
-                                                                <span
-                                                                    class="fa fa-download"
-                                                                    aria-hidden="true" />
-                                                                <f:setPropertyActionListener
-                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
-                                                                    value="#{item}" />
-                                                            </button>
+
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -509,5 +499,5 @@
     <!-- process journal -->
     <ui:include src="journalModal.xhtml" />
 
-
+    <ui:include src="finishModal.xhtml" />
 </ui:composition>
