@@ -27,6 +27,8 @@ To use this plugin, the user must have the correct role permissions.
 
 Please assign the role `Plugin_workflow_batch_imageqa` to the group.
 
+In order to be able to reject deliveries, the role `Plugin_workflow_batch_imageqa_reject` is also required.
+
 ![Correctly assigned role for users](screen7_en.png)
 
 
