@@ -190,7 +190,8 @@
                                                             <button
                                                                 jsf:id="rejectClick"
                                                                 class="btn btn-danger"
-                                                                title="#{msgs.plugin_workflow_batches_reject}">
+                                                                title="#{msgs.plugin_workflow_batches_reject}"
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}">
                                                                 <span
                                                                     class="fa fa-exclamation"
                                                                     aria-hidden="true" />
