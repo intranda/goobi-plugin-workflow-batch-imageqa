@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
@@ -23,14 +24,20 @@ import de.intranda.goobi.plugins.model.DisplayProcess;
 import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.BeanHelper;
 import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.HelperSchritte;
+import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
+import de.sub.goobi.helper.enums.StepEditType;
+import de.sub.goobi.helper.enums.StepStatus;
+import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.metadaten.Image;
 import de.sub.goobi.persistence.managers.DatabaseVersion;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
+import de.sub.goobi.persistence.managers.StepManager;
 import jakarta.faces.context.FacesContext;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
@@ -81,6 +88,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private String titleField;
     private List<String> metadataToCheck;
     private String inactiveProjectName;
+
+    private Process inactiveProcessTemplate = null;
 
     @Getter
     @Setter
@@ -137,6 +146,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         sql.append("AND s.Bearbeitungsstatus in (1,2,4) ");
         sql.append("GROUP BY p.batchid; ");
         openTaskBatchQuery = sql.toString();
+
+        String templateName = config.getString("/inactiveProcessTemplate");
+        if (StringUtils.isNotBlank(templateName)) {
+            inactiveProcessTemplate = ProcessManager.getProcessByExactTitle(templateName);
+        }
     }
 
     public List<QaBatch> getAllBatches() {
@@ -281,10 +295,45 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         } catch (SQLException e) {
             log.error(e);
         }
-        // TODO change workflow, add 6 weeks delay and deletion step (only files or process too?)
 
         allBatches = null;
         displayType = "overview";
+
+        // change workflow to a 6 weeks delay and deletion step
+        if (inactiveProcessTemplate != null) {
+            BeanHelper helper = new BeanHelper();
+            for (ProcessOverview po : currentBatch.getProcesses()) {
+                Process processToChange = ProcessManager.getProcessById(Integer.parseInt(po.getProcessid()));
+                helper.changeProcessTemplate(processToChange, inactiveProcessTemplate);
+
+                // find first open/inwork/locked step. Execute step, if it is an automatic step
+
+                for (Step step : processToChange.getSchritte()) {
+                    switch (step.getBearbeitungsstatusEnum()) {
+                        case INWORK, LOCKED, OPEN:
+                            if (step.isTypAutomatisch()) {
+                                step.setBearbeitungsbeginn(new Date());
+                                step.setBearbeitungsbenutzer(null);
+                                step.setBearbeitungsstatusEnum(StepStatus.INWORK);
+                                step.setEditTypeEnum(StepEditType.AUTOMATIC);
+
+                                try {
+                                    StepManager.saveStep(step);
+                                } catch (DAOException e) {
+                                    log.error(e);
+                                }
+
+                                ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(step);
+                                myThread.startOrPutToQueue();
+                            }
+                            return;
+                        default:
+                    }
+
+                }
+            }
+        }
+
     }
 
     public void openBatch() {
@@ -304,7 +353,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
             if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfFinishedPages < imagesToDisplay)) {
                 // exclude already processed images
-                // TODO update process, if it is in progress and status update date is to old?
                 if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
                     numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
                     processDisplayList.add(entry);
@@ -318,7 +366,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             }
         }
         if (processDisplayList.isEmpty()) {
-            // TODO: all processes are processed or currently in progress by someone else, stay on overview page
+            // all processes are processed or currently in progress by someone else, stay on overview page
             displayType = "overview";
             return;
         }
