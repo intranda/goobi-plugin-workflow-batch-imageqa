@@ -33,11 +33,11 @@
                         id="finishForm"
                         enctype="multipart/form-data"
                         prependId="false">
-                        <div class="modal-header bg-primary text-white">
+                        <div class="modal-header bg-hot text-white">
                             <h4
                                 class="modal-title"
                                 id="finishBoxTitle">
-                                <h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.batch.batchName}" />
+                                #{msgs.plugin_workflow_batches_abort}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
                             </h4>
 
                             <button
