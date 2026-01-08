@@ -379,7 +379,7 @@
                                                             rendered="#{displayProcess.errorStep}" />
                                                         <h:panelGroup
                                                             styleClass="fs-5 fa fa-exclamation-circle d-flex align-items-center"
-                                                            style="color: var(--bs-green)"
+                                                            style="color: var(--bs-#{displayProcess.invalid ? 'white' : 'green'})"
                                                             rendered="#{displayProcess.metadataStep}" />
 
                                                         <button
