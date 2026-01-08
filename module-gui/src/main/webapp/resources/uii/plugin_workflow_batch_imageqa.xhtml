@@ -276,7 +276,7 @@
                                                             <button
                                                                 jsf:id="rejectClick"
                                                                 class="btn btn-danger"
-                                                                title="#{msgs.plugin_workflow_batches_reject}"
+                                                                title="#{msgs.plugin_workflow_batches_abort}"
                                                                 jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"
                                                                 data-bs-toggle="tooltip">
                                                                 <!-- added padding for icon so that button widths align -->
@@ -303,7 +303,7 @@
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
                                                                 data-bs-toggle="tooltip"
-                                                                title="#{msgs.plugin_workflow_batches_finalize}">
+                                                                title="#{msgs.abschliessen}">
                                                                 <span
                                                                     class="fa fa-check"
                                                                     aria-hidden="true" />
@@ -533,7 +533,7 @@
                             <section:section type="primary">
                                 <section:header
                                     icon=""
-                                    title="#{msgs.intranda_workflow_batch_result}" />
+                                    title="" />
                                 <section:body padding="true">
 
 
