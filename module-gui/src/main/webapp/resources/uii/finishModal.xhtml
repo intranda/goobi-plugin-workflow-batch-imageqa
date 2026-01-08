@@ -68,20 +68,20 @@
 
                                 <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}:" />
                                 <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.finishedPercentage}" />
+                                    <f:param value="#{item.finishedPercentageDisplay}" />
                                     <f:param value="#{item.finishedNumberOfPages}" />
                                 </h:outputFormat>
 
                                 <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}:" />
                                 <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.inWorkPercentage}" />
+                                    <f:param value="#{item.inWorkPercentageDisplay}" />
                                     <f:param value="#{item.numberOfPagesInProcess}" />
                                 </h:outputFormat>
 
 
                                 <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesError}:" />
                                 <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.errorPercentage}" />
+                                    <f:param value="#{item.errorPercentageDisplay}" />
                                     <f:param value="#{item.errorNumberOfPages}" />
                                 </h:outputFormat>
 

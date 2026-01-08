@@ -108,13 +108,10 @@
                                                     </td>
 
                                                     <td>
-                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                                            <f:param value="#{item.finishedPercentage}" />
-                                                            <f:param value="#{item.finishedNumberOfPages}" />
-                                                        </h:outputFormat>
-
-
-                                                        <div class="progress__container">
+                                                        <div
+                                                            class="progress__container"
+                                                            data-bs-toggle="tooltip"
+                                                            title="#{item.finishedProgressbarTooltip}">
                                                             <h:panelGroup
                                                                 rendered="#{item.finishedPercentage gt 0}"
                                                                 styleClass="progress-bar progress-bar-success"
@@ -144,118 +141,107 @@
                                                                     value="body" />
                                                             </h:panelGroup>
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-nowrap gap-3">
+                                                            <div class="progress__container flex-grow-1" title="#{item.inWorkProgressbarTooltip}" data-bs-toggle="tooltip">
+                                                                <h:panelGroup
+                                                                    rendered="#{item.inWorkPercentage gt 0}"
+                                                                    styleClass="progress-bar progress-bar-success"
+                                                                    pt:role="figure"
+                                                                    pt:aria-label="#{item.inWorkPercentage}% #{msgs.statusInBearbeitung}">
+                                                                    <h:outputText value="&#160;" />
+
+                                                                    <f:passThroughAttribute
+                                                                        name="style"
+                                                                        value="--progress: #{item.inWorkPercentage}%" />
+                                                                    <f:passThroughAttribute
+                                                                        name="data-bs-container"
+                                                                        value="body" />
+                                                                </h:panelGroup>
+
+                                                                <h:panelGroup
+                                                                    rendered="#{item.notInWorkPercentage gt 0}"
+                                                                    styleClass="progress-bar progress-bar-danger"
+                                                                    pt:role="figure"
+                                                                    pt:aria-label="#{item.notInWorkPercentage}">
+                                                                    <h:outputText value="&#160;" />
+                                                                    <f:passThroughAttribute
+                                                                        name="style"
+                                                                        value="--progress: #{item.notInWorkPercentage}%" />
+                                                                    <f:passThroughAttribute
+                                                                        name="data-bs-container"
+                                                                        value="body" />
+                                                                </h:panelGroup>
+                                                            </div>
+                                                            <button
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcesses}"
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-pencil"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                    value="batchEdit" />
+                                                            </button>
+                                                        </div>
 
                                                     </td>
                                                     <td>
-                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                                            <f:param value="#{item.inWorkPercentage}" />
-                                                            <f:param value="#{item.numberOfPagesInProcess}" />
-                                                        </h:outputFormat>
+                                                        <div class="d-flex flex-nowrap gap-3">
+                                                            <div class="progress__container flex-grow-1" title="#{item.errorProgressbarTooltip}" data-bs-toggle="tooltip">
+                                                                <h:panelGroup
+                                                                    rendered="#{item.errorPercentage gt 0}"
+                                                                    styleClass="progress-bar progress-bar-success"
+                                                                    pt:role="figure"
+                                                                    pt:aria-label="#{item.errorPercentage}% #{msgs.statusError}">
+                                                                    <h:outputText value="&#160;" />
 
-                                                        <button
-                                                            class="btn btn-blank"
-                                                            jsf:rel="tooltip"
-                                                            jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcesses}"
-                                                            title="#{msgs.plugin_workflow_batches_open}">
-                                                            <span
-                                                                class="fa fa-pencil"
-                                                                aria-hidden="true" />
-                                                            <f:setPropertyActionListener
-                                                                target="#{NavigationForm.workflowPlugin.currentBatch}"
-                                                                value="#{item}" />
-                                                            <f:setPropertyActionListener
-                                                                target="#{NavigationForm.workflowPlugin.displayType}"
-                                                                value="batchEdit" />
-                                                        </button>
+                                                                    <f:passThroughAttribute
+                                                                        name="style"
+                                                                        value="--progress: #{item.errorPercentage}%" />
+                                                                    <f:passThroughAttribute
+                                                                        name="data-bs-container"
+                                                                        value="body" />
+                                                                </h:panelGroup>
 
-
-                                                        <div class="progress__container">
-                                                            <h:panelGroup
-                                                                rendered="#{item.inWorkPercentage gt 0}"
-                                                                styleClass="progress-bar progress-bar-success"
-                                                                pt:role="figure"
-                                                                pt:aria-label="#{item.inWorkPercentage}% #{msgs.statusInBearbeitung}">
-                                                                <h:outputText value="&#160;" />
-
-                                                                <f:passThroughAttribute
-                                                                    name="style"
-                                                                    value="--progress: #{item.inWorkPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
-                                                            </h:panelGroup>
-
-                                                            <h:panelGroup
-                                                                rendered="#{item.notInWorkPercentage gt 0}"
-                                                                styleClass="progress-bar progress-bar-danger"
-                                                                pt:role="figure"
-                                                                pt:aria-label="#{item.notInWorkPercentage}">
-                                                                <h:outputText value="&#160;" />
-                                                                <f:passThroughAttribute
-                                                                    name="style"
-                                                                    value="--progress: #{item.notInWorkPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
-                                                            </h:panelGroup>
+                                                                <h:panelGroup
+                                                                    rendered="#{item.notErrorPercentage gt 0}"
+                                                                    styleClass="progress-bar progress-bar-danger"
+                                                                    pt:role="figure"
+                                                                    pt:aria-label="#{item.notErrorPercentage}">
+                                                                    <h:outputText value="&#160;" />
+                                                                    <f:passThroughAttribute
+                                                                        name="style"
+                                                                        value="--progress: #{item.notErrorPercentage}%" />
+                                                                    <f:passThroughAttribute
+                                                                        name="data-bs-container"
+                                                                        value="body" />
+                                                                </h:panelGroup>
+                                                            </div>
+                                                            <button
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcesses}"
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-pencil"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                    value="batchEdit" />
+                                                            </button>
                                                         </div>
-
-
-                                                    </td>
-                                                    <td>
-                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                                            <f:param value="#{item.errorPercentage}" />
-                                                            <f:param value="#{item.errorNumberOfPages}" />
-                                                        </h:outputFormat>
-
-                                                        <button
-                                                            class="btn btn-blank"
-                                                            jsf:rel="tooltip"
-                                                            jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcesses}"
-                                                            title="#{msgs.plugin_workflow_batches_open}">
-                                                            <span
-                                                                class="fa fa-pencil"
-                                                                aria-hidden="true" />
-                                                            <f:setPropertyActionListener
-                                                                target="#{NavigationForm.workflowPlugin.currentBatch}"
-                                                                value="#{item}" />
-                                                            <f:setPropertyActionListener
-                                                                target="#{NavigationForm.workflowPlugin.displayType}"
-                                                                value="batchEdit" />
-                                                        </button>
-                                                        
-                                                        
-                                                         <div class="progress__container">
-                                                            <h:panelGroup
-                                                                rendered="#{item.errorPercentage gt 0}"
-                                                                styleClass="progress-bar progress-bar-success"
-                                                                pt:role="figure"
-                                                                pt:aria-label="#{item.errorPercentage}% #{msgs.statusError}">
-                                                                <h:outputText value="&#160;" />
-
-                                                                <f:passThroughAttribute
-                                                                    name="style"
-                                                                    value="--progress: #{item.errorPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
-                                                            </h:panelGroup>
-
-                                                            <h:panelGroup
-                                                                rendered="#{item.notErrorPercentage gt 0}"
-                                                                styleClass="progress-bar progress-bar-danger"
-                                                                pt:role="figure"
-                                                                pt:aria-label="#{item.notErrorPercentage}">
-                                                                <h:outputText value="&#160;" />
-                                                                <f:passThroughAttribute
-                                                                    name="style"
-                                                                    value="--progress: #{item.notErrorPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
-                                                            </h:panelGroup>
-                                                        </div>
-                                                        
                                                     </td>
                                                     <td>
                                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
@@ -272,7 +258,8 @@
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
-                                                                title="#{msgs.plugin_workflow_batches_open}">
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
                                                                 <span
                                                                     class="fa fa-pencil"
                                                                     aria-hidden="true" />
@@ -290,9 +277,11 @@
                                                                 jsf:id="rejectClick"
                                                                 class="btn btn-danger"
                                                                 title="#{msgs.plugin_workflow_batches_reject}"
-                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}">
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"
+                                                                data-bs-toggle="tooltip">
+                                                                <!-- added padding for icon so that button widths align -->
                                                                 <span
-                                                                    class="fa fa-exclamation"
+                                                                    class="fa fa-exclamation px-1"
                                                                     aria-hidden="true" />
                                                                 <f:ajax
                                                                     execute="@this"
@@ -312,7 +301,9 @@
                                                                 jsf:id="finalizeBatch"
                                                                 class="btn btn-success"
                                                                 jsf:rel="tooltip"
-                                                                jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}">
+                                                                jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
+                                                                data-bs-toggle="tooltip"
+                                                                title="#{msgs.plugin_workflow_batches_finalize}">
                                                                 <span
                                                                     class="fa fa-check"
                                                                     aria-hidden="true" />
@@ -565,7 +556,7 @@
                                         <span
                                             class="fa fa-check"
                                             aria-hidden="true" />
-                                        <span> #{msgs.pageNext} </span>
+                                        <span>#{msgs.pageNext}</span>
                                     </button>
 
                                 </section:footer>
