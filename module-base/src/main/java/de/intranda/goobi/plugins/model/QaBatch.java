@@ -1,6 +1,8 @@
 package de.intranda.goobi.plugins.model;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.goobi.beans.Batch;
 import org.goobi.beans.GoobiProperty;
@@ -99,7 +101,7 @@ public class QaBatch {
     public double getErrorPercentage() {
         double d = 0;
         if (errorNumberOfPages > 0) {
-            d = errorNumberOfPages * 100 / getThresholdPages();
+            d = getThresholdPages() * 100 / errorNumberOfPages;
         }
         return d;
     }
@@ -115,7 +117,7 @@ public class QaBatch {
     public double getInWorkPercentage() {
         double d = 0;
         if (numberOfPagesInProcess > 0) {
-            d = numberOfPagesInProcess * 100 / getThresholdPages();
+            d = getThresholdPages() * 100 / numberOfPagesInProcess;
         }
         return d;
     }
@@ -130,6 +132,39 @@ public class QaBatch {
 
     public double getThresholdPages() {
         return totalNumberOfPages * percentage / 100;
+    }
+
+    public String getFinishedPercentageDisplay() {
+        return String.format("%.1f", getFinishedPercentage());
+    }
+
+    public String getErrorPercentageDisplay() {
+        return String.format("%.1f", getErrorPercentage());
+    }
+
+    public String getInWorkPercentageDisplay() {
+        return String.format("%.1f", getInWorkPercentage());
+    }
+
+    public String getFinishedProgressbarTooltip() {
+        return MessageFormat.format(
+            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
+            getFinishedPercentageDisplay(), getFinishedNumberOfPages()
+        );
+    }
+
+    public String getInWorkProgressbarTooltip() {
+        return MessageFormat.format(
+            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
+            getInWorkPercentageDisplay(), getNumberOfPagesInProcess()
+        );
+    }
+
+    public String getErrorProgressbarTooltip() {
+        return MessageFormat.format(
+            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
+            getErrorPercentageDisplay(), getErrorNumberOfPages()
+        );
     }
 
 }
