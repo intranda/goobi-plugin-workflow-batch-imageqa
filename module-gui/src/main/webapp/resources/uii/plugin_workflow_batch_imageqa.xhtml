@@ -115,14 +115,14 @@
                                                     </td>
                                                     <td>
                                                         <div
-                                                            class="progress__container"
-                                                            data-bs-toggle="tooltip"
-                                                            title="#{item.finishedProgressbarTooltip}">
+                                                            class="progress__container">
                                                             <h:panelGroup
                                                                 rendered="#{item.finishedPercentage gt 0}"
+                                                                layout="block"
                                                                 styleClass="progress-bar progress-bar-success"
                                                                 pt:role="figure"
-                                                                pt:aria-label="#{item.finishedPercentage}% #{msgs.statusAbgeschlossen}">
+                                                                pt:data-bs-toggle="tooltip"
+                                                                pt:title="#{item.finishedProgressbarTooltip}">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
@@ -135,9 +135,11 @@
 
                                                             <h:panelGroup
                                                                 rendered="#{item.inWorkPercentage gt 0}"
+                                                                layout="block"
                                                                 styleClass="progress-bar progress-bar-warning"
                                                                 pt:role="figure"
-                                                                pt:aria-label="#{item.inWorkPercentage}% #{msgs.statusInBearbeitung}">
+                                                                pt:data-bs-toggle="tooltip"
+                                                                pt:title="#{item.inWorkProgressbarTooltip}">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
@@ -150,9 +152,11 @@
 
                                                             <h:panelGroup
                                                                 rendered="#{item.errorPercentage gt 0}"
+                                                                layout="block"
                                                                 styleClass="progress-bar progress-bar-danger"
                                                                 pt:role="figure"
-                                                                pt:aria-label="#{item.errorPercentage}% #{msgs.statusError}">
+                                                                pt:title="#{item.errorProgressbarTooltip}"
+                                                                pt:data-bs-toggle="tooltip">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
@@ -165,14 +169,16 @@
 
 
                                                             <h:panelGroup
-                                                                rendered="#{item.unFinishedPercentage gt 0}"
-                                                                styleClass="progress-bar progress-bar-neutral border"
+                                                                rendered="#{item.openPercentage gt 0}"
+                                                                layout="block"
+                                                                styleClass="progress-bar progress-bar-neutral"
                                                                 pt:role="figure"
-                                                                pt:aria-label="#{item.unFinishedPercentage}">
+                                                                pt:title="#{item.openProgressbarTooltip}"
+                                                                pt:data-bs-toggle="tooltip">
                                                                 <h:outputText value="&#160;" />
                                                                 <f:passThroughAttribute
                                                                     name="style"
-                                                                    value="--progress: #{item.unFinishedPercentage}%" />
+                                                                    value="--progress: #{item.openPercentage}%" />
                                                                 <f:passThroughAttribute
                                                                     name="data-bs-container"
                                                                     value="body" />
@@ -180,7 +186,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div class="d-flex flex-nowrap gap-3">
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
                                                             <h:outputText value="#{item.numberOfPagesInProcess}" />
 
 
@@ -205,7 +211,7 @@
 
                                                     </td>
                                                     <td>
-                                                        <div class="d-flex flex-nowrap gap-3">
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
 
                                                             <h:outputText value="#{item.errorNumberOfPages}" />
 
