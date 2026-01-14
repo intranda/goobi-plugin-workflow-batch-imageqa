@@ -62,7 +62,12 @@
                                                     <intranda:columnheader
                                                         name="login"
                                                         sortable="false"
-                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}" />
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.fortschritt}" />
 
                                                     <intranda:columnheader
                                                         name="login"
@@ -74,10 +79,6 @@
                                                         sortable="false"
                                                         value="#{msgs.plugin_workflow_batches_numberOfPagesError}" />
 
-                                                    <intranda:columnheader
-                                                        name="login"
-                                                        sortable="false"
-                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}" />
 
 
                                                     <intranda:columnheader
@@ -106,7 +107,12 @@
                                                     <td>
                                                         <h:outputText value="#{item.totalNumberOfPages}" />
                                                     </td>
-
+                                                    <td>
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.percentage}" />
+                                                            <f:param value="#{item.thresholdPages}" />
+                                                        </h:outputFormat>
+                                                    </td>
                                                     <td>
                                                         <div
                                                             class="progress__container"
@@ -128,8 +134,39 @@
                                                             </h:panelGroup>
 
                                                             <h:panelGroup
-                                                                rendered="#{item.unFinishedPercentage gt 0}"
+                                                                rendered="#{item.inWorkPercentage gt 0}"
+                                                                styleClass="progress-bar progress-bar-warning"
+                                                                pt:role="figure"
+                                                                pt:aria-label="#{item.inWorkPercentage}% #{msgs.statusInBearbeitung}">
+                                                                <h:outputText value="&#160;" />
+
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.inWorkPercentage}%" />
+                                                                <f:passThroughAttribute
+                                                                    name="data-bs-container"
+                                                                    value="body" />
+                                                            </h:panelGroup>
+
+                                                            <h:panelGroup
+                                                                rendered="#{item.errorPercentage gt 0}"
                                                                 styleClass="progress-bar progress-bar-danger"
+                                                                pt:role="figure"
+                                                                pt:aria-label="#{item.errorPercentage}% #{msgs.statusError}">
+                                                                <h:outputText value="&#160;" />
+
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.errorPercentage}%" />
+                                                                <f:passThroughAttribute
+                                                                    name="data-bs-container"
+                                                                    value="body" />
+                                                            </h:panelGroup>
+
+
+                                                            <h:panelGroup
+                                                                rendered="#{item.unFinishedPercentage gt 0}"
+                                                                styleClass="progress-bar progress-bar-neutral border"
                                                                 pt:role="figure"
                                                                 pt:aria-label="#{item.unFinishedPercentage}">
                                                                 <h:outputText value="&#160;" />
@@ -144,36 +181,10 @@
                                                     </td>
                                                     <td>
                                                         <div class="d-flex flex-nowrap gap-3">
-                                                            <div class="progress__container flex-grow-1" title="#{item.inWorkProgressbarTooltip}" data-bs-toggle="tooltip">
-                                                                <h:panelGroup
-                                                                    rendered="#{item.inWorkPercentage gt 0}"
-                                                                    styleClass="progress-bar progress-bar-success"
-                                                                    pt:role="figure"
-                                                                    pt:aria-label="#{item.inWorkPercentage}% #{msgs.statusInBearbeitung}">
-                                                                    <h:outputText value="&#160;" />
+                                                            <h:outputText value="#{item.numberOfPagesInProcess}" />
 
-                                                                    <f:passThroughAttribute
-                                                                        name="style"
-                                                                        value="--progress: #{item.inWorkPercentage}%" />
-                                                                    <f:passThroughAttribute
-                                                                        name="data-bs-container"
-                                                                        value="body" />
-                                                                </h:panelGroup>
 
-                                                                <h:panelGroup
-                                                                    rendered="#{item.notInWorkPercentage gt 0}"
-                                                                    styleClass="progress-bar progress-bar-danger"
-                                                                    pt:role="figure"
-                                                                    pt:aria-label="#{item.notInWorkPercentage}">
-                                                                    <h:outputText value="&#160;" />
-                                                                    <f:passThroughAttribute
-                                                                        name="style"
-                                                                        value="--progress: #{item.notInWorkPercentage}%" />
-                                                                    <f:passThroughAttribute
-                                                                        name="data-bs-container"
-                                                                        value="body" />
-                                                                </h:panelGroup>
-                                                            </div>
+
                                                             <button
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
@@ -195,36 +206,9 @@
                                                     </td>
                                                     <td>
                                                         <div class="d-flex flex-nowrap gap-3">
-                                                            <div class="progress__container flex-grow-1" title="#{item.errorProgressbarTooltip}" data-bs-toggle="tooltip">
-                                                                <h:panelGroup
-                                                                    rendered="#{item.errorPercentage gt 0}"
-                                                                    styleClass="progress-bar progress-bar-success"
-                                                                    pt:role="figure"
-                                                                    pt:aria-label="#{item.errorPercentage}% #{msgs.statusError}">
-                                                                    <h:outputText value="&#160;" />
 
-                                                                    <f:passThroughAttribute
-                                                                        name="style"
-                                                                        value="--progress: #{item.errorPercentage}%" />
-                                                                    <f:passThroughAttribute
-                                                                        name="data-bs-container"
-                                                                        value="body" />
-                                                                </h:panelGroup>
+                                                            <h:outputText value="#{item.errorNumberOfPages}" />
 
-                                                                <h:panelGroup
-                                                                    rendered="#{item.notErrorPercentage gt 0}"
-                                                                    styleClass="progress-bar progress-bar-danger"
-                                                                    pt:role="figure"
-                                                                    pt:aria-label="#{item.notErrorPercentage}">
-                                                                    <h:outputText value="&#160;" />
-                                                                    <f:passThroughAttribute
-                                                                        name="style"
-                                                                        value="--progress: #{item.notErrorPercentage}%" />
-                                                                    <f:passThroughAttribute
-                                                                        name="data-bs-container"
-                                                                        value="body" />
-                                                                </h:panelGroup>
-                                                            </div>
                                                             <button
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
@@ -243,12 +227,7 @@
                                                             </button>
                                                         </div>
                                                     </td>
-                                                    <td>
-                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                                            <f:param value="#{item.percentage}" />
-                                                            <f:param value="#{item.thresholdPages}" />
-                                                        </h:outputFormat>
-                                                    </td>
+
 
                                                     <td>
                                                         <div class="gw-table__actions__container">

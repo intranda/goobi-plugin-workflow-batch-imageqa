@@ -1,13 +1,12 @@
 package de.intranda.goobi.plugins.model;
 
-import java.text.MessageFormat;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.goobi.beans.Batch;
 import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 
+import de.sub.goobi.helper.Helper;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.QaPluginManager;
 import lombok.Getter;
@@ -101,7 +100,7 @@ public class QaBatch {
     public double getErrorPercentage() {
         double d = 0;
         if (errorNumberOfPages > 0) {
-            d = getThresholdPages() * 100 / errorNumberOfPages;
+            d = errorNumberOfPages * 100 / getThresholdPages();
         }
         return d;
     }
@@ -117,7 +116,7 @@ public class QaBatch {
     public double getInWorkPercentage() {
         double d = 0;
         if (numberOfPagesInProcess > 0) {
-            d = getThresholdPages() * 100 / numberOfPagesInProcess;
+            d = numberOfPagesInProcess * 100 / getThresholdPages();
         }
         return d;
     }
@@ -147,24 +146,17 @@ public class QaBatch {
     }
 
     public String getFinishedProgressbarTooltip() {
-        return MessageFormat.format(
-            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
-            getFinishedPercentageDisplay(), getFinishedNumberOfPages()
-        );
+        return finishedNumberOfPages + " " + Helper.getTranslation("Images");
     }
 
     public String getInWorkProgressbarTooltip() {
-        return MessageFormat.format(
-            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
-            getInWorkPercentageDisplay(), getNumberOfPagesInProcess()
-        );
+        return numberOfPagesInProcess + " " + Helper.getTranslation("Images");
+
     }
 
     public String getErrorProgressbarTooltip() {
-        return MessageFormat.format(
-            ResourceBundle.getBundle("messages").getString("plugin_workflow_batches_progress"),
-            getErrorPercentageDisplay(), getErrorNumberOfPages()
-        );
+        return errorNumberOfPages + " " + Helper.getTranslation("Images");
+
     }
 
 }
