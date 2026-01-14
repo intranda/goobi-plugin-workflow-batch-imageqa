@@ -307,30 +307,30 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 helper.changeProcessTemplate(processToChange, inactiveProcessTemplate);
 
                 // find first open/inwork/locked step. Execute step, if it is an automatic step
-
+                Step openStep = null;
                 for (Step step : processToChange.getSchritte()) {
-                    switch (step.getBearbeitungsstatusEnum()) {
-                        case INWORK, LOCKED, OPEN:
-                            if (step.isTypAutomatisch()) {
-                                step.setBearbeitungsbeginn(new Date());
-                                step.setBearbeitungsbenutzer(null);
-                                step.setBearbeitungsstatusEnum(StepStatus.INWORK);
-                                step.setEditTypeEnum(StepEditType.AUTOMATIC);
+                    if (openStep == null) {
+                        switch (step.getBearbeitungsstatusEnum()) {
+                            case INWORK, LOCKED, OPEN:
+                                if (step.isTypAutomatisch()) {
+                                    step.setBearbeitungsbeginn(new Date());
+                                    step.setBearbeitungsbenutzer(null);
+                                    step.setBearbeitungsstatusEnum(StepStatus.INWORK);
+                                    step.setEditTypeEnum(StepEditType.AUTOMATIC);
 
-                                try {
-                                    StepManager.saveStep(step);
-                                } catch (DAOException e) {
-                                    log.error(e);
+                                    try {
+                                        StepManager.saveStep(step);
+                                    } catch (DAOException e) {
+                                        log.error(e);
+                                    }
+                                    openStep = step;
                                 }
-
-                                ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(step);
-                                myThread.startOrPutToQueue();
-                            }
-                            return;
-                        default:
+                            default:
+                        }
                     }
-
                 }
+                ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(openStep);
+                myThread.startOrPutToQueue();
             }
         }
 
