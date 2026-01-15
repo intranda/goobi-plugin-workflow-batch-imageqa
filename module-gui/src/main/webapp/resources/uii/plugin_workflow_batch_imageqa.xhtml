@@ -115,56 +115,45 @@
                                                     </td>
                                                     <td>
                                                         <div
-                                                            class="progress__container">
+                                                            class="progress__container"
+                                                            data-bs-toggle="popover"
+                                                            data-bs-trigger="hover"
+                                                            data-bs-html="true"
+                                                            data-bs-content="&lt;div&gt;&lt;span class='font-status-done fw-bold'&gt;#{msgs.statusAbgeschlossen}:&lt;/span&gt; #{item.finishedNumberOfPages} #{msgs.Images}&lt;br/&gt;&lt;span class='font-status-open fw-bold'&gt;#{msgs.statusInBearbeitung}:&lt;/span&gt; #{item.numberOfPagesInProcess} #{msgs.Images}&lt;br/&gt;&lt;span class='font-status-locked fw-bold'&gt;#{msgs.plugin_workflow_batches_numberOfPagesError}:&lt;/span&gt; #{item.errorNumberOfPages} #{msgs.Images}&lt;br/&gt;&lt;span class='text-muted fw-bold'&gt;#{msgs.lw_NOT_PROCESSED}:&lt;/span&gt; #{item.openNumberOfPages} #{msgs.Images}&lt;/div&gt;">
                                                             <h:panelGroup
                                                                 rendered="#{item.finishedPercentage gt 0}"
                                                                 layout="block"
                                                                 styleClass="progress-bar progress-bar-success"
-                                                                pt:role="figure"
-                                                                pt:data-bs-toggle="tooltip"
-                                                                pt:title="#{item.finishedProgressbarTooltip}">
+                                                                pt:role="figure">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
                                                                     name="style"
                                                                     value="--progress: #{item.finishedPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
                                                             </h:panelGroup>
 
                                                             <h:panelGroup
                                                                 rendered="#{item.inWorkPercentage gt 0}"
                                                                 layout="block"
                                                                 styleClass="progress-bar progress-bar-warning"
-                                                                pt:role="figure"
-                                                                pt:data-bs-toggle="tooltip"
-                                                                pt:title="#{item.inWorkProgressbarTooltip}">
+                                                                pt:role="figure">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
                                                                     name="style"
                                                                     value="--progress: #{item.inWorkPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
                                                             </h:panelGroup>
 
                                                             <h:panelGroup
                                                                 rendered="#{item.errorPercentage gt 0}"
                                                                 layout="block"
                                                                 styleClass="progress-bar progress-bar-danger"
-                                                                pt:role="figure"
-                                                                pt:title="#{item.errorProgressbarTooltip}"
-                                                                pt:data-bs-toggle="tooltip">
+                                                                pt:role="figure">
                                                                 <h:outputText value="&#160;" />
 
                                                                 <f:passThroughAttribute
                                                                     name="style"
                                                                     value="--progress: #{item.errorPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
                                                             </h:panelGroup>
 
 
@@ -172,16 +161,11 @@
                                                                 rendered="#{item.openPercentage gt 0}"
                                                                 layout="block"
                                                                 styleClass="progress-bar progress-bar-neutral"
-                                                                pt:role="figure"
-                                                                pt:title="#{item.openProgressbarTooltip}"
-                                                                pt:data-bs-toggle="tooltip">
+                                                                pt:role="figure">
                                                                 <h:outputText value="&#160;" />
                                                                 <f:passThroughAttribute
                                                                     name="style"
                                                                     value="--progress: #{item.openPercentage}%" />
-                                                                <f:passThroughAttribute
-                                                                    name="data-bs-container"
-                                                                    value="body" />
                                                             </h:panelGroup>
                                                         </div>
                                                     </td>

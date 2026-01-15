@@ -141,6 +141,10 @@ public class QaBatch {
         return totalNumberOfPages * percentage / 100;
     }
 
+    public int getOpenNumberOfPages() {
+        return (int) (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess);
+    }
+
     public String getFinishedPercentageDisplay() {
         return String.format("%.1f", getFinishedPercentage());
     }
@@ -168,7 +172,7 @@ public class QaBatch {
 
     public String getOpenProgressbarTooltip() {
         return Helper.getTranslation("lw_NOT_PROCESSED") + ": "
-                + ((int) getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) + " "
+                + getOpenNumberOfPages() + " "
                 + Helper.getTranslation("Images");
     }
 
