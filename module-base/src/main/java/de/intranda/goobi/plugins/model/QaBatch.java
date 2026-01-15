@@ -176,4 +176,9 @@ public class QaBatch {
                 + Helper.getTranslation("Images");
     }
 
+    public boolean isFinished() {
+        return finishedNumberOfPages + errorNumberOfPages + numberOfPagesInProcess == totalNumberOfPages;
+
+    }
+
 }

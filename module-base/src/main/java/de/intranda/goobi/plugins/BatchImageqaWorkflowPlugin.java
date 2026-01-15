@@ -341,7 +341,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         // check if batch has a percentage property
 
         double numberOfFinishedPages = currentBatch.getFinishedNumberOfPages() + currentBatch.getErrorNumberOfPages();
-        double imagesToDisplay = currentBatch.getThresholdPages();
 
         if (percentage < 1) {
             percentage = 1;
@@ -351,7 +350,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         for (ProcessOverview entry : currentBatch.getProcesses()) {
 
-            if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfFinishedPages < imagesToDisplay)) {
+            if (entry.isMetadataAvailable() || entry.isPriorityStep()) {
                 // exclude already processed images
                 if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
                     numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
@@ -383,7 +382,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
                 DisplayProcess dp = new DisplayProcess(process, thumbnailSize, entry);
                 dp.setMetadataStep(entry.isMetadataAvailable());
-                dp.setErrorStep(entry.isPriorityStep());
+                dp.setErrorStep("error".equals(entry.getProcessStatus()));
                 displayProcesses.add(dp);
 
                 // use process title as default, if no field is configured or value is missing
@@ -564,13 +563,14 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         }
     }
 
-    public void cancelEdition() {
+    public void abortEdition() {
         // reset all processes from current view, so they can be picked up again
         for (ProcessOverview po : processDisplayList) {
             // remove status property
             try {
-                DatabaseVersion.runSql("delete from properties where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
-                        + po.getProcessid());
+                DatabaseVersion.runSql(
+                        "delete from properties where property_name in('BatchQAStatus', 'BatchQAError') and object_type='process' and object_id = "
+                                + po.getProcessid());
             } catch (SQLException e) {
                 log.error(e);
             }
@@ -581,4 +581,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         allBatches = null;
         displayType = "overview";
     }
+
+    public void cancelEdition() {
+        allBatches = null;
+        displayType = "overview";
+    }
+
 }

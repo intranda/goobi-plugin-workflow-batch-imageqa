@@ -114,6 +114,7 @@
                                                         </h:outputFormat>
                                                     </td>
                                                     <td>
+
                                                         <div
                                                             class="progress__container"
                                                             data-bs-toggle="popover"
@@ -223,6 +224,7 @@
                                                         <div class="gw-table__actions__container">
                                                             <!-- edit batch -->
                                                             <button
+                                                                jsf:rendered="#{!item.finished}"
                                                                 jsf:id="edit"
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
@@ -511,12 +513,22 @@
 
                                 </section:body>
                                 <section:footer>
+
                                     <button
-                                        jsf:id="cancel"
+                                        class="btn btn-blank"
+                                        jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
+                                        
+                                        <span>#{msgs.cancel}</span>
+                                    </button>
+
+
+
+                                    <button
+                                        jsf:id="abort"
                                         class="btn btn-blank"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
-                                        <span>#{msgs.cancel}</span>
+                                        jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
+                                        <span>#{msgs.plugin_workflow_batches_abortEdition}</span>
                                     </button>
 
 
@@ -528,7 +540,7 @@
                                         <span
                                             class="fa fa-check"
                                             aria-hidden="true" />
-                                        <span>#{msgs.pageNext}</span>
+                                        <span>#{msgs.plugin_workflow_batches_next}</span>
                                     </button>
 
                                 </section:footer>
