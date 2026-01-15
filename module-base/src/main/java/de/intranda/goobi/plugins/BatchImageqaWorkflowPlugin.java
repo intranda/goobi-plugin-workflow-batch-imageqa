@@ -341,7 +341,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         // check if batch has a percentage property
 
         double numberOfFinishedPages = currentBatch.getFinishedNumberOfPages() + currentBatch.getErrorNumberOfPages();
+        double imagesToDisplay = currentBatch.getThresholdPages();
 
+        if (numberOfFinishedPages > imagesToDisplay) {
+            imagesToDisplay = currentBatch.getTotalNumberOfPages();
+        }
         if (percentage < 1) {
             percentage = 1;
         }
@@ -350,7 +354,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         for (ProcessOverview entry : currentBatch.getProcesses()) {
 
-            if (entry.isMetadataAvailable() || entry.isPriorityStep()) {
+            if (entry.isMetadataAvailable() || entry.isPriorityStep() || (numberOfFinishedPages < imagesToDisplay)) {
                 // exclude already processed images
                 if (StringUtils.isBlank(entry.getProcessStatus()) && processDisplayList.size() < numberOfProcessesPerPage) {
                     numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
