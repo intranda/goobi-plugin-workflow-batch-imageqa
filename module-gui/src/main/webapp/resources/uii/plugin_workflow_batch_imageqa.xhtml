@@ -270,28 +270,31 @@
                                                                     aria-hidden="true" />
                                                                 <f:ajax
                                                                     execute="@this"
-                                                                    render="finishBox"
+                                                                    render="rejectBox"
                                                                     onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#finishBox').modal('show');
+                                                                                    $('#rejectBox').modal('show');
                                                                                 }}" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
                                                             </button>
 
-
-
-                                                            <!-- finalize batch -->
+                                                            <!-- open finish modal -->
                                                             <button
-                                                                jsf:id="finalizeBatch"
+                                                                jsf:id="finishClick"
                                                                 class="btn btn-success"
-                                                                jsf:rel="tooltip"
-                                                                jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
-                                                                data-bs-toggle="tooltip"
-                                                                title="#{msgs.abschliessen}">
+                                                                title="#{msgs.plugin_workflow_batches_finish}"
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_finish')}"
+                                                                data-bs-toggle="tooltip">
                                                                 <span
                                                                     class="fa fa-check"
                                                                     aria-hidden="true" />
+                                                                <f:ajax
+                                                                    execute="@this"
+                                                                    render="finishBox"
+                                                                    onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#finishBox').modal('show');
+                                                                                }}" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
@@ -575,5 +578,6 @@
     <!-- process journal -->
     <ui:include src="journalModal.xhtml" />
 
+    <ui:include src="rejectModal.xhtml" />
     <ui:include src="finishModal.xhtml" />
 </ui:composition>

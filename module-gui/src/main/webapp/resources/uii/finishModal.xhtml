@@ -33,11 +33,11 @@
                         id="finishForm"
                         enctype="multipart/form-data"
                         prependId="false">
-                        <div class="modal-header bg-hot text-white">
+                        <div class="modal-header bg-primary text-white">
                             <h4
                                 class="modal-title"
-                                id="finishBoxTitle">
-                                #{msgs.plugin_workflow_batches_abort}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                                id="rejectBoxTitle">
+                                #{msgs.plugin_newspaperRecognizer_confirmAction}
                             </h4>
 
                             <button
@@ -53,76 +53,35 @@
 
                         </div>
                         <div class="modal-body">
-                            <h:panelGrid
-                                columns="2"
-                                styleClass="table table-hover table-bordered"
-                                columnClasses="visible,tableColumnMaxWidthLong">
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfProcesses}:" />
-                                <h:outputText value="#{item.numberOfProcesses}" />
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPages}:" />
-                                <h:outputText value="#{item.totalNumberOfPages}" />
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.finishedPercentageDisplay}" />
-                                    <f:param value="#{item.finishedNumberOfPages}" />
-                                </h:outputFormat>
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.inWorkPercentageDisplay}" />
-                                    <f:param value="#{item.numberOfPagesInProcess}" />
-                                </h:outputFormat>
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesError}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.errorPercentageDisplay}" />
-                                    <f:param value="#{item.errorNumberOfPages}" />
-                                </h:outputFormat>
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.percentage}" />
-                                    <f:param value="#{item.thresholdPages}" />
-                                </h:outputFormat>
-
-                            </h:panelGrid>
-
+                            #{msgs.plugin_workflow_batches_finish}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
                         </div>
                         <div class="modal-footer">
                             <button
                                 type="button"
-                                jsf:id="cancelButton"
+                                jsf:id="cancelFinishButton"
                                 title="#{msgs.cancel}"
                                 jsf:rel="tooltip"
                                 class="btn btn-blank"
                                 data-bs-dismiss="modal">
                                 <h:outputText value="#{msgs.cancel}" />
                             </button>
-                            <!--  download csv report -->
-                            <button
-                                jsf:id="downloadCsv"
-                                class="btn btn-blank"
-                                jsf:rel="tooltip"
-                                jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
-                                <h:outputText value="#{msgs.downloadCsv}" />
-                            </button>
 
-                            <!-- reject batch -->
+                            <!-- finalize batch -->
                             <button
-                                jsf:id="errorBatch"
-                                class="btn btn-danger"
+                                jsf:id="finalizeBatch"
+                                class="btn btn-primary"
                                 jsf:rel="tooltip"
-                                jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
-                                <h:outputText value="#{msgs.plugin_workflow_batches_abort}" />
+                                jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
+                                data-bs-toggle="tooltip"
+                                title="#{msgs.abschliessen}">
+                                <span
+                                    class="fa fa-check"
+                                    aria-hidden="true" />
+                                <span>#{msgs.plugin_workflow_batches_finish}</span>
+                                <f:setPropertyActionListener
+                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                    value="#{item}" />
                             </button>
-
 
 
                         </div>

@@ -1,0 +1,134 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:form="http://goobi.io/form"
+    xmlns:section="http://goobi.io/section"
+    xmlns:dl="http://goobi.io/dl"
+    xmlns:util="http://goobi.io/util">
+    <composite:interface>
+    </composite:interface>
+    <composite:implementation>
+
+        <h:panelGroup
+            styleClass="modal"
+            layout="block"
+            id="rejectBox"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="imageBoxTitle">
+            <h:panelGroup
+                layout="block"
+                id="rejectBoxContent"
+                class="modal-dialog modal-xl p-5"
+                role="document">
+                <div class="modal-content">
+                    <h:form
+                        id="rejectForm"
+                        enctype="multipart/form-data"
+                        prependId="false">
+                        <div class="modal-header bg-primary text-white">
+                            <h4
+                                class="modal-title"
+                                id="rejectBoxTitle">
+                                #{msgs.plugin_workflow_batches_abort}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                            </h4>
+
+                            <button
+                                type="button"
+                                class="btn text-white"
+                                title="#{msgs.abbrechen}"
+                                data-bs-dismiss="modal"
+                                data-toggle="tooltip">
+                                <span
+                                    class="fa fa-times"
+                                    aria-hidden="true" />
+                            </button>
+
+                        </div>
+                        <div class="modal-body">
+                            <h:panelGrid
+                                columns="2"
+                                styleClass="table table-hover table-bordered"
+                                columnClasses="visible,tableColumnMaxWidthLong">
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfProcesses}:" />
+                                <h:outputText value="#{item.numberOfProcesses}" />
+
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPages}:" />
+                                <h:outputText value="#{item.totalNumberOfPages}" />
+
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}:" />
+                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                    <f:param value="#{item.finishedPercentageDisplay}" />
+                                    <f:param value="#{item.finishedNumberOfPages}" />
+                                </h:outputFormat>
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}:" />
+                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                    <f:param value="#{item.inWorkPercentageDisplay}" />
+                                    <f:param value="#{item.numberOfPagesInProcess}" />
+                                </h:outputFormat>
+
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesError}:" />
+                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                    <f:param value="#{item.errorPercentageDisplay}" />
+                                    <f:param value="#{item.errorNumberOfPages}" />
+                                </h:outputFormat>
+
+
+                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}:" />
+                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                    <f:param value="#{item.percentage}" />
+                                    <f:param value="#{item.thresholdPages}" />
+                                </h:outputFormat>
+
+                            </h:panelGrid>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                jsf:id="cancelRejectButton"
+                                title="#{msgs.cancel}"
+                                jsf:rel="tooltip"
+                                class="btn btn-blank"
+                                data-bs-dismiss="modal">
+                                <h:outputText value="#{msgs.cancel}" />
+                            </button>
+                            <!--  download csv report -->
+                            <button
+                                jsf:id="downloadCsv"
+                                class="btn btn-blank"
+                                jsf:rel="tooltip"
+                                jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
+                                <h:outputText value="#{msgs.downloadCsv}" />
+                            </button>
+
+                            <!-- reject batch -->
+                            <button
+                                jsf:id="errorBatch"
+                                class="btn btn-primary"
+                                jsf:rel="tooltip"
+                                jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
+                                <h:outputText value="#{msgs.plugin_workflow_batches_abort}" />
+                            </button>
+
+
+
+                        </div>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+        </h:panelGroup>
+    </composite:implementation>
+</ui:composition>
