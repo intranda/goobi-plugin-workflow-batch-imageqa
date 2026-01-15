@@ -132,7 +132,7 @@ public class QaBatch {
     public double getOpenPercentage() {
         double d = 0;
         if (totalNumberOfPages > 0) {
-            d = (totalNumberOfPages - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) * 100 / getThresholdPages();
+            d = (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) * 100 / getThresholdPages();
         }
         return d;
     }
@@ -162,11 +162,14 @@ public class QaBatch {
     }
 
     public String getErrorProgressbarTooltip() {
-        return Helper.getTranslation("plugin_workflow_batches_numberOfPagesError") + ": " + errorNumberOfPages + " " + Helper.getTranslation("Images");
+        return Helper.getTranslation("plugin_workflow_batches_numberOfPagesError") + ": " + errorNumberOfPages + " "
+                + Helper.getTranslation("Images");
     }
 
     public String getOpenProgressbarTooltip() {
-        return Helper.getTranslation("lw_NOT_PROCESSED") + ": " + (totalNumberOfPages - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) + " " + Helper.getTranslation("Images");
+        return Helper.getTranslation("lw_NOT_PROCESSED") + ": "
+                + ((int) getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) + " "
+                + Helper.getTranslation("Images");
     }
 
 }
