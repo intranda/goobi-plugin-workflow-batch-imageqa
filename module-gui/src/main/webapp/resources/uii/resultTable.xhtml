@@ -1,0 +1,60 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:dl="http://goobi.io/dl">
+    <composite:interface>
+    </composite:interface>
+    <composite:implementation>
+        <div class="flow">
+            <h5>#{msgs.overview}</h5>
+            <div class="border border-bottom-0">
+                <dl:list>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfProcesses}:</dl:term>
+                    <dl:description>#{item.numberOfProcesses}</dl:description>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfPages}:</dl:term>
+                    <dl:description>#{item.totalNumberOfPages}</dl:description>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfPagesToProcess}:</dl:term>
+                    <dl:description>
+                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                            <f:param value="#{item.thresholdPages}" />
+                            <f:param value="#{item.percentage}" />
+                        </h:outputFormat>
+                    </dl:description>
+                </dl:list>
+            </div>
+            <h5 class="pt-3">#{msgs.result}</h5>
+            <div class="border border-bottom-0">
+                <dl:list>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfPagesChecked}:</dl:term>
+                    <dl:description>
+                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                            <f:param value="#{item.processedPages}" />
+                            <f:param value="100" />
+                        </h:outputFormat>
+                    </dl:description>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfPagesAccepted}:</dl:term>
+                    <dl:description>
+                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                            <f:param value="#{item.finishedNumberOfPages}" />
+                            <f:param value="#{item.acceptedPercentageDisplay}" />
+                        </h:outputFormat>
+                    </dl:description>
+                    <dl:term>#{msgs.plugin_workflow_batches_numberOfPagesError}:</dl:term>
+                    <dl:description>
+                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                            <f:param value="#{item.errorNumberOfPages}" />
+                            <f:param value="#{item.errorPercentageDisplay}" />
+                        </h:outputFormat>
+                    </dl:description>
+                </dl:list>
+            </div>
+        </div>
+    </composite:implementation>
+</ui:composition>

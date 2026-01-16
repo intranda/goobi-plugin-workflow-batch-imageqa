@@ -7,11 +7,7 @@
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui"
-    xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:form="http://goobi.io/form"
-    xmlns:section="http://goobi.io/section"
-    xmlns:dl="http://goobi.io/dl"
-    xmlns:util="http://goobi.io/util">
+    xmlns:jsf="http://xmlns.jcp.org/jsf">
     <composite:interface>
     </composite:interface>
     <composite:implementation>
@@ -53,47 +49,7 @@
 
                         </div>
                         <div class="modal-body">
-                            <h:panelGrid
-                                columns="2"
-                                styleClass="table table-hover table-bordered"
-                                columnClasses="visible,tableColumnMaxWidthLong">
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfProcesses}:" />
-                                <h:outputText value="#{item.numberOfProcesses}" />
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPages}:" />
-                                <h:outputText value="#{item.totalNumberOfPages}" />
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesFinished}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.finishedPercentageDisplay}" />
-                                    <f:param value="#{item.finishedNumberOfPages}" />
-                                </h:outputFormat>
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.inWorkPercentageDisplay}" />
-                                    <f:param value="#{item.numberOfPagesInProcess}" />
-                                </h:outputFormat>
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesError}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.errorPercentageDisplay}" />
-                                    <f:param value="#{item.errorNumberOfPages}" />
-                                </h:outputFormat>
-
-
-                                <h:outputText value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}:" />
-                                <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                    <f:param value="#{item.percentage}" />
-                                    <f:param value="#{item.thresholdPages}" />
-                                </h:outputFormat>
-
-                            </h:panelGrid>
-
+                            <ui:include src="resultTable.xhtml" />
                         </div>
                         <div class="modal-footer">
                             <button

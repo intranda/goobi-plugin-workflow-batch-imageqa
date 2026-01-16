@@ -7,11 +7,7 @@
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui"
-    xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:form="http://goobi.io/form"
-    xmlns:section="http://goobi.io/section"
-    xmlns:dl="http://goobi.io/dl"
-    xmlns:util="http://goobi.io/util">
+    xmlns:jsf="http://xmlns.jcp.org/jsf">
     <composite:interface>
     </composite:interface>
     <composite:implementation>
@@ -37,7 +33,7 @@
                             <h4
                                 class="modal-title"
                                 id="rejectBoxTitle">
-                                #{msgs.plugin_newspaperRecognizer_confirmAction}
+                                #{msgs.plugin_workflow_batches_finish}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
                             </h4>
 
                             <button
@@ -53,7 +49,7 @@
 
                         </div>
                         <div class="modal-body">
-                            #{msgs.plugin_workflow_batches_finish}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                            <ui:include src="resultTable.xhtml" />
                         </div>
                         <div class="modal-footer">
                             <button
@@ -74,9 +70,6 @@
                                 jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
                                 data-bs-toggle="tooltip"
                                 title="#{msgs.abschliessen}">
-                                <span
-                                    class="fa fa-check"
-                                    aria-hidden="true" />
                                 <span>#{msgs.plugin_workflow_batches_finish}</span>
                                 <f:setPropertyActionListener
                                     target="#{NavigationForm.workflowPlugin.currentBatch}"

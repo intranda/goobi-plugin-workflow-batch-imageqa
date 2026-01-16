@@ -92,10 +92,10 @@ public class QaBatch {
         return processes.size();
     }
 
-    public double getFinishedPercentage() {
+    public double getAcceptedPercentage() {
         double d = 0;
         if (finishedNumberOfPages > 0) {
-            d = finishedNumberOfPages * 100 / getThresholdPages();
+            d = finishedNumberOfPages * 100 / getProcessedPages();
         }
         if (d > 100) {
             d = 100;
@@ -103,8 +103,8 @@ public class QaBatch {
         return d;
     }
 
-    public double getUnFinishedPercentage() {
-        double d = 100 - getFinishedPercentage();
+    public double getUnAcceptedPercentage() {
+        double d = 100 - getAcceptedPercentage();
         if (d < 0) {
             d = 0.0;
         }
@@ -114,7 +114,7 @@ public class QaBatch {
     public double getErrorPercentage() {
         double d = 0;
         if (errorNumberOfPages > 0) {
-            d = errorNumberOfPages * 100 / getThresholdPages();
+            d = errorNumberOfPages * 100 / getProcessedPages();
         }
         if (d > 100) {
             d = 100;
@@ -164,6 +164,10 @@ public class QaBatch {
         return totalNumberOfPages * percentage / 100;
     }
 
+    public long getProcessedPages() {
+        return finishedNumberOfPages + errorNumberOfPages;
+    }
+
     public int getOpenNumberOfPages() {
         int pages = (int) (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess);
         if (pages < 0) {
@@ -172,16 +176,16 @@ public class QaBatch {
         return pages;
     }
 
-    public String getFinishedPercentageDisplay() {
-        return String.format("%.1f", getFinishedPercentage());
+    public String getAcceptedPercentageDisplay() {
+        return String.format("%.0f", getAcceptedPercentage());
     }
 
     public String getErrorPercentageDisplay() {
-        return String.format("%.1f", getErrorPercentage());
+        return String.format("%.0f", getErrorPercentage());
     }
 
     public String getInWorkPercentageDisplay() {
-        return String.format("%.1f", getInWorkPercentage());
+        return String.format("%.0f", getInWorkPercentage());
     }
 
     public String getFinishedProgressbarTooltip() {
