@@ -173,10 +173,8 @@
                                                     <td>
                                                         <div class="d-flex flex-nowrap gap-3 justify-content-between">
                                                             <h:outputText value="#{item.numberOfPagesInProcess}" />
-
-
-
                                                             <button
+                                                                jsf:rendered="#{item.numberOfPagesInProcess gt 0}"
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcesses}"
@@ -201,6 +199,7 @@
                                                             <h:outputText value="#{item.errorNumberOfPages}" />
 
                                                             <button
+                                                                jsf:rendered="#{item.errorNumberOfPages gt 0}"
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcesses}"
@@ -500,7 +499,7 @@
                                     jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
                                     <span>#{msgs.cancel}</span>
                                 </button>
-                                
+
                                     <button
                                         jsf:id="abort"
                                         class="btn btn-blank"
@@ -527,8 +526,8 @@
                                             aria-hidden="true" />
                                     </button>
                                 </ui:fragment>
-                                
-                                
+
+
                                 <ui:fragment rendered="#{NavigationForm.workflowPlugin.errorPage}">
                                       <button
                                         jsf:id="save"
