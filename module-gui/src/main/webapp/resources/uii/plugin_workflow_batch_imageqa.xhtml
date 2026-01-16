@@ -500,30 +500,44 @@
                                     jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
                                     <span>#{msgs.cancel}</span>
                                 </button>
-                                <button
-                                    jsf:id="abort"
-                                    class="btn btn-blank"
-                                    jsf:rel="tooltip"
-                                    jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
-                                    <span>#{msgs.plugin_workflow_batches_abortEdition}</span>
-                                </button>
-                                <button
-                                    jsf:id="continue"
-                                    class="btn btn-neutral-600"
-                                    jsf:rel="tooltip"
-                                    jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
-                                    <span>
-                                        <h:outputText
-                                            value="#{msgs.abschliessen}"
-                                            rendered="#{NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
-                                        <h:outputText
-                                            value="#{msgs.plugin_workflow_batches_next}"
-                                            rendered="#{!NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
-                                    </span>
-                                    <span
-                                        class="fa fa-angle-right"
-                                        aria-hidden="true" />
-                                </button>
+                                
+                                    <button
+                                        jsf:id="abort"
+                                        class="btn btn-blank"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
+                                        <span>#{msgs.plugin_workflow_batches_abortEdition}</span>
+                                    </button>
+                                <ui:fragment rendered="#{!NavigationForm.workflowPlugin.errorPage}">
+                                    <button
+                                        jsf:id="continue"
+                                        class="btn btn-neutral-600"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
+                                        <span>
+                                            <h:outputText
+                                                value="#{msgs.abschliessen}"
+                                                rendered="#{NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
+                                            <h:outputText
+                                                value="#{msgs.plugin_workflow_batches_next}"
+                                                rendered="#{!NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
+                                        </span>
+                                        <span
+                                            class="fa fa-angle-right"
+                                            aria-hidden="true" />
+                                    </button>
+                                </ui:fragment>
+                                
+                                
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.errorPage}">
+                                      <button
+                                        jsf:id="save"
+                                        class="btn btn-neutral-600"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.saveErrorPage}">
+                                        <span>#{msgs.speichern}</span>
+                                    </button>
+                                </ui:fragment>
                             </section:footer>
                         </h:form>
                     </section:section>

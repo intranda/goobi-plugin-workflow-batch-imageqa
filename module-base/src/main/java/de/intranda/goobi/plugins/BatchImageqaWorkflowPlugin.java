@@ -102,6 +102,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Setter
     private DisplayProcess currentProcess;
 
+    @Getter
+    @Setter
+    private boolean errorPage;
+
     @Override
     public PluginType getType() {
         return PluginType.Workflow;
@@ -174,6 +178,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void loadErrorProcesses() {
+        errorPage = true;
+
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
             if ("error".equals(entry.getProcessStatus())) {
@@ -185,6 +191,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void loadInWorkProcesses() {
+        errorPage = false;
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
             if ("in progress".equals(entry.getProcessStatus())) {
@@ -196,7 +203,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void continueBatch() {
-
+        errorPage = false;
         // mark new processed images as accepted
         for (DisplayProcess dp : displayProcesses) {
             // update status property
@@ -341,6 +348,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     public void openBatch() {
+        errorPage = false;
         int percentage = currentBatch.getPercentage();
         // check if batch has a percentage property
 
@@ -604,6 +612,48 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
     public void cancelEdition() {
         allBatches = null;
         displayType = "overview";
+    }
+
+    public void saveErrorPage() {
+        for (DisplayProcess dp : displayProcesses) {
+            // update status property
+            try {
+                if (dp.isInvalid()) {
+                    DatabaseVersion.runSql(
+                            "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
+                                    + dp.getProcess().getId());
+
+                    //  store error message as property
+                    String errorMessage = dp.getProcessOverview().getErrorMessage();
+                    GoobiProperty errorProperty = null;
+                    for (GoobiProperty gp : dp.getProcess().getProperties()) {
+                        if ("QA-Note".equals(gp.getPropertyName())) {
+                            errorProperty = gp;
+                            break;
+                        }
+                    }
+                    if (errorProperty == null) {
+                        errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
+                        errorProperty.setOwner(dp.getProcess());
+                        errorProperty.setPropertyName("QA-Note");
+                    }
+                    errorProperty.setPropertyValue(errorMessage);
+                    PropertyManager.saveProperty(errorProperty);
+                } else {
+                    DatabaseVersion.runSql(
+                            "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
+                                    + dp.getProcess().getId());
+
+                    DatabaseVersion.runSql(
+                            "delete from properties where property_name = 'QA-Note' and object_type='process' and object_id = "
+                                    + dp.getProcess().getId());
+                }
+            } catch (SQLException e) {
+                log.error(e);
+            }
+        }
+
+        cancelEdition();
     }
 
 }
