@@ -10,7 +10,7 @@ public class ProcessOverviewTest {
 
     @Test
     public void testConstructorAndGetters() {
-        ProcessOverview overview = new ProcessOverview("title", "42", 100, true, false, "done", null);
+        ProcessOverview overview = new ProcessOverview("title", "42", 100, true, false, "accepted", null);
 
         assertEquals("42", overview.getProcessid());
         assertEquals(100, overview.getNumberOfPages());

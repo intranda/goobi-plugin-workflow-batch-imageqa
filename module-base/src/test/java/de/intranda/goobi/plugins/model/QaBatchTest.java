@@ -61,7 +61,7 @@ public class QaBatchTest {
         row[1] = "100";
         row[2] = "0";
         row[3] = "0";
-        row[4] = "done";
+        row[4] = "accepted";
         row[5] = "title";
         row[6] = "error";
         data.add(row);

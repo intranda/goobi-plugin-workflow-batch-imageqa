@@ -41,19 +41,7 @@ public class QaBatch {
     public QaBatch(Batch batch, String stepTitle, List<String> metadataToCheck, int defaultPercentage) {
         this.batch = batch;
         processes = QaPluginManager.getProcesses(stepTitle, batch.getBatchId(), metadataToCheck);
-        for (ProcessOverview proc : processes) {
-            totalNumberOfPages += proc.getNumberOfPages();
-
-            if ("done".equals(proc.getProcessStatus())) {
-                finishedNumberOfPages += proc.getNumberOfPages();
-            }
-            if ("error".equals(proc.getProcessStatus())) {
-                errorNumberOfPages += proc.getNumberOfPages();
-            }
-            if ("in progress".equals(proc.getProcessStatus())) {
-                numberOfPagesInProcess += proc.getNumberOfPages();
-            }
-        }
+        calculateProgress();
 
         percentageProperty = null;
         for (GoobiProperty gp : batch.getProperties()) {
@@ -77,6 +65,29 @@ public class QaBatch {
 
     }
 
+    public void calculateProgress() {
+
+        totalNumberOfPages = 0;
+
+        finishedNumberOfPages = 0;
+
+        errorNumberOfPages = 0;
+        numberOfPagesInProcess = 0;
+        for (ProcessOverview proc : processes) {
+            totalNumberOfPages += proc.getNumberOfPages();
+
+            if ("accepted".equals(proc.getProcessStatus())) {
+                finishedNumberOfPages += proc.getNumberOfPages();
+            }
+            if ("error".equals(proc.getProcessStatus())) {
+                errorNumberOfPages += proc.getNumberOfPages();
+            }
+            if ("in progress".equals(proc.getProcessStatus())) {
+                numberOfPagesInProcess += proc.getNumberOfPages();
+            }
+        }
+    }
+
     public int getNumberOfProcesses() {
         return processes.size();
     }
@@ -85,6 +96,9 @@ public class QaBatch {
         double d = 0;
         if (finishedNumberOfPages > 0) {
             d = finishedNumberOfPages * 100 / getThresholdPages();
+        }
+        if (d > 100) {
+            d = 100;
         }
         return d;
     }
@@ -102,6 +116,9 @@ public class QaBatch {
         if (errorNumberOfPages > 0) {
             d = errorNumberOfPages * 100 / getThresholdPages();
         }
+        if (d > 100) {
+            d = 100;
+        }
         return d;
     }
 
@@ -117,6 +134,9 @@ public class QaBatch {
         double d = 0;
         if (numberOfPagesInProcess > 0) {
             d = numberOfPagesInProcess * 100 / getThresholdPages();
+        }
+        if (d > 100) {
+            d = 100;
         }
         return d;
     }
@@ -134,6 +154,9 @@ public class QaBatch {
         if (totalNumberOfPages > 0) {
             d = (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess) * 100 / getThresholdPages();
         }
+        if (d < 0) {
+            d = 0;
+        }
         return d;
     }
 
@@ -142,7 +165,11 @@ public class QaBatch {
     }
 
     public int getOpenNumberOfPages() {
-        return (int) (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess);
+        int pages = (int) (getThresholdPages() - finishedNumberOfPages - errorNumberOfPages - numberOfPagesInProcess);
+        if (pages < 0) {
+            pages = 0;
+        }
+        return pages;
     }
 
     public String getFinishedPercentageDisplay() {
@@ -181,4 +208,7 @@ public class QaBatch {
 
     }
 
+    public boolean isThresholdExceeded() {
+        return finishedNumberOfPages + errorNumberOfPages + numberOfPagesInProcess >= getThresholdPages();
+    }
 }

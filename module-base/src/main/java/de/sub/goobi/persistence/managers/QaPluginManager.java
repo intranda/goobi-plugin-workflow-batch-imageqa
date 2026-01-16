@@ -98,8 +98,8 @@ public class QaPluginManager {
             sb.append("SELECT p.prozesseID, p.sortHelperImages, s.prioritaet, '0', p1.property_value, p.titel, p2.property_value ");
             sb.append("FROM prozesse p JOIN schritte s ON s.ProzesseID = p.ProzesseID AND s.titel = '");
             sb.append(stepTitle);
-            sb.append("' LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='BatchQAStatus' ");
-            sb.append("' LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='BatchQAError' ");
+            sb.append("' LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='QA-Status' ");
+            sb.append("' LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='QA-Note' ");
             sb.append("WHERE batchID = ");
             sb.append(batchId);
             sb.append(" ORDER BY s.prioritaet desc, p1.property_value,rand()");
@@ -138,8 +138,8 @@ public class QaPluginManager {
             }
             sb.append(mdlist.toString());
             sb.append(") GROUP BY processid) AS mtd ON mtd.processid = p.prozesseID ");
-            sb.append("LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='BatchQAStatus' ");
-            sb.append("LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='BatchQAError' ");
+            sb.append("LEFT JOIN properties p1 ON p.prozesseID = p1.object_id AND p1.object_type='process' AND p1.property_name='QA-Status' ");
+            sb.append("LEFT JOIN properties p2 ON p.prozesseID = p2.object_id AND p2.object_type='process' AND p2.property_name='QA-Note' ");
             sb.append("WHERE ");
             sb.append("batchID = ");
             sb.append(batchId);

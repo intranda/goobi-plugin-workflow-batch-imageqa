@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -196,20 +197,20 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     public void continueBatch() {
 
-        // mark new processed images as done
+        // mark new processed images as accepted
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
                 if (dp.isInvalid()) {
                     DatabaseVersion.runSql(
-                            "update properties set property_value ='error' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
+                            "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
 
                     //  store error message as property
                     String errorMessage = dp.getProcessOverview().getErrorMessage();
                     GoobiProperty errorProperty = null;
                     for (GoobiProperty gp : dp.getProcess().getProperties()) {
-                        if ("BatchQAError".equals(gp.getPropertyName())) {
+                        if ("QA-Note".equals(gp.getPropertyName())) {
                             errorProperty = gp;
                             break;
                         }
@@ -217,13 +218,13 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                     if (errorProperty == null) {
                         errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
                         errorProperty.setOwner(dp.getProcess());
-                        errorProperty.setPropertyName("BatchQAError");
+                        errorProperty.setPropertyName("QA-Note");
                     }
                     errorProperty.setPropertyValue(errorMessage);
                     PropertyManager.saveProperty(errorProperty);
                 } else {
                     DatabaseVersion.runSql(
-                            "update properties set property_value ='done' where property_name = 'BatchQAStatus' and object_type='process' and object_id = "
+                            "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
                 }
             } catch (SQLException e) {
@@ -232,13 +233,16 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
             for (ProcessOverview entry : currentBatch.getProcesses()) {
                 if (entry.getProcessid().equals(String.valueOf(dp.getProcess().getId()))) {
-                    entry.setProcessStatus(dp.isInvalid() ? "error" : "done");
+                    entry.setProcessStatus(dp.isInvalid() ? "error" : "accepted");
                     break;
                 }
             }
         }
 
-        double numberOfFinishedPages = currentBatch.getFinishedNumberOfPages() + currentBatch.getErrorNumberOfPages();
+        currentBatch.calculateProgress();
+
+        double numberOfFinishedPages =
+                currentBatch.getFinishedNumberOfPages() + currentBatch.getNumberOfPagesInProcess() + currentBatch.getErrorNumberOfPages();
         double imagesToDisplay = currentBatch.getThresholdPages();
 
         if (numberOfFinishedPages < imagesToDisplay) {
@@ -361,7 +365,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
                     processDisplayList.add(entry);
                     entry.setProcessStatus("in progress");
                     GoobiProperty gp = new GoobiProperty(PropertyOwnerType.PROCESS);
-                    gp.setPropertyName("BatchQAStatus");
+                    gp.setPropertyName("QA-Status");
                     gp.setPropertyValue("in progress");
                     gp.setObjectId(Integer.valueOf(entry.getProcessid()));
                     PropertyManager.saveProperty(gp);
@@ -526,7 +530,18 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
         String reportName = batchName + ".csv";
         csv.append("Vorgang, Fehler");
         csv.append("\n");
+
+        List<ProcessOverview> errorProcesses = new ArrayList<>();
+
         for (ProcessOverview po : currentBatch.getProcesses()) {
+            if ("error".equals(po.getProcessStatus())) {
+                errorProcesses.add(po);
+            }
+        }
+
+        Collections.sort(errorProcesses);
+
+        for (ProcessOverview po : errorProcesses) {
             csv.append("\"" + po.getProcessTitle() + "\"");
             csv.append(",");
             csv.append("\"");
@@ -573,7 +588,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin, IPlugin {
             // remove status property
             try {
                 DatabaseVersion.runSql(
-                        "delete from properties where property_name in('BatchQAStatus', 'BatchQAError') and object_type='process' and object_id = "
+                        "delete from properties where property_name in('QA-Status', 'QA-Note') and object_type='process' and object_id = "
                                 + po.getProcessid());
             } catch (SQLException e) {
                 log.error(e);
