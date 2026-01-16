@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.goobi.beans.ImageList;
 import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
@@ -46,7 +45,7 @@ public class DisplayProcess {
         this.thumbnailSize = thumbnailSize;
         processOverview = entry;
         initImageList();
-        invalid = StringUtils.isNotBlank(processOverview.getErrorMessage());
+        invalid = "error".equals(processOverview.getProcessStatus());
     }
 
     public void initImageList() {
