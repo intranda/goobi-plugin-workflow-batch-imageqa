@@ -7,10 +7,22 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProcessOverview {
+public class ProcessOverview implements Comparable<ProcessOverview> {
 
+    private String processTitle;
     private String processid;
     private int numberOfPages;
     private boolean priorityStep;
     private boolean metadataAvailable;
+
+    // possible values: '' (not processed at all), 'in progress', 'accepted', 'error'
+    private String processStatus;
+
+    private String errorMessage;
+
+    @Override
+    public int compareTo(ProcessOverview o) {
+        return processTitle.compareTo(o.getProcessTitle());
+    }
+
 }

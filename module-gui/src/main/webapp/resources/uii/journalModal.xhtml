@@ -15,7 +15,7 @@
     <composite:interface>
     </composite:interface>
     <composite:implementation>
-    
+
      <h:panelGroup
         styleClass="modal"
         layout="block"
@@ -26,10 +26,11 @@
         <h:panelGroup
             layout="block"
             id="journalBoxContent"
-            class="modal-dialog modal-xl p-5"
+            class="modal-dialog modal-dialog-scrollable modal-xl"
             role="document">
-            <div class="modal-content">
+            <div class="modal-content h-100">
                 <h:form
+                    styleClass="h-100"
                     id="processJournal"
                     enctype="multipart/form-data"
                     prependId="false">
@@ -191,69 +192,68 @@
                         </div>
 
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-sm-12 mt-3">
-                                <div
-                                    class="gw-table-fixed"
-                                    tabindex="0">
-                                    <h:panelGroup rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size()>0}">
-                                        <ol
-                                            class="feed"
-                                            role="list">
-                                            <ui:repeat
-                                                var="entry"
-                                                value="#{NavigationForm.workflowPlugin.currentProcess.process.journal}"
-                                                varStatus="row">
-                                                <h:panelGroup rendered="#{!NavigationForm.uiStatus[('process_log_level_').concat(entry.type.title)]}">
+                    <div class="modal-body h-100 overflow-y-scroll">
+                        <h:panelGroup
+                            layout="block"
+                            rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() == 0}">
+                            <h:outputText value="#{msgs.statistics_noDataAvailable}" />
+                        </h:panelGroup>
+                        <h:panelGroup
+                            layout="block"
+                            rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() > 0}">
+                            <ol
+                                class="feed"
+                                role="list">
+                                <ui:repeat
+                                    var="entry"
+                                    value="#{NavigationForm.workflowPlugin.currentProcess.process.journal}"
+                                    varStatus="row">
+                                    <h:panelGroup rendered="#{!NavigationForm.uiStatus[('process_log_level_').concat(entry.type.title)]}">
 
-                                                    <li class="feed-item feed-colored feed-color-#{entry.type.title}">
-                                                        <span class="feed-item-icon fs-600">
-                                                            <ui:fragment rendered="#{entry.type.title == 'important'}">
-                                                                <span class="fa fa-exclamation-circle" />
-                                                            </ui:fragment>
-                                                            <ui:fragment rendered="#{entry.type.title != 'important'}">
-                                                                <ui:fragment rendered="#{entry.type.title == 'debug'}">
-                                                                    <span class="fa fa-desktop" />
-                                                                </ui:fragment>
-                                                                <ui:fragment rendered="#{entry.type.title == 'info'}">
-                                                                    <span class="fa fa-info-circle" />
-                                                                </ui:fragment>
-                                                                <ui:fragment rendered="#{entry.type.title == 'warn'}">
-                                                                    <span class="log_color_#{entry.type.title} fa fa-exclamation-circle" />
-                                                                </ui:fragment>
-                                                                <ui:fragment rendered="#{entry.type.title == 'error'}">
-                                                                    <span class="log_color_#{entry.type.title} fa fa-exclamation-triangle" />
-                                                                </ui:fragment>
-                                                                <ui:fragment rendered="#{entry.type.title == 'user'}">
-                                                                    <span class="fa fa-user-o" />
-                                                                </ui:fragment>
-                                                            </ui:fragment>
-                                                            <span
-                                                                class="filler filler-vertical
-                                                #{entry.type.title == 'warn' ? 'filler-yellow' : ''}
-                                                #{entry.type.title == 'error' ? 'filler-red' : ''}" />
-                                                        </span>
-                                                        <span class="feed-item-content">
-                                                            <span class="feed-item-responsibility">
-                                                                <span class="fw-700"> #{msgs[entry.userName]}: </span>
-                                                            </span>
-                                                            <h:outputText
-                                                                value="#{entry.formattedContent}"
-                                                                escape="false" />
-                                                        </span>
-                                                        <span class="feed-item-timestamp">
-                                                            <h:outputText value="#{entry.formattedDate} #{entry.creationTime}">
-                                                            </h:outputText>
-                                                        </span>
-                                                    </li>
-                                                </h:panelGroup>
-                                            </ui:repeat>
-                                        </ol>
+                                        <li class="feed-item feed-colored feed-color-#{entry.type.title}">
+                                            <span class="feed-item-icon fs-600">
+                                                <ui:fragment rendered="#{entry.type.title == 'important'}">
+                                                    <span class="fa fa-exclamation-circle" />
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{entry.type.title != 'important'}">
+                                                    <ui:fragment rendered="#{entry.type.title == 'debug'}">
+                                                        <span class="fa fa-desktop" />
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{entry.type.title == 'info'}">
+                                                        <span class="fa fa-info-circle" />
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{entry.type.title == 'warn'}">
+                                                        <span class="log_color_#{entry.type.title} fa fa-exclamation-circle" />
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{entry.type.title == 'error'}">
+                                                        <span class="log_color_#{entry.type.title} fa fa-exclamation-triangle" />
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{entry.type.title == 'user'}">
+                                                        <span class="fa fa-user-o" />
+                                                    </ui:fragment>
+                                                </ui:fragment>
+                                                <span
+                                                    class="filler filler-vertical
+                                                        #{entry.type.title == 'warn' ? 'filler-yellow' : ''}
+                                                        #{entry.type.title == 'error' ? 'filler-red' : ''}" />
+                                            </span>
+                                            <span class="feed-item-content">
+                                                <span class="feed-item-responsibility">
+                                                    <span class="fw-700"> #{msgs[entry.userName]}: </span>
+                                                </span>
+                                                <h:outputText
+                                                    value="#{entry.formattedContent}"
+                                                    escape="false" />
+                                            </span>
+                                            <span class="feed-item-timestamp">
+                                                <h:outputText value="#{entry.formattedDate} #{entry.creationTime}">
+                                                </h:outputText>
+                                            </span>
+                                        </li>
                                     </h:panelGroup>
-                                </div>
-                            </div>
-                        </div>
+                                </ui:repeat>
+                            </ol>
+                        </h:panelGroup>
                     </div>
                 </h:form>
             </div>

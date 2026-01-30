@@ -27,6 +27,8 @@ Für eine Nutzung dieses Plugins muss der Nutzer über die korrekte Rollenberech
 
 Bitte weisen Sie daher der Gruppe die Rolle `Plugin_workflow_batch_imageqa` zu.
 
+Um Lieferungen ablehnen zu können, wird zusätzlich noch die Rolle `Plugin_workflow_batch_imageqa_reject` benötigt.
+
 ![Korrekt zugewiesene Rolle für die Nutzer](screen7_de.png)
 
 

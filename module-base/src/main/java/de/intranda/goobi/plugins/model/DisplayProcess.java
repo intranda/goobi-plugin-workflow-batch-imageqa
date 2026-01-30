@@ -6,8 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.goobi.beans.Process;
 import org.goobi.beans.ImageList;
+import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
 
 import de.sub.goobi.helper.NIOFileUtils;
@@ -33,17 +33,19 @@ public class DisplayProcess {
 
     private boolean invalid;
 
-    private String errorMessage;
-
     private int thumbnailSize;
 
     private boolean errorStep;
     private boolean metadataStep;
 
-    public DisplayProcess(Process process, int thumbnailSize) {
+    private ProcessOverview processOverview;
+
+    public DisplayProcess(Process process, int thumbnailSize, ProcessOverview entry) {
         this.process = process;
         this.thumbnailSize = thumbnailSize;
+        processOverview = entry;
         initImageList();
+        invalid = "error".equals(processOverview.getProcessStatus());
     }
 
     public void initImageList() {
@@ -68,6 +70,5 @@ public class DisplayProcess {
             }
             allImages.setImages(imageList);
         }
-
     }
 }

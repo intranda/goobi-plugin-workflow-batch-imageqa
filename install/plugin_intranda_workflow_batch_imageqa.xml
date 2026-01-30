@@ -3,8 +3,6 @@
     <!-- step name -->
     <qaTaskName>Image QA</qaTaskName>
 
-    <!--step to open in case of errors -->
-    <errorStepName>Image capturing</errorStepName>
 
     <!-- percentage of images to display -->
     <percentage>25</percentage>
@@ -12,21 +10,28 @@
     <numberOfProcessesPerPage>2</numberOfProcessesPerPage>
     <!-- thumbnail size in pixel -->
     <thumbnailSize>200</thumbnailSize>
-
-
+    <!-- Project to which error batches are moved -->
+    <inactiveProject>Archive_Project</inactiveProject>
+    <!-- change rejected batches to use this template -->
+    <inactiveProcessTemplate>Deletion_Template</inactiveProcessTemplate>
 
     <!--display as box title -->
     <titleField>TitleDocMain</titleField>
 
 
     <!-- metadata list-->
-    <metadata>CurrentNo</metadata>
     <metadata>CatalogIDDigital</metadata>
+    <metadata>TitleDocMain</metadata>
     <metadata>shelfmarksource</metadata>
     <metadata>PlaceOfPublication</metadata>
     <metadata>PublicationYear</metadata>
     <metadata>PublisherName</metadata>
     <metadata>singleDigCollection</metadata>
+    <!-- Person -->
+    <metadata>Author</metadata>
+    <!-- Group name -->
+    <metadata>Group name</metadata>
+
 
     <!-- images are always displayed, if one of the configured metadata fields exists -->
     <metadataToCheck>DocLanguages</metadataToCheck>

@@ -12,8 +12,7 @@
     xmlns:section="http://goobi.io/section"
     xmlns:dl="http://goobi.io/dl"
     xmlns:util="http://goobi.io/util"
-    xmlns:image="http://goobi.io/image"
-    >
+    xmlns:image="http://goobi.io/image">
     <h:panelGroup>
         <div class="row">
             <div class="col-sm-12">
@@ -61,6 +60,28 @@
                                                         sortable="false"
                                                         value="#{msgs.plugin_workflow_batches_numberOfPages}" />
                                                     <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesToProcess}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.fortschritt}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesInWork}" />
+
+                                                    <intranda:columnheader
+                                                        name="login"
+                                                        sortable="false"
+                                                        value="#{msgs.plugin_workflow_batches_numberOfPagesError}" />
+
+
+
+                                                    <intranda:columnheader
                                                         value="#{msgs.auswahl}"
                                                         sortable="false"
                                                         addClass="gw-table-fixed__actions" />
@@ -79,20 +100,136 @@
                                                             value="#{item.batch.batchName}"
                                                             title="#{item.batch.batchName}" />
                                                     </td>
+
                                                     <td>
                                                         <h:outputText value="#{item.numberOfProcesses}" />
                                                     </td>
                                                     <td>
-                                                        <h:outputText value="#{item.numberOfPages}" />
+                                                        <h:outputText value="#{item.totalNumberOfPages}" />
                                                     </td>
                                                     <td>
-                                                        <div class="gw-table__actions__container">
+                                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
+                                                            <f:param value="#{item.percentage}" />
+                                                            <f:param value="#{item.thresholdPages}" />
+                                                        </h:outputFormat>
+                                                    </td>
+                                                    <td>
+
+                                                        <div
+                                                            class="progress__container"
+                                                            data-bs-toggle="popover"
+                                                            data-bs-trigger="hover"
+                                                            data-bs-html="true"
+                                                            data-bs-content="&lt;div&gt;&lt;span class='font-status-done fw-bold'&gt;#{msgs.statusAbgeschlossen}:&lt;/span&gt; #{item.finishedNumberOfPages} #{msgs.Images}&lt;br/&gt;&lt;span class='font-status-open fw-bold'&gt;#{msgs.statusInBearbeitung}:&lt;/span&gt; #{item.numberOfPagesInProcess} #{msgs.Images}&lt;br/&gt;&lt;span class='font-status-locked fw-bold'&gt;#{msgs.plugin_workflow_batches_numberOfPagesError}:&lt;/span&gt; #{item.errorNumberOfPages} #{msgs.Images}&lt;br/&gt;&lt;span class='text-muted fw-bold'&gt;#{msgs.lw_NOT_PROCESSED}:&lt;/span&gt; #{item.openNumberOfPages} #{msgs.Images}&lt;/div&gt;">
+                                                            <h:panelGroup
+                                                                rendered="#{item.acceptedPercentage gt 0}"
+                                                                layout="block"
+                                                                styleClass="progress-bar progress-bar-success"
+                                                                pt:role="figure">
+                                                                <h:outputText value="&#160;" />
+
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.acceptedPercentage}%" />
+                                                            </h:panelGroup>
+
+                                                            <h:panelGroup
+                                                                rendered="#{item.inWorkPercentage gt 0}"
+                                                                layout="block"
+                                                                styleClass="progress-bar progress-bar-warning"
+                                                                pt:role="figure">
+                                                                <h:outputText value="&#160;" />
+
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.inWorkPercentage}%" />
+                                                            </h:panelGroup>
+
+                                                            <h:panelGroup
+                                                                rendered="#{item.errorPercentage gt 0}"
+                                                                layout="block"
+                                                                styleClass="progress-bar progress-bar-danger"
+                                                                pt:role="figure">
+                                                                <h:outputText value="&#160;" />
+
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.errorPercentage}%" />
+                                                            </h:panelGroup>
+
+
+                                                            <h:panelGroup
+                                                                rendered="#{item.openPercentage gt 0}"
+                                                                layout="block"
+                                                                styleClass="progress-bar progress-bar-neutral"
+                                                                pt:role="figure">
+                                                                <h:outputText value="&#160;" />
+                                                                <f:passThroughAttribute
+                                                                    name="style"
+                                                                    value="--progress: #{item.openPercentage}%" />
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
+                                                            <h:outputText value="#{item.numberOfPagesInProcess}" />
                                                             <button
+                                                                jsf:rendered="#{item.numberOfPagesInProcess gt 0}"
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcesses}"
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-pencil"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                    value="batchEdit" />
+                                                            </button>
+                                                        </div>
+
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
+
+                                                            <h:outputText value="#{item.errorNumberOfPages}" />
+
+                                                            <button
+                                                                jsf:rendered="#{item.errorNumberOfPages gt 0}"
+                                                                class="btn btn-blank"
+                                                                jsf:rel="tooltip"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcesses}"
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-pencil"
+                                                                    aria-hidden="true" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
+                                                                    value="batchEdit" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+
+
+                                                    <td>
+                                                        <div class="gw-table__actions__container">
+                                                            <!-- edit batch -->
+                                                            <button
+                                                                jsf:rendered="#{!item.finished}"
                                                                 jsf:id="edit"
                                                                 class="btn btn-blank"
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
-                                                                title="#{msgs.plugin_workflow_batches_open}">
+                                                                title="#{msgs.plugin_workflow_batches_open}"
+                                                                data-bs-toggle="tooltip">
                                                                 <span
                                                                     class="fa fa-pencil"
                                                                     aria-hidden="true" />
@@ -104,6 +241,51 @@
                                                                     target="#{NavigationForm.workflowPlugin.displayType}"
                                                                     value="batchEdit" />
                                                             </button>
+
+                                                            <!-- open reject modal -->
+                                                            <button
+                                                                jsf:id="rejectClick"
+                                                                class="btn btn-danger"
+                                                                title="#{msgs.plugin_workflow_batches_abort}"
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"
+                                                                data-bs-toggle="tooltip">
+                                                                <!-- added padding for icon so that button widths align -->
+                                                                <span
+                                                                    class="fa fa-exclamation px-1"
+                                                                    aria-hidden="true" />
+                                                                <f:ajax
+                                                                    execute="@this"
+                                                                    render="rejectBox"
+                                                                    onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#rejectBox').modal('show');
+                                                                                }}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
+
+                                                            <!-- open finish modal -->
+                                                            <button
+                                                                jsf:id="finishClick"
+                                                                class="btn btn-success"
+                                                                title="#{msgs.plugin_workflow_batches_finish}"
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_finish')}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-check"
+                                                                    aria-hidden="true" />
+                                                                <f:ajax
+                                                                    execute="@this"
+                                                                    render="finishBox"
+                                                                    onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#finishBox').modal('show');
+                                                                                }}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
+
+
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -122,335 +304,238 @@
 
                 <ui:fragment
                     rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='batchEdit'}">
-                    <div class="flow">
-                        <section:section type="neutral">
-                            <section:header
-                                icon="list"
-                                title="#{msgs.plugin_workflow_batches_delivery} #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
-                                <section:header-actions form="true">
-                                    <h:inputText
-                                        value="#{NavigationForm.workflowPlugin.percentage}"
-                                        styleClass="form-control form-control-compact"
-                                        style="&#45;&#45;form-control-compact-width: 4em"
-                                        pt:data-submit-on-enter="changePercentage" />
-                                    <span class="align-self-center">
-                                        <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
-                                            <f:param value="#{NavigationForm.workflowPlugin.numberOfImagesToDisplay}" />
-                                            <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPages}" />
-                                        </h:outputFormat>
-                                    </span>
-                                    <button
-                                        jsf:id="changePercentage"
-                                        class="btn btn--title-action"
-                                        jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
-                                        title="#{msgs.filterAnwenden}"
-                                        data-bs-toggle="tooltip">
-                                        <span
-                                            aria-hidden="true"
-                                            class="fa fa-refresh"> </span>
-                                        <span class="visually-hidden"> #{msgs.filterAnwenden} </span>
-                                    </button>
-                                </section:header-actions>
-                            </section:header>
-                            <section:body padding="true">
-                                <div class="flow">
-                                    <ui:repeat
-                                        var="displayProcess"
-                                        value="#{NavigationForm.workflowPlugin.displayProcesses}"
-                                        varStatus="process">
-                                        <h:form id="processform">
-                                            <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
-                                                <section:header title="#{displayProcess.title}">
+                    <section:section type="neutral">
+                        <section:header
+                            icon="list"
+                            title="#{msgs.plugin_workflow_batches_delivery} #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
+                            <section:header-actions form="true">
+                                <h:inputText
+                                    value="#{NavigationForm.workflowPlugin.percentage}"
+                                    styleClass="form-control form-control-compact"
+                                    style="&#45;&#45;form-control-compact-width: 4em"
+                                    pt:data-submit-on-enter="#changePercentage" />
+                                <span class="align-self-center">
+                                    <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
+                                        <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPagesToProcess}" />
+                                        <f:param value="#{NavigationForm.workflowPlugin.currentBatch.totalNumberOfPages}" />
+                                    </h:outputFormat>
+                                </span>
+                                <button
+                                    jsf:id="changePercentage"
+                                    class="btn btn--title-action"
+                                    jsf:rel="tooltip"
+                                    jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                    title="#{msgs.filterAnwenden}"
+                                    data-bs-toggle="tooltip">
+                                    <span
+                                        aria-hidden="true"
+                                        class="fa fa-refresh"> </span>
+                                    <span class="visually-hidden"> #{msgs.filterAnwenden} </span>
+                                </button>
+                            </section:header-actions>
+                        </section:header>
+                        <section:body padding="true">
+                            <div class="flow">
+                                <ui:repeat
+                                    var="displayProcess"
+                                    value="#{NavigationForm.workflowPlugin.displayProcesses}"
+                                    varStatus="process">
+                                    <h:form id="processform">
+                                        <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
+                                            <section:header title="#{displayProcess.title}">
 
-                                                    <section:header-actions>
+                                                <section:header-actions>
+                                                    <h:panelGroup
+                                                        styleClass="fs-5 fa fa-exclamation-circle d-flex align-items-center"
+                                                        style="color: var(--bs-#{displayProcess.invalid ? 'white' : 'green'})"
+                                                        rendered="#{displayProcess.metadataStep}"
+                                                        pt:title="#{msgs.plugin_workflow_batches_process_metadatum}"
+                                                        pt:data-bs-toggle="tooltip" />
+
+                                                    <button
+                                                        jsf:id="journalClick"
+                                                        class="btn border"
+                                                        title="#{msgs.plugin_workflow_batches_showLog}"
+                                                        data-bs-toggle="tooltip">
+                                                        <span
+                                                            class="fa fa-list-ol"
+                                                            aria-hidden="true" />
+                                                        <f:ajax
+                                                            execute="@this"
+                                                            render="journalBox"
+                                                            onevent="(event) => {if (event.status === 'success') {
+                                                                                $('#journalBox').modal('show');
+                                                                            }}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{displayProcess}"
+                                                            target="#{NavigationForm.workflowPlugin.currentProcess}" />
+
+                                                    </button>
+
+
+                                                    <h:commandLink
+                                                        onclick="sessionStorage.removeItem('columnWidths');"
+                                                        action="#{Metadaten.XMLlesen}"
+                                                        id="action15"
+                                                        class="btn d-flex align-items-center border"
+                                                        title="#{msgs.metadatenBearbeiten}"
+                                                        pt:aria-label="#{msgs.metadatenBearbeiten}"
+                                                        rel="tooltip">
+                                                        <span class="fa fa-book" />
+                                                        <f:passThroughAttribute
+                                                            name="data-toggle"
+                                                            value="tooltip" />
+                                                        <f:param
+                                                            name="ProzesseID"
+                                                            value="#{displayProcess.process.id}" />
+                                                        <f:param
+                                                            name="BenutzerID"
+                                                            value="#{LoginForm.myBenutzer.id}" />
+                                                        <f:param
+                                                            name="zurueck"
+                                                            value="workflow" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc1}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc2}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc3}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc4}" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{null}"
+                                                            target="#{NavigationForm.uiStatus.mets_toc5}" />
+                                                    </h:commandLink>
+
+                                                    <button
+                                                        class="btn border"
+                                                        title="#{msgs.plugin_workflow_batches_error}"
+                                                        jsf:rel="tooltip"
+                                                        jsf:id="toggle-invalid"
+                                                        data-renderimage="true"
+                                                        data-bs-toggle="tooltip">
+                                                        <span
+                                                            class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
+                                                            aria-hidden="true" />
+                                                        <f:ajax render="@form reportForm" />
+                                                        <f:setPropertyActionListener
+                                                            target="#{displayProcess.invalid}"
+                                                            value="#{not displayProcess.invalid}" />
+                                                    </button>
+                                                </section:header-actions>
+
+                                            </section:header>
+                                            <section:body padding="false">
+                                                <div class="d-flex flex-nowrap">
+                                                    <div class="col-6 border-end#{displayProcess.invalid ? ' border-danger' : ''}">
+                                                        <ui:repeat
+                                                            var="metadata"
+                                                            value="#{displayProcess.metadata}">
+                                                            <form:field
+                                                                label="#{msgs['process_grid_'.concat(metadata.one)]}"
+                                                                required="false"
+                                                                help="">
+                                                                <h:outputText
+                                                                    id="lastname"
+                                                                    styleClass="form-control"
+                                                                    value="#{metadata.two}"
+                                                                    escape="false" />
+                                                            </form:field>
+
+                                                        </ui:repeat>
+
                                                         <h:panelGroup
-                                                            styleClass="fs-5 fa fa-exclamation-triangle d-flex align-items-center"
-                                                            style="color: var(--bs-red)"
-                                                            rendered="#{displayProcess.errorStep}" />
-                                                        <h:panelGroup
-                                                            styleClass="fs-5 fa fa-exclamation-circle d-flex align-items-center"
-                                                            style="color: var(--bs-green)"
-                                                            rendered="#{displayProcess.metadataStep}" />
-
-                                                        <button
-                                                            jsf:id="journalClick"
-                                                            class="btn border"
-                                                            title="#{msgs.plugin_workflow_batches_showLog}">
-                                                            <span
-                                                                class="fa fa-list-ol"
-                                                                aria-hidden="true" />
-                                                            <f:ajax
-                                                                execute="@this"
-                                                                render="journalBox"
-                                                                onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#journalBox').modal('show');
-                                                                                }}" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{displayProcess}"
-                                                                target="#{NavigationForm.workflowPlugin.currentProcess}" />
-
-                                                        </button>
-
-
-                                                        <h:commandLink
-                                                            onclick="sessionStorage.removeItem('columnWidths');"
-                                                            action="#{Metadaten.XMLlesen}"
-                                                            id="action15"
-                                                            class="btn d-flex align-items-center border"
-                                                            title="#{msgs.metadatenBearbeiten}"
-                                                            pt:aria-label="#{msgs.metadatenBearbeiten}"
-                                                            rel="tooltip">
-                                                            <span class="fa fa-book" />
-                                                            <f:passThroughAttribute
-                                                                name="data-toggle"
-                                                                value="tooltip" />
-                                                            <f:param
-                                                                name="ProzesseID"
-                                                                value="#{displayProcess.process.id}" />
-                                                            <f:param
-                                                                name="BenutzerID"
-                                                                value="#{LoginForm.myBenutzer.id}" />
-                                                            <f:param
-                                                                name="zurueck"
-                                                                value="workflow" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{null}"
-                                                                target="#{NavigationForm.uiStatus.mets_toc1}" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{null}"
-                                                                target="#{NavigationForm.uiStatus.mets_toc2}" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{null}"
-                                                                target="#{NavigationForm.uiStatus.mets_toc3}" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{null}"
-                                                                target="#{NavigationForm.uiStatus.mets_toc4}" />
-                                                            <f:setPropertyActionListener
-                                                                value="#{null}"
-                                                                target="#{NavigationForm.uiStatus.mets_toc5}" />
-                                                        </h:commandLink>
-
-                                                        <button
-                                                            class="btn border"
-                                                            title="#{msgs.plugin_workflow_batches_error}"
-                                                            jsf:rel="tooltip"
-                                                            jsf:id="toggle-invalid"
-                                                            data-renderimage="true"
-                                                            data-bs-toggle="tooltip">
-                                                            <span
-                                                                class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
-                                                                aria-hidden="true" />
-                                                            <f:ajax
-                                                                render="@form reportForm" />
-                                                            <f:setPropertyActionListener
-                                                                target="#{displayProcess.invalid}"
-                                                                value="#{not displayProcess.invalid}" />
-                                                        </button>
-                                                    </section:header-actions>
-
-                                                </section:header>
-                                                <section:body padding="false">
-                                                    <div class="d-flex flex-nowrap">
-                                                        <div class="col-6 border-end#{displayProcess.invalid ? ' border-danger' : ''}">
-                                                            <ui:repeat
-                                                                var="metadata"
-                                                                value="#{displayProcess.metadata}">
-                                                                <form:field
-                                                                    label="#{msgs['process_grid_'.concat(metadata.one)]}"
-                                                                    required="false"
-                                                                    help="">
-                                                                    <h:outputText
-                                                                        id="lastname"
-                                                                        styleClass="form-control"
-                                                                        value="#{metadata.two}"
-                                                                        escape="false" />
-                                                                </form:field>
-
-                                                            </ui:repeat>
-
-                                                            <h:panelGroup
-                                                                layout="block"
-                                                                styleClass="w-100 border-top border-danger"
-                                                                rendered="#{displayProcess.invalid}">
-                                                                <form:field
-                                                                    label="#{msgs.plugin_workflow_batches_errorDescription}"
-                                                                    required="false"
-                                                                    help="">
-                                                                    <div class="w-100 d-flex gap-2">
-                                                                        <div class="grow-wrap">
-                                                                            <h:inputTextarea
-                                                                                id="errorDescription"
-                                                                                styleClass="form-control"
-                                                                                value="#{displayProcess.errorMessage}">
-                                                                                <f:ajax
-                                                                                    execute="@this"
-                                                                                    render="@this :reportForm" />
-                                                                            </h:inputTextarea>
-                                                                        </div>
-                                                                        <util:icon
-                                                                            icon="alert-triangle"
-                                                                            filled="true"
-                                                                            styleClass="text-hot" />
+                                                            layout="block"
+                                                            styleClass="w-100 border-top border-danger"
+                                                            rendered="#{displayProcess.invalid}">
+                                                            <form:field
+                                                                label="#{msgs.plugin_workflow_batches_errorDescription}"
+                                                                required="false"
+                                                                help="">
+                                                                <div class="w-100 d-flex gap-2">
+                                                                    <div class="grow-wrap">
+                                                                        <h:inputTextarea
+                                                                            id="errorDescription"
+                                                                            styleClass="form-control"
+                                                                            value="#{displayProcess.processOverview.errorMessage}">
+                                                                            <f:ajax
+                                                                                execute="@this"
+                                                                                render="@this :reportForm" />
+                                                                        </h:inputTextarea>
                                                                     </div>
-                                                                </form:field>
+                                                                    <util:icon
+                                                                        icon="alert-triangle"
+                                                                        filled="true"
+                                                                        styleClass="text-hot" />
+                                                                </div>
+                                                            </form:field>
 
-                                                            </h:panelGroup>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <image:lightbox-gallery
-                                                                images="#{displayProcess.allImages}"
-                                                                thumbnailSize="#{NavigationForm.workflowPlugin.thumbnailSize}" />
-                                                        </div>
+                                                        </h:panelGroup>
                                                     </div>
+                                                    <div class="col-6">
+                                                        <image:lightbox-gallery
+                                                            images="#{displayProcess.allImages}"
+                                                            thumbnailSize="#{NavigationForm.workflowPlugin.thumbnailSize}" />
+                                                    </div>
+                                                </div>
 
-                                                </section:body>
-                                            </section:section>
+                                            </section:body>
+                                        </section:section>
 
-                                        </h:form>
-                                    </ui:repeat>
-                                </div>
-
-                            </section:body>
-
-                            <section:footer>
-
-
-                                <h:panelGroup rendered="#{NavigationForm.workflowPlugin.displayPaginator}">
-                                    <h:form id="pagination">
-                                        <div class="dataTables__paginator">
-
-                                            <button
-                                                class="btn btn-blank"
-                                                aria-label="#{msgs.firstPage}"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToFirstPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
-                                                jsf:id="navfirst">
-                                                <span class="fa fa-angle-double-left" />
-                                                <f:ajax render="@all" />
-                                            </button>
-                                            <button
-                                                class="btn btn-primary-400"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToPreviousPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasPreviousPages}"
-                                                jsf:id="navprev">
-                                                <span class="fa fa-angle-left" />
-                                                <h:outputText value=" #{msgs.pagePrevious}" />
-                                                <f:ajax render="@all" />
-                                            </button>
-
-                                            <div class="dataTables__paginator__page-count">
-                                                <h:outputText
-                                                    id="txtMoveTo1"
-                                                    value="#{msgs.seite} #{NavigationForm.workflowPlugin.pageNo +1} #{msgs.von} #{NavigationForm.workflowPlugin.lastPageNumber +1}" />
-                                            </div>
-
-                                            <button
-                                                class="btn btn-primary-400"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToNextPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
-                                                jsf:id="navnext">
-                                                <h:outputText value="#{msgs.pageNext} " />
-                                                <span class="fa fa-angle-right" />
-                                                <f:ajax render="@all" />
-                                            </button>
-                                            <button
-                                                class="btn btn-blank"
-                                                aria-label="#{msgs.lastPage}"
-                                                jsf:action="#{NavigationForm.workflowPlugin.moveToLastPage}"
-                                                jsf:disabled="#{!NavigationForm.workflowPlugin.hasNextPages}"
-                                                jsf:id="navlast">
-                                                <span class="fa fa-angle-double-right" />
-                                                <f:ajax render="@all" />
-                                            </button>
-
-                                        </div>
                                     </h:form>
-                                </h:panelGroup>
+                                </ui:repeat>
+                            </div>
 
-                            </section:footer>
-                        </section:section>
+                        </section:body>
 
                         <h:form id="reportForm">
-                            <section:section type="#{!NavigationForm.workflowPlugin.displayErrorReport ? 'success' : 'hot'}">
-                                <section:header
-                                    icon=""
-                                    title="#{msgs.intranda_workflow_batch_result}" />
-                                <section:body padding="true">
-
-                                    <h:outputText
-                                        rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
-                                        value="#{msgs.plugin_workflow_batches_noError}" />
-
-                                    <ui:fragment rendered="#{NavigationForm.workflowPlugin.displayErrorReport}">
-                                        <h:outputText value="#{msgs.plugin_workflow_batches_errorFound}" />
-                                        <div class="border-start border-top border-end mt-3">
-                                            <dl:list>
-                                                <ui:repeat
-                                                    var="error"
-                                                    value="#{NavigationForm.workflowPlugin.errorMessage}">
-                                                    <dl:term>#{error.one}</dl:term>
-                                                    <dl:description>#{error.two}</dl:description>
-                                                </ui:repeat>
-                                            </dl:list>
-                                        </div>
-
-                                    </ui:fragment>
-                                </section:body>
-                                <section:footer>
+                            <section:footer>
+                                <button
+                                    class="btn btn-blank me-auto"
+                                    jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
+                                    <span>#{msgs.cancel}</span>
+                                </button>
+                                <ui:fragment rendered="#{!NavigationForm.workflowPlugin.errorPage}">
                                     <button
-                                        jsf:id="cancel"
-                                        class="btn btn-blank"
-                                        jsf:rel="tooltip">
-                                        #{msgs.cancel}
-                                        <f:setPropertyActionListener
-                                            target="#{NavigationForm.workflowPlugin.displayType}"
-                                            value="overview" />
-                                    </button>
-
-                                    <!-- success button -->
-                                    <button
-                                        jsf:rendered="#{!NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="finishBatch"
-                                        class="btn btn-success"
-                                        jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.finishBatch}">
-                                        <span
-                                            class="fa fa-check"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.plugin_workflow_batches_finish} </span>
-                                    </button>
-
-                                    <!-- download report button -->
-                                    <button
-                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="downloadCsv"
+                                        jsf:id="abort"
                                         class="btn btn-blank"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
-                                        <span
-                                            class="fa fa-download"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.downloadCsv} </span>
+                                        jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
+                                        <span>#{msgs.plugin_workflow_batches_abortEdition}</span>
                                     </button>
-
-                                    <!-- error button -->
                                     <button
-                                        jsf:rendered="#{NavigationForm.workflowPlugin.displayErrorReport}"
-                                        jsf:id="errorBatch"
-                                        class="btn btn-hot"
+                                        jsf:id="continue"
+                                        class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
-                                        jsf:action="#{NavigationForm.workflowPlugin.errorBatch}">
-                                        <span
-                                            class="fa fa-exclamation-triangle"
-                                            aria-hidden="true" />
-                                        <span> #{msgs.plugin_workflow_batches_abort} </span>
+                                        jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
+                                        <span>
+                                            <h:outputText
+                                                value="#{msgs.abschliessen}"
+                                                rendered="#{NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
+                                            <h:outputText
+                                                value="#{msgs.plugin_workflow_batches_next}"
+                                                rendered="#{!NavigationForm.workflowPlugin.currentBatch.thresholdExceeded}" />
+                                        </span>
                                     </button>
+                                </ui:fragment>
 
-                                </section:footer>
-                            </section:section>
+
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.errorPage}">
+                                      <button
+                                        jsf:id="save"
+                                        class="btn btn-neutral-600"
+                                        jsf:rel="tooltip"
+                                        jsf:action="#{NavigationForm.workflowPlugin.saveErrorPage}">
+                                        <span>#{msgs.speichern}</span>
+                                    </button>
+                                </ui:fragment>
+                            </section:footer>
                         </h:form>
-                    </div>
+                    </section:section>
 
                 </ui:fragment>
 
@@ -478,5 +563,6 @@
     <!-- process journal -->
     <ui:include src="journalModal.xhtml" />
 
-
+    <ui:include src="rejectModal.xhtml" />
+    <ui:include src="finishModal.xhtml" />
 </ui:composition>

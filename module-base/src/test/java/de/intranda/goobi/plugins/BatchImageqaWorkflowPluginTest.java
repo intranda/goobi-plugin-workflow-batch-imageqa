@@ -18,6 +18,8 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.goobi.beans.Batch;
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.goobi.beans.Process;
 import org.goobi.production.cli.helper.StringPair;
 import org.junit.Before;
@@ -36,6 +38,7 @@ import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
+import de.sub.goobi.persistence.managers.PropertyManager;
 import ugh.dl.Fileformat;
 import ugh.dl.Prefs;
 import ugh.fileformats.mets.MetsMods;
@@ -43,7 +46,8 @@ import ugh.fileformats.mets.MetsMods;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
-@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class })
+@PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class,
+        PropertyManager.class })
 
 public class BatchImageqaWorkflowPluginTest {
 
@@ -82,7 +86,7 @@ public class BatchImageqaWorkflowPluginTest {
 
         PowerMock.mockStatic(ProcessManager.class);
         // TODO read mets file
-
+        PowerMock.mockStatic(PropertyManager.class);
         // search for batches
         EasyMock.expect(ProcessManager.runSQL(EasyMock.anyString()))
                 .andAnswer(
@@ -94,16 +98,16 @@ public class BatchImageqaWorkflowPluginTest {
                                 List answer = new ArrayList();
                                 if (query.startsWith("SELECT COUNT")) {
                                     // first column: number of processes, second column: batch id
-                                    String[] row1 = { "5", "1", "0", "1" };
-                                    String[] row2 = { "10", "2", "0", "0" };
-                                    String[] row3 = { "5", "3", "10", "0" }; // only 5 of 10 reached the task
+                                    String[] row1 = { "5", "1", "0", "1", null, "title", "" };
+                                    String[] row2 = { "10", "2", "0", "0", null, "title", "" };
+                                    String[] row3 = { "5", "3", "10", "0", null, "title", "" }; // only 5 of 10 reached the task
                                     answer.add(row1);
                                     answer.add(row2);
                                     answer.add(row3);
                                 } else {
-                                    String[] row1 = { "1", "5", "0", "0" };
-                                    String[] row2 = { "2", "10", "0", "0" };
-                                    String[] row3 = { "3", "10", "0", "0" };
+                                    String[] row1 = { "1", "5", "0", "0", "", "", "" };
+                                    String[] row2 = { "2", "10", "0", "0", "", "", "" };
+                                    String[] row3 = { "3", "10", "0", "0", "", "", "" };
                                     answer.add(row1);
                                     answer.add(row2);
                                     answer.add(row3);
@@ -142,13 +146,22 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(ProcessManager.getBatchById(EasyMock.anyInt())).andReturn(b).anyTimes();
         EasyMock.replay(proc);
 
+        List<GoobiProperty> gpl = new ArrayList<>();
+        GoobiProperty gp = new GoobiProperty(PropertyOwnerType.BATCH);
+        gp.setOwner(b);
+        gp.setPropertyName("BatchPercentage");
+        gp.setPropertyValue("20");
+        gpl.add(gp);
+        EasyMock.expect(PropertyManager.getPropertiesForObject(EasyMock.anyInt(), EasyMock.anyObject())).andReturn(gpl).anyTimes();
+        PropertyManager.saveProperty(EasyMock.anyObject());
+
         PowerMock.mockStatic(StorageProvider.class);
         StorageProviderInterface spi = EasyMock.createMock(StorageProviderInterface.class);
         EasyMock.expect(StorageProvider.getInstance()).andReturn(spi).anyTimes();
 
         EasyMock.expect(spi.isFileExists(EasyMock.anyObject())).andReturn(false).anyTimes();
-
-        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class);
+        EasyMock.replay(spi);
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class, PropertyManager.class);
     }
 
     @Test
@@ -185,73 +198,31 @@ public class BatchImageqaWorkflowPluginTest {
     @Test
     public void testOpenBatch() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
-        assertEquals(5, fixture.getNumberOfImagesToDisplay());
+        assertEquals(200, fixture.getThumbnailSize());
     }
 
     @Test
     public void testDisplayProcesses() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
+
         fixture.openBatch();
         assertEquals(1, fixture.getDisplayProcesses().size());
     }
 
     @Test
-    public void testPagination() {
-        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
-        List<QaBatch> batches = fixture.getAllBatches();
-        fixture.setCurrentBatch(batches.get(0));
-        fixture.openBatch();
-        assertFalse(fixture.isDisplayPaginator());
-        assertFalse(fixture.isHasPreviousPages());
-        assertTrue(fixture.isLastPage());
-        assertFalse(fixture.isHasNextPages());
-        assertEquals(0, fixture.getLastPageNumber());
-
-        fixture.moveToFirstPage();
-        assertEquals(0, fixture.getPageNo());
-
-        fixture.moveToPreviousPage();
-        assertEquals(-1, fixture.getPageNo());
-
-        fixture.moveToNextPage();
-        assertEquals(0, fixture.getPageNo());
-
-        fixture.moveToLastPage();
-        assertEquals(0, fixture.getPageNo());
-    }
-
-    @Test
     public void testDisplayErrorReport() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
         List<QaBatch> batches = fixture.getAllBatches();
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
         assertFalse(fixture.isDisplayErrorReport());
         fixture.getDisplayProcesses().get(0).setInvalid(true);
         assertTrue(fixture.isDisplayErrorReport());
-    }
-
-    @Test
-    public void testErrorMessage() {
-        BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        fixture.setPercentage(50);
-        List<QaBatch> batches = fixture.getAllBatches();
-        fixture.setCurrentBatch(batches.get(0));
-        fixture.openBatch();
-        assertTrue(fixture.getErrorMessage().isEmpty());
-        fixture.getDisplayProcesses().get(0).setInvalid(true);
-        fixture.getDisplayProcesses().get(0).setErrorMessage("error");
-        assertEquals("title", fixture.getErrorMessage().get(0).getOne());
-        assertEquals("error", fixture.getErrorMessage().get(0).getTwo());
     }
 
 }
