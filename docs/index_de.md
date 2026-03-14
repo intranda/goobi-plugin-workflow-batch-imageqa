@@ -58,7 +58,7 @@ Sämtliche Fehlermeldungen werden im unteren Bereich des Plugins aufgeführt und
 
 ![Alle Fehlermeldungen werden unten aufgelistet](screen4_de.png)
 
-Bei Fehlern kann die Lieferung abgelehnt werden. Als fehlerhaft markierte Vorgänge werden in diesem Fall an den konfigurierten Arbeitschritt des Workflows zurückgeschickt. 
+Bei Fehlern kann die Lieferung abgelehnt werden. Als fehlerhaft markierte Vorgänge werden in diesem Fall an den konfigurierten Arbeitsschritt des Workflows zurückgeschickt. 
 
 Wird eine Lieferung für gut befunden, kann diese akzeptiert werden. Alle Vorgänge der Lieferung werden dann den aktuellen Arbeitsschritt abschließen und im Workflow weiter voranschreiten.
 
@@ -74,7 +74,7 @@ Die folgende Tabelle enthält eine Zusammenstellung der Parameter und ihrer Besc
 
 Parameter                  | Erläuterung
 ---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`qaTaskName`               | Alle Vorgänge in einem Batch müssen sich gerasde in diesem Arbeitsschritt befinden (offen sein), damit sie in der Auflistung berücksichtigt werden.
+`qaTaskName`               | Alle Vorgänge in einem Batch müssen sich gerade in diesem Arbeitsschritt befinden (offen sein), damit sie in der Auflistung berücksichtigt werden.
 `errorStepName`            | Dieser Schritt wird geöffnet, wenn Vorgänge als fehlerhaft markiert werden.
 `percentage`               | Dieser Wert legt den prozentualen Wert für die anzuzeigenden Bilder fest.
 `numberOfProcessesPerPage` | Anzahl der gleichzeitig anzuzeigenden Vorgänge. Weitere Vorgänge können mittels Paginator erreicht werden.
