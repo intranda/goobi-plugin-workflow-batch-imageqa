@@ -26,6 +26,7 @@ import de.intranda.goobi.plugins.model.ProcessOverview;
 import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.BeanHelper;
+import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.HelperSchritte;
 import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
@@ -522,6 +523,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         return errors;
     }
 
+    public void reloadCurrentBatch() {
+        if (currentBatch != null) {
+            currentBatch.reload(qaStepName, metadataToCheck);
+        }
+    }
+
     public void generateCSV() {
         StringBuilder csv = new StringBuilder();
 
@@ -568,6 +575,8 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                 facesContext.responseComplete();
             }
         } catch (IOException e) {
+            log.error(e);
+            Helper.setFehlerMeldung("plugin_workflow_batches_csv_error", e);
         }
     }
 

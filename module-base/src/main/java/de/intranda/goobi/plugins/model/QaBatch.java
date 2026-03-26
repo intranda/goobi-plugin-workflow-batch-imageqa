@@ -65,6 +65,11 @@ public class QaBatch {
 
     }
 
+    public void reload(String stepTitle, List<String> metadataToCheck) {
+        processes = QaPluginManager.getProcesses(stepTitle, batch.getBatchId(), metadataToCheck);
+        calculateProgress();
+    }
+
     public void calculateProgress() {
 
         totalNumberOfPages = 0;

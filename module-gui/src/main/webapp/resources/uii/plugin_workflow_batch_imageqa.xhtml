@@ -255,13 +255,21 @@
                                                             </button>
 
                                                             <!-- open reject modal -->
+<!--                                                            <button-->
+<!--                                                                jsf:id="rejectClick"-->
+<!--                                                                class="btn btn-danger"-->
+<!--                                                                title="#{msgs.plugin_workflow_batches_abort}"-->
+<!--                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"-->
+<!--                                                                data-bs-toggle="tooltip">-->
                                                             <button
-                                                                jsf:id="rejectClick"
-                                                                class="btn btn-danger"
-                                                                title="#{msgs.plugin_workflow_batches_abort}"
-                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"
-                                                                data-bs-toggle="tooltip">
-                                                                <!-- added padding for icon so that button widths align -->
+                                                                    jsf:id="rejectClick"
+                                                                    jsf:action="#{NavigationForm.workflowPlugin.reloadCurrentBatch}"
+                                                                    class="btn btn-danger"
+                                                                    title="#{msgs.plugin_workflow_batches_abort}"
+                                                                    jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"
+                                                                    data-bs-toggle="tooltip">
+
+                                                            <!-- added padding for icon so that button widths align -->
                                                                 <span
                                                                     class="fa fa-exclamation px-1"
                                                                     aria-hidden="true" />
