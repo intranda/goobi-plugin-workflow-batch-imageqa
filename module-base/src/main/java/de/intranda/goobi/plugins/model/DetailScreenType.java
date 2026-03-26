@@ -1,5 +1,5 @@
 package de.intranda.goobi.plugins.model;
 
 public enum DetailScreenType {
-    IN_PROGRESS, ERROR, NORMAL
+    OVERVIEW, NORMAL, IN_PROGRESS, ERROR
 }

@@ -73,10 +73,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
 
     @Getter
     @Setter
-    private String displayType = "overview";
-
-    @Getter
-    @Setter
     private QaBatch currentBatch;
 
     @Getter
@@ -104,11 +100,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
 
     @Getter
     @Setter
-    private boolean errorPage;
-
-    @Getter
-    @Setter
-    private DetailScreenType detailScreenType;
+    private DetailScreenType detailScreenType = DetailScreenType.OVERVIEW;
 
     @Override
     public PluginType getType() {
@@ -182,7 +174,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     }
 
     public void loadErrorProcesses() {
-        errorPage = true;
+        detailScreenType = DetailScreenType.ERROR;
 
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
@@ -195,7 +187,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     }
 
     public void loadInWorkProcesses() {
-        errorPage = false;
+        detailScreenType = DetailScreenType.IN_PROGRESS;
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
             if ("in progress".equals(entry.getProcessStatus())) {
@@ -207,7 +199,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     }
 
     public void continueBatch() {
-        errorPage = false;
         // mark new processed images as accepted
         for (DisplayProcess dp : displayProcesses) {
             // update status property
@@ -262,7 +253,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         } else {
             // batch is finished, move to overview screeen
             allBatches = null;
-            displayType = "overview";
+            detailScreenType = DetailScreenType.OVERVIEW;
         }
 
     }
@@ -286,7 +277,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
 
         allBatches = null;
-        displayType = "overview";
+        detailScreenType = DetailScreenType.OVERVIEW;
     }
 
     public void errorBatch() {
@@ -312,7 +303,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
 
         allBatches = null;
-        displayType = "overview";
+        detailScreenType = DetailScreenType.OVERVIEW;
 
         // change workflow to a 6 weeks delay and deletion step
         if (inactiveProcessTemplate != null) {
@@ -352,7 +343,6 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     }
 
     public void openBatch() {
-        errorPage = false;
         int percentage = currentBatch.getPercentage();
         // check if batch has a percentage property
 
@@ -386,10 +376,11 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
         if (processDisplayList.isEmpty()) {
             // all processes are processed or currently in progress by someone else, stay on overview page
-            displayType = "overview";
+            detailScreenType = DetailScreenType.OVERVIEW;
             return;
         }
 
+        detailScreenType = DetailScreenType.NORMAL;
         displayProcesses.clear();
         generateProcessList();
     }
@@ -610,12 +601,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
 
         allBatches = null;
-        displayType = "overview";
+        detailScreenType = DetailScreenType.OVERVIEW;
     }
 
     public void cancelEdition() {
         allBatches = null;
-        displayType = "overview";
+        detailScreenType = DetailScreenType.OVERVIEW;
     }
 
     public void saveErrorPage() {

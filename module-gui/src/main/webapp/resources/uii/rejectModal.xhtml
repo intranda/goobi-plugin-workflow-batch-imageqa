@@ -33,7 +33,7 @@
                             <h4
                                 class="modal-title"
                                 id="rejectBoxTitle">
-                                #{msgs.plugin_workflow_batches_abort}: #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                                #{msgs.plugin_workflow_batches_abort}: #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}
                             </h4>
 
                             <button

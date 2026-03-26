@@ -25,7 +25,7 @@
                 </h:panelGroup>
 
                 <ui:fragment
-                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='overview'}">
+                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.detailScreenType.name() == 'OVERVIEW'}">
                     <section:section type="primary">
                         <section:header
                             icon="archive"
@@ -97,8 +97,8 @@
                                                 <tr role="row">
                                                     <td>
                                                         <h:outputText
-                                                            value="#{item.batch.batchName}"
-                                                            title="#{item.batch.batchName}" />
+                                                            value="#{empty item.batch.batchName ? '–' : item.batch.batchName}"
+                                                            title="#{empty item.batch.batchName ? '–' : item.batch.batchName}" />
                                                     </td>
 
                                                     <td>
@@ -186,9 +186,6 @@
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
-                                                                <f:setPropertyActionListener
-                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
-                                                                    value="batchEdit" />
                                                             </button>
                                                         </div>
 
@@ -211,9 +208,6 @@
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
-                                                                <f:setPropertyActionListener
-                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
-                                                                    value="batchEdit" />
                                                             </button>
                                                         </div>
                                                     </td>
@@ -237,9 +231,6 @@
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
-                                                                <f:setPropertyActionListener
-                                                                    target="#{NavigationForm.workflowPlugin.displayType}"
-                                                                    value="batchEdit" />
                                                             </button>
 
                                                             <!-- open reject modal -->
@@ -303,11 +294,11 @@
 
 
                 <ui:fragment
-                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.displayType=='batchEdit'}">
+                    rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa') and NavigationForm.workflowPlugin.detailScreenType.name() != 'OVERVIEW'}">
                     <section:section type="neutral">
                         <section:header
                             icon="list"
-                            title="#{msgs.plugin_workflow_batches_delivery} #{NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
+                            title="#{msgs.plugin_workflow_batches_delivery} #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
                             <section:header-actions form="true">
                                 <h:inputText
                                     value="#{NavigationForm.workflowPlugin.percentage}"
@@ -509,7 +500,7 @@
                                         jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
                                     <span>#{msgs.cancel}</span>
                                 </button>
-                                <ui:fragment rendered="#{!NavigationForm.workflowPlugin.errorPage}">
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() != 'ERROR'}">
                                     <button
                                         jsf:id="continue"
                                         class="btn btn-neutral-600"
@@ -527,7 +518,7 @@
                                 </ui:fragment>
 
 
-                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.errorPage}">
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'ERROR'}">
                                       <button
                                         jsf:id="save"
                                         class="btn btn-neutral-600"
