@@ -1,0 +1,96 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:jsf="http://xmlns.jcp.org/jsf">
+    <composite:interface>
+    </composite:interface>
+    <composite:implementation>
+
+        <h:panelGroup
+            styleClass="modal"
+            layout="block"
+            id="percentageBox"
+            rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_admin')}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="percentageBoxTitle">
+            <h:panelGroup
+                layout="block"
+                id="percentageBoxContent"
+                class="modal-dialog p-5"
+                role="document">
+                <div class="modal-content">
+                    <h:form
+                        styleClass="h-100"
+                        id="percentageForm"
+                        prependId="false">
+                        <div class="modal-header" >
+                            <div class="modal-body">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h4
+                                            class="modal-title"
+                                            id="percentageBoxTitle">
+                                        #{msgs.plugin_workflow_batches_progress_title}: #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                                    </h4>
+                                </div>
+                            </div>
+
+
+                            <button
+                                type="button"
+                                class="btn"
+                                title="#{msgs.abbrechen}"
+                                data-bs-dismiss="modal"
+                                data-toggle="tooltip">
+                                <span
+                                    class="fa fa-times"
+                                    aria-hidden="true" />
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex align-items-center gap-3">
+                                <label for="percentageInput">#{msgs.plugin_workflow_batches_percentage_label}</label>
+                                <h:inputText
+                                    id="percentageInput"
+                                    value="#{NavigationForm.workflowPlugin.percentage}"
+                                    styleClass="form-control form-control-compact"
+                                    style="--form-control-compact-width: 5em" />
+                                <span>%</span>
+                                <span class="text-muted">
+                                    (= <h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}"><f:convertNumber maxFractionDigits="0" /></h:outputText>
+                                    #{msgs.Images})
+                                </span>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                jsf:id="cancelPercentageButton"
+                                title="#{msgs.cancel}"
+                                jsf:rel="tooltip"
+                                class="btn btn-blank"
+                                data-bs-dismiss="modal">
+                                <h:outputText value="#{msgs.cancel}" />
+                            </button>
+
+                            <button
+                                jsf:id="applyPercentage"
+                                class="btn btn-primary"
+                                jsf:rel="tooltip"
+                                jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
+                                title="#{msgs.plugin_workflow_batches_accept_button}">
+                                <span>#{msgs.plugin_workflow_batches_accept_button}</span>
+                            </button>
+                        </div>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+        </h:panelGroup>
+    </composite:implementation>
+</ui:composition>

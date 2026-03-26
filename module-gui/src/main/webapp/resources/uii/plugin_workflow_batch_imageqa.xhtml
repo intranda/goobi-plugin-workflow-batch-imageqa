@@ -233,6 +233,27 @@
                                                                     value="#{item}" />
                                                             </button>
 
+                                                            <!-- open percentage modal -->
+                                                            <button
+                                                                jsf:id="percentageClick"
+                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_admin')}"
+                                                                class="btn btn-blank"
+                                                                title="#{msgs.plugin_workflow_batches_percentage_label}"
+                                                                data-bs-toggle="tooltip">
+                                                                <span
+                                                                    class="fa fa-sliders"
+                                                                    aria-hidden="true" />
+                                                                <f:ajax
+                                                                    execute="@this"
+                                                                    render="percentageBox"
+                                                                    onevent="(event) => {if (event.status === 'success') {
+                                                                                    $('#percentageBox').modal('show');
+                                                                                }}" />
+                                                                <f:setPropertyActionListener
+                                                                    target="#{NavigationForm.workflowPlugin.currentBatch}"
+                                                                    value="#{item}" />
+                                                            </button>
+
                                                             <!-- open reject modal -->
                                                             <button
                                                                 jsf:id="rejectClick"
@@ -299,30 +320,28 @@
                         <section:header
                             icon="list"
                             title="#{msgs.plugin_workflow_batches_delivery} #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
-                            <section:header-actions form="true">
-                                <h:inputText
-                                    value="#{NavigationForm.workflowPlugin.percentage}"
-                                    styleClass="form-control form-control-compact"
-                                    style="&#45;&#45;form-control-compact-width: 4em"
-                                    pt:data-submit-on-enter="#changePercentage" />
-                                <span class="align-self-center">
-                                    <h:outputFormat value="#{msgs.plugin_workflow_batches_displayedPages}">
-                                        <f:param value="#{NavigationForm.workflowPlugin.currentBatch.numberOfPagesToProcess}" />
-                                        <f:param value="#{NavigationForm.workflowPlugin.currentBatch.totalNumberOfPages}" />
-                                    </h:outputFormat>
+                            <section:header-actions>
+                                <span class="align-self-center d-flex gap-3 bg-white rounded px-2 py-1">
+                                    <span class="font-status-done">
+                                        <span class="fa fa-check" aria-hidden="true" />
+                                        #{NavigationForm.workflowPlugin.currentBatch.finishedNumberOfPages}
+                                    </span>
+                                    <span class="font-status-locked">
+                                        <span class="fa fa-exclamation" aria-hidden="true" />
+                                        #{NavigationForm.workflowPlugin.currentBatch.errorNumberOfPages}
+                                    </span>
+                                    <span class="font-status-open">
+                                        <span class="fa fa-refresh" aria-hidden="true" />
+                                        #{NavigationForm.workflowPlugin.currentBatch.numberOfPagesInProcess}
+                                    </span>
+                                    <span class="text-muted">
+                                        <span class="fa fa-circle-o" aria-hidden="true" />
+                                        #{NavigationForm.workflowPlugin.currentBatch.openNumberOfPages}
+                                    </span>
+                                    <span class="text-muted">
+                                        (von <h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}"><f:convertNumber maxFractionDigits="0" /></h:outputText>)
+                                    </span>
                                 </span>
-                                <button
-                                    jsf:id="changePercentage"
-                                    class="btn btn--title-action"
-                                    jsf:rel="tooltip"
-                                    jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
-                                    title="#{msgs.filterAnwenden}"
-                                    data-bs-toggle="tooltip">
-                                    <span
-                                        aria-hidden="true"
-                                        class="fa fa-refresh"> </span>
-                                    <span class="visually-hidden"> #{msgs.filterAnwenden} </span>
-                                </button>
                             </section:header-actions>
                         </section:header>
                         <section:body padding="true">
@@ -559,4 +578,5 @@
 
     <ui:include src="rejectModal.xhtml" />
     <ui:include src="finishModal.xhtml" />
+    <ui:include src="percentageModal.xhtml" />
 </ui:composition>
