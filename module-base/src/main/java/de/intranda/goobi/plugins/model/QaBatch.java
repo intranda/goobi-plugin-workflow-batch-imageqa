@@ -93,14 +93,7 @@ public class QaBatch {
     }
 
     public double getAcceptedPercentage() {
-        double d = 0;
-        if (finishedNumberOfPages > 0) {
-            d = finishedNumberOfPages * 100 / getProcessedPages();
-        }
-        if (d > 100) {
-            d = 100;
-        }
-        return d;
+        return calculatePercentageOfThresholdPages(finishedNumberOfPages);
     }
 
     public double getUnAcceptedPercentage() {
@@ -112,9 +105,13 @@ public class QaBatch {
     }
 
     public double getErrorPercentage() {
+        return calculatePercentageOfThresholdPages(errorNumberOfPages);
+    }
+
+    private double calculatePercentageOfThresholdPages(long errorNumberOfPages) {
         double d = 0;
         if (errorNumberOfPages > 0) {
-            d = errorNumberOfPages * 100 / getProcessedPages();
+            d = errorNumberOfPages * 100 / getThresholdPages();
         }
         if (d > 100) {
             d = 100;
@@ -131,18 +128,11 @@ public class QaBatch {
     }
 
     public double getInWorkPercentage() {
-        double d = 0;
-        if (numberOfPagesInProcess > 0) {
-            d = numberOfPagesInProcess * 100 / getThresholdPages();
-        }
-        if (d > 100) {
-            d = 100;
-        }
-        return d;
+        return calculatePercentageOfThresholdPages(numberOfPagesInProcess);
     }
 
     public double getNotInWorkPercentage() {
-        double d = 100 - getInWorkPercentage();
+        double d = 100 - getInWorkPercentage() + getErrorPercentage() + getAcceptedPercentage();
         if (d < 0) {
             d = 0.0;
         }

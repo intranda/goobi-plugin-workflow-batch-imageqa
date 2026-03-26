@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import de.intranda.goobi.plugins.model.DetailScreenType;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +105,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     @Getter
     @Setter
     private boolean errorPage;
+
+    @Getter
+    @Setter
+    private DetailScreenType detailScreenType;
 
     @Override
     public PluginType getType() {

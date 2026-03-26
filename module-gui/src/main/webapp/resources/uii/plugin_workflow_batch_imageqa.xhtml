@@ -109,8 +109,8 @@
                                                     </td>
                                                     <td>
                                                         <h:outputFormat value="#{msgs.plugin_workflow_batches_progress}">
-                                                            <f:param value="#{item.percentage}" />
                                                             <f:param value="#{item.thresholdPages}" />
+                                                            <f:param value="#{item.percentage}" />
                                                         </h:outputFormat>
                                                     </td>
                                                     <td>
@@ -496,17 +496,20 @@
                             <section:footer>
                                 <button
                                     class="btn btn-blank me-auto"
+                                    jsf:rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'IN_PROGRESS'
+                                                 or NavigationForm.workflowPlugin.detailScreenType.name() == 'ERROR'}"
                                     jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
                                     <span>#{msgs.cancel}</span>
                                 </button>
-                                <ui:fragment rendered="#{!NavigationForm.workflowPlugin.errorPage}">
-                                    <button
+                                <button
                                         jsf:id="abort"
-                                        class="btn btn-blank"
+                                        class="btn btn-blank me-auto"
                                         jsf:rel="tooltip"
+                                        jsf:rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'NORMAL'}"
                                         jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
-                                        <span>#{msgs.plugin_workflow_batches_abortEdition}</span>
-                                    </button>
+                                    <span>#{msgs.cancel}</span>
+                                </button>
+                                <ui:fragment rendered="#{!NavigationForm.workflowPlugin.errorPage}">
                                     <button
                                         jsf:id="continue"
                                         class="btn btn-neutral-600"
