@@ -194,7 +194,7 @@ public class QaBatch {
     }
 
     public boolean isFinished() {
-        return finishedNumberOfPages + errorNumberOfPages + numberOfPagesInProcess == totalNumberOfPages;
+        return finishedNumberOfPages + errorNumberOfPages + numberOfPagesInProcess >= totalNumberOfPages * ((double)percentage/100);
 
     }
 

@@ -103,6 +103,10 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     @Setter
     private DetailScreenType detailScreenType = DetailScreenType.OVERVIEW;
 
+    @Getter
+    @Setter
+    private boolean detailViewReadOnly = false;
+
     @Override
     public PluginType getType() {
         return PluginType.Workflow;
@@ -204,7 +208,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
-                if (dp.isInvalid()) {
+                if (dp.isValidity()) {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
@@ -236,7 +240,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
 
             for (ProcessOverview entry : currentBatch.getProcesses()) {
                 if (entry.getProcessid().equals(String.valueOf(dp.getProcess().getId()))) {
-                    entry.setProcessStatus(dp.isInvalid() ? "error" : "accepted");
+                    entry.setProcessStatus(dp.isValidity() ? "error" : "accepted");
                     break;
                 }
             }
@@ -252,7 +256,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
             // threshold not exceeded, get new set of images
             openBatch();
         } else {
-            // batch is finished, move to overview screeen
+            // batch is finished, move to overview screen
             allBatches = null;
             detailScreenType = DetailScreenType.OVERVIEW;
         }
@@ -506,7 +510,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
 
     public boolean isDisplayErrorReport() {
         for (DisplayProcess dp : displayProcesses) {
-            if (dp.isInvalid()) {
+            if (dp.isValidity()) {
                 return true;
             }
         }
@@ -622,7 +626,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
-                if (dp.isInvalid()) {
+                if (dp.isValidity()) {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());

@@ -255,12 +255,6 @@
                                                             </button>
 
                                                             <!-- open reject modal -->
-<!--                                                            <button-->
-<!--                                                                jsf:id="rejectClick"-->
-<!--                                                                class="btn btn-danger"-->
-<!--                                                                title="#{msgs.plugin_workflow_batches_abort}"-->
-<!--                                                                jsf:rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_reject')}"-->
-<!--                                                                data-bs-toggle="tooltip">-->
                                                             <button
                                                                     jsf:id="rejectClick"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.reloadCurrentBatch}"
@@ -398,7 +392,8 @@
                                                         class="btn d-flex align-items-center border"
                                                         title="#{msgs.metadatenBearbeiten}"
                                                         pt:aria-label="#{msgs.metadatenBearbeiten}"
-                                                        rel="tooltip">
+                                                        rel="tooltip"
+                                                        disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}">
                                                         <span class="fa fa-book" />
                                                         <f:passThroughAttribute
                                                             name="data-toggle"
@@ -434,6 +429,7 @@
                                                         title="#{msgs.plugin_workflow_batches_error}"
                                                         jsf:rel="tooltip"
                                                         jsf:id="toggle-invalid"
+                                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                         data-renderimage="true"
                                                         data-bs-toggle="tooltip">
                                                         <span
@@ -479,6 +475,7 @@
                                                                         <h:inputTextarea
                                                                             id="errorDescription"
                                                                             styleClass="form-control"
+                                                                            readonly="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                                             value="#{displayProcess.processOverview.errorMessage}">
                                                                             <f:ajax
                                                                                 execute="@this"
@@ -532,6 +529,7 @@
                                         jsf:id="continue"
                                         class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
+                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
                                         jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
                                         <span>
                                             <h:outputText
@@ -550,6 +548,7 @@
                                         jsf:id="save"
                                         class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
+                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
                                         jsf:action="#{NavigationForm.workflowPlugin.saveErrorPage}">
                                         <span>#{msgs.speichern}</span>
                                     </button>

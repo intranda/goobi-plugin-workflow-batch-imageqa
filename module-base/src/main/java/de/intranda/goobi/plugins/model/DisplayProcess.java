@@ -31,7 +31,7 @@ public class DisplayProcess {
     private ImageList allImages = new ImageList();
     private Process process;
 
-    private boolean invalid;
+    private ProcessValidationState validity;
 
     private int thumbnailSize;
 
@@ -45,7 +45,7 @@ public class DisplayProcess {
         this.thumbnailSize = thumbnailSize;
         processOverview = entry;
         initImageList();
-        invalid = "error".equals(processOverview.getProcessStatus());
+        validity = "error".equals(processOverview.getProcessStatus()) ? ProcessValidationState.INVALID : "accepted".equals(processOverview.getProcessStatus()) ? ProcessValidationState.VALID : ProcessValidationState.NOT_PROCESSED;
     }
 
     public void initImageList() {

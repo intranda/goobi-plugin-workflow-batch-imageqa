@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.intranda.goobi.plugins.model.DetailScreenType;
+import de.intranda.goobi.plugins.model.ProcessValidationState;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
@@ -181,9 +183,9 @@ public class BatchImageqaWorkflowPluginTest {
     @Test
     public void testDisplayType() {
         BatchImageqaWorkflowPlugin fixture = new BatchImageqaWorkflowPlugin();
-        assertEquals("overview", fixture.getDisplayType());
-        fixture.setDisplayType("other");
-        assertEquals("other", fixture.getDisplayType());
+        assertEquals(DetailScreenType.OVERVIEW, fixture.getDetailScreenType());
+        fixture.setDetailScreenType(DetailScreenType.NORMAL);
+        assertEquals(DetailScreenType.NORMAL, fixture.getDetailScreenType());
     }
 
     @Test
@@ -221,7 +223,7 @@ public class BatchImageqaWorkflowPluginTest {
         fixture.setCurrentBatch(batches.get(0));
         fixture.openBatch();
         assertFalse(fixture.isDisplayErrorReport());
-        fixture.getDisplayProcesses().get(0).setInvalid(true);
+        fixture.getDisplayProcesses().get(0).setValidity(ProcessValidationState.INVALID);
         assertTrue(fixture.isDisplayErrorReport());
     }
 
