@@ -48,6 +48,14 @@ public class DisplayProcess {
         validity = "error".equals(processOverview.getProcessStatus()) ? ProcessValidationState.INVALID : "accepted".equals(processOverview.getProcessStatus()) ? ProcessValidationState.VALID : ProcessValidationState.NOT_PROCESSED;
     }
 
+    public void setValidityValid() {
+        validity = ProcessValidationState.VALID;
+    }
+
+    public void setValidityInvalid() {
+        validity = ProcessValidationState.INVALID;
+    }
+
     public void initImageList() {
         try {
             this.imageFolderName = process.getImagesOrigDirectory(false);

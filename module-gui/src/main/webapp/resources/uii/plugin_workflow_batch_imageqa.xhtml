@@ -347,19 +347,19 @@
                             </section:header-actions>
                         </section:header>
                         <section:body padding="true">
-                            <div class="flow">
+                            <h:panelGroup id="processListPanel" binding="#{processListContainer}" layout="block" styleClass="flow">
                                 <ui:repeat
                                     var="displayProcess"
                                     value="#{NavigationForm.workflowPlugin.displayProcesses}"
                                     varStatus="process">
                                     <h:form id="processform">
-                                        <section:section type="#{displayProcess.invalid ? 'hot' : 'outline'}">
+                                        <section:section type="#{displayProcess.validity.name() == 'INVALID' ? 'hot' : displayProcess.validity.name() == 'VALID' ? 'success' : 'outline'}">
                                             <section:header title="#{displayProcess.title}">
 
                                                 <section:header-actions>
                                                     <h:panelGroup
                                                         styleClass="fs-5 fa fa-exclamation-circle d-flex align-items-center"
-                                                        style="color: var(--bs-#{displayProcess.invalid ? 'white' : 'green'})"
+                                                        style="color: var(--bs-#{displayProcess.validity.name() == 'INVALID' ? 'white' : 'green'})"
                                                         rendered="#{displayProcess.metadataStep}"
                                                         pt:title="#{msgs.plugin_workflow_batches_process_metadatum}"
                                                         pt:data-bs-toggle="tooltip" />
@@ -425,27 +425,33 @@
                                                     </h:commandLink>
 
                                                     <button
-                                                        class="btn border"
-                                                        title="#{msgs.plugin_workflow_batches_error}"
-                                                        jsf:rel="tooltip"
-                                                        jsf:id="toggle-invalid"
+                                                        class="btn"
+                                                        title="#{msgs.plugin_workflow_batches_valid}"
+                                                        jsf:id="set-valid"
                                                         jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
-                                                        data-renderimage="true"
                                                         data-bs-toggle="tooltip">
                                                         <span
-                                                            class="fa #{displayProcess.invalid == false?'fa-toggle-off':'fa-toggle-on'}"
+                                                            class="fa fa-check"
                                                             aria-hidden="true" />
-                                                        <f:ajax render="@form reportForm" />
-                                                        <f:setPropertyActionListener
-                                                            target="#{displayProcess.invalid}"
-                                                            value="#{not displayProcess.invalid}" />
+                                                        <f:ajax render="@form #{reportFormContainer.clientId}" execute="#{reportFormContainer.clientId}" listener="#{displayProcess.setValidityValid}" />
+                                                    </button>
+                                                    <button
+                                                        class="btn"
+                                                        title="#{msgs.plugin_workflow_batches_invalid}"
+                                                        jsf:id="set-invalid"
+                                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                                        data-bs-toggle="tooltip">
+                                                        <span
+                                                            class="fa fa-times"
+                                                            aria-hidden="true" />
+                                                        <f:ajax render="@form #{reportFormContainer.clientId}" execute="#{reportFormContainer.clientId}" listener="#{displayProcess.setValidityInvalid}" />
                                                     </button>
                                                 </section:header-actions>
 
                                             </section:header>
                                             <section:body padding="false">
                                                 <div class="d-flex flex-nowrap">
-                                                    <div class="col-6 border-end#{displayProcess.invalid ? ' border-danger' : ''}">
+                                                    <div class="col-6 border-end#{displayProcess.validity.name() == 'INVALID' ? ' border-danger' : displayProcess.validity.name() == 'VALID' ? ' border-success' : ''}">
                                                         <ui:repeat
                                                             var="metadata"
                                                             value="#{displayProcess.metadata}">
@@ -465,7 +471,7 @@
                                                         <h:panelGroup
                                                             layout="block"
                                                             styleClass="w-100 border-top border-danger"
-                                                            rendered="#{displayProcess.invalid}">
+                                                            rendered="#{displayProcess.validity.name() == 'INVALID'}">
                                                             <form:field
                                                                 label="#{msgs.plugin_workflow_batches_errorDescription}"
                                                                 required="false"
@@ -503,11 +509,11 @@
 
                                     </h:form>
                                 </ui:repeat>
-                            </div>
+                            </h:panelGroup>
 
                         </section:body>
 
-                        <h:form id="reportForm">
+                        <h:form id="reportForm" binding="#{reportFormContainer}">
                             <section:footer>
                                 <button
                                     class="btn btn-blank me-auto"
@@ -526,10 +532,20 @@
                                 </button>
                                 <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() != 'ERROR'}">
                                     <button
-                                        jsf:id="continue"
+                                        jsf:id="set-all-valid"
                                         class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
                                         jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                        data-bs-toggle="tooltip"
+                                        title="#{msgs.plugin_workflow_batches_setAllValid}">
+                                        <span>#{msgs.plugin_workflow_batches_setAllValid}</span>
+                                        <f:ajax render="@form #{processListContainer.clientId}" execute="#{processListContainer.clientId}" listener="#{NavigationForm.workflowPlugin.setAllProcessesValid}" />
+                                    </button>
+                                    <button
+                                        jsf:id="continue"
+                                        class="btn btn-neutral-600"
+                                        jsf:rel="tooltip"
+                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly or not NavigationForm.workflowPlugin.allProcessesMarked}"
                                         jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
                                         <span>
                                             <h:outputText

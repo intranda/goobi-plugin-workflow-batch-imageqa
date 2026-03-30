@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import de.intranda.goobi.plugins.model.DetailScreenType;
+import de.intranda.goobi.plugins.model.*;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +21,6 @@ import org.goobi.production.cli.helper.StringPair;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
-import de.intranda.goobi.plugins.model.DisplayProcess;
-import de.intranda.goobi.plugins.model.ProcessOverview;
-import de.intranda.goobi.plugins.model.QaBatch;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.BeanHelper;
 import de.sub.goobi.helper.Helper;
@@ -208,7 +205,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
-                if (dp.isValidity()) {
+                if (dp.getValidity() == ProcessValidationState.INVALID) {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
@@ -229,7 +226,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                     }
                     errorProperty.setPropertyValue(errorMessage);
                     PropertyManager.saveProperty(errorProperty);
-                } else {
+                } else if (dp.getValidity() == ProcessValidationState.VALID){
                     DatabaseVersion.runSql(
                             "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
@@ -240,7 +237,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
 
             for (ProcessOverview entry : currentBatch.getProcesses()) {
                 if (entry.getProcessid().equals(String.valueOf(dp.getProcess().getId()))) {
-                    entry.setProcessStatus(dp.isValidity() ? "error" : "accepted");
+                    entry.setProcessStatus(dp.getValidity() == ProcessValidationState.INVALID ? "error" : "accepted");
                     break;
                 }
             }
@@ -508,9 +505,24 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
      * 
      */
 
+    public void setAllProcessesValid() {
+        for (DisplayProcess dp : displayProcesses) {
+            dp.setValidityValid();
+        }
+    }
+
+    public boolean isAllProcessesMarked() {
+        for (DisplayProcess dp : displayProcesses) {
+            if (dp.getValidity() == ProcessValidationState.NOT_PROCESSED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isDisplayErrorReport() {
         for (DisplayProcess dp : displayProcesses) {
-            if (dp.isValidity()) {
+            if (dp.getValidity() == ProcessValidationState.INVALID) {
                 return true;
             }
         }
@@ -626,7 +638,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
-                if (dp.isValidity()) {
+                if (dp.getValidity() == ProcessValidationState.INVALID) {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
