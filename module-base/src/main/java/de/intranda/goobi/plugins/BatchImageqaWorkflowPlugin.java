@@ -60,6 +60,29 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     @Getter
     private String title = "intranda_workflow_batch_imageqa";
 
+    @Getter
+    private final String roleBase = "Plugin_workflow_batch_imageqa";
+    @Getter
+    private final String roleReject = "Plugin_workflow_batch_imageqa_reject";
+    @Getter
+    private final String roleFinish = "Plugin_workflow_batch_imageqa_finish";
+    @Getter
+    private final String roleViewFinish = "Plugin_workflow_batch_imageqa_view_finish";
+    @Getter
+    private final String roleEditFinish = "Plugin_workflow_batch_imageqa_edit_finish";
+    @Getter
+    private final String roleViewError = "Plugin_workflow_batch_imageqa_view_error";
+    @Getter
+    private final String roleEditError = "Plugin_workflow_batch_imageqa_edit_error";
+    @Getter
+    private final String roleViewInProcess = "Plugin_workflow_batch_imageqa_view_in_progress";
+    @Getter
+    private final String roleEditInProcess = "Plugin_workflow_batch_imageqa_edit_in_progress";
+    @Getter
+    private final String roleSampleSize = "Plugin_workflow_batch_imageqa_admin_sample_size";
+    @Getter
+    private final String roleViewCSV = "Plugin_workflow_batch_imageqa_view_csv";
+
     private List<QaBatch> allBatches = null;
 
     private String qaStepName = "";
@@ -170,12 +193,39 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         allBatches = null;
     }
 
-    @Override
-    public void finalize() {
-
+    public void loadFinishedProcessesEdit() {
+        detailViewReadOnly = false;
+        loadFinishedProcesses();
     }
 
-    public void loadErrorProcesses() {
+    public void loadFinishedProcessesReadOnly() {
+        detailViewReadOnly = true;
+        loadFinishedProcesses();
+    }
+
+    private void loadFinishedProcesses() {
+        detailScreenType = DetailScreenType.FINISH;
+        processDisplayList = new ArrayList<>();
+        for (ProcessOverview entry : currentBatch.getProcesses()) {
+            if ("accepted".equals(entry.getProcessStatus())) {
+                processDisplayList.add(entry);
+            }
+        }
+        displayProcesses.clear();
+        generateProcessList();
+    }
+
+    public void loadErrorProcessesEdit() {
+        detailViewReadOnly = false;
+        loadErrorProcesses();
+    }
+
+    public void loadErrorProcessesReadOnly() {
+        detailViewReadOnly = true;
+        loadErrorProcesses();
+    }
+
+    private void loadErrorProcesses() {
         detailScreenType = DetailScreenType.ERROR;
 
         processDisplayList = new ArrayList<>();
@@ -188,7 +238,17 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         generateProcessList();
     }
 
-    public void loadInWorkProcesses() {
+    public void loadInWorkProcessesEdit() {
+        detailViewReadOnly = false;
+        loadInWorkProcesses();
+    }
+
+    public void loadInWorkProcessesReadOnly() {
+        detailViewReadOnly = true;
+        loadInWorkProcesses();
+    }
+
+    private void loadInWorkProcesses() {
         detailScreenType = DetailScreenType.IN_PROGRESS;
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
@@ -206,26 +266,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
             // update status property
             try {
                 if (dp.getValidity() == ProcessValidationState.INVALID) {
-                    DatabaseVersion.runSql(
-                            "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
-                                    + dp.getProcess().getId());
-
-                    //  store error message as property
-                    String errorMessage = dp.getProcessOverview().getErrorMessage();
-                    GoobiProperty errorProperty = null;
-                    for (GoobiProperty gp : dp.getProcess().getProperties()) {
-                        if ("QA-Note".equals(gp.getPropertyName())) {
-                            errorProperty = gp;
-                            break;
-                        }
-                    }
-                    if (errorProperty == null) {
-                        errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
-                        errorProperty.setOwner(dp.getProcess());
-                        errorProperty.setPropertyName("QA-Note");
-                    }
-                    errorProperty.setPropertyValue(errorMessage);
-                    PropertyManager.saveProperty(errorProperty);
+                    persistInvalidToDatabase(dp);
                 } else if (dp.getValidity() == ProcessValidationState.VALID){
                     DatabaseVersion.runSql(
                             "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
@@ -610,6 +651,13 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
     }
 
+    public void savePercentage() {
+        if (currentBatch != null) {
+            currentBatch.reload(qaStepName, metadataToCheck);
+        }
+        allBatches = null;
+    }
+
     public void abortEdition() {
         // reset all processes from current view, so they can be picked up again
         for (ProcessOverview po : processDisplayList) {
@@ -634,31 +682,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         detailScreenType = DetailScreenType.OVERVIEW;
     }
 
-    public void saveErrorPage() {
+    public void saveCurrentPageAndExit() {
         for (DisplayProcess dp : displayProcesses) {
             // update status property
             try {
                 if (dp.getValidity() == ProcessValidationState.INVALID) {
-                    DatabaseVersion.runSql(
-                            "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
-                                    + dp.getProcess().getId());
-
-                    //  store error message as property
-                    String errorMessage = dp.getProcessOverview().getErrorMessage();
-                    GoobiProperty errorProperty = null;
-                    for (GoobiProperty gp : dp.getProcess().getProperties()) {
-                        if ("QA-Note".equals(gp.getPropertyName())) {
-                            errorProperty = gp;
-                            break;
-                        }
-                    }
-                    if (errorProperty == null) {
-                        errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
-                        errorProperty.setOwner(dp.getProcess());
-                        errorProperty.setPropertyName("QA-Note");
-                    }
-                    errorProperty.setPropertyValue(errorMessage);
-                    PropertyManager.saveProperty(errorProperty);
+                    persistInvalidToDatabase(dp);
                 } else {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
@@ -674,6 +703,29 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         }
 
         cancelEdition();
+    }
+
+    private static void persistInvalidToDatabase(DisplayProcess dp) throws SQLException {
+        DatabaseVersion.runSql(
+                "update properties set property_value ='error' where property_name = 'QA-Status' and object_type='process' and object_id = "
+                        + dp.getProcess().getId());
+
+        //  store error message as property
+        String errorMessage = dp.getProcessOverview().getErrorMessage();
+        GoobiProperty errorProperty = null;
+        for (GoobiProperty gp : dp.getProcess().getProperties()) {
+            if ("QA-Note".equals(gp.getPropertyName())) {
+                errorProperty = gp;
+                break;
+            }
+        }
+        if (errorProperty == null) {
+            errorProperty = new GoobiProperty(PropertyOwnerType.PROCESS);
+            errorProperty.setOwner(dp.getProcess());
+            errorProperty.setPropertyName("QA-Note");
+        }
+        errorProperty.setPropertyValue(errorMessage);
+        PropertyManager.saveProperty(errorProperty);
     }
 
 }

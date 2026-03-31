@@ -66,6 +66,7 @@
                                 jsf:id="downloadCsv"
                                 class="btn btn-blank"
                                 jsf:rel="tooltip"
+                                jsf:rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewCSV)}"
                                 jsf:action="#{NavigationForm.workflowPlugin.generateCSV}">
                                 <h:outputText value="#{msgs.downloadCsv}" />
                             </button>

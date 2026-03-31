@@ -16,7 +16,7 @@
             styleClass="modal"
             layout="block"
             id="percentageBox"
-            rendered="#{LoginForm.hasRole('Plugin_workflow_batch_imageqa_admin')}"
+            rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleSampleSize)}"
             tabindex="-1"
             role="dialog"
             aria-labelledby="percentageBoxTitle">
@@ -83,9 +83,14 @@
                                 jsf:id="applyPercentage"
                                 class="btn btn-primary"
                                 jsf:rel="tooltip"
-                                jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
                                 title="#{msgs.plugin_workflow_batches_accept_button}">
                                 <span>#{msgs.plugin_workflow_batches_accept_button}</span>
+                                <!-- TODO das onEvent ist unschön geht das besser? -->
+                                <f:ajax
+                                    execute="percentageForm"
+                                    render="#{batchesFormContainer.clientId} percentageBox"
+                                    listener="#{NavigationForm.workflowPlugin.savePercentage}"
+                                    onevent="(event) => { if (event.status === 'success') { $('#percentageBox').modal('hide'); $('.modal-backdrop').remove(); $('body').removeClass('modal-open').css('padding-right', ''); } }" />
                             </button>
                         </div>
                     </h:form>
