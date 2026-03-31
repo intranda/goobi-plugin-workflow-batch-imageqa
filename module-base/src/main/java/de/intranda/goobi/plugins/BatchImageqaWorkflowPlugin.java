@@ -207,7 +207,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         detailScreenType = DetailScreenType.FINISH;
         processDisplayList = new ArrayList<>();
         for (ProcessOverview entry : currentBatch.getProcesses()) {
-            if ("accepted".equals(entry.getProcessStatus())) {
+            if ("accepted".equals(entry.getProcessStatus()) || "error".equals(entry.getProcessStatus())) {
                 processDisplayList.add(entry);
             }
         }

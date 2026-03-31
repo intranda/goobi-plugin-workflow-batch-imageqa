@@ -353,6 +353,7 @@
                                                             <button
                                                                 jsf:id="finishClick"
                                                                 class="btn btn-success"
+                                                                jsf:action="#{NavigationForm.workflowPlugin.reloadCurrentBatch}"
                                                                 title="#{msgs.plugin_workflow_batches_finish}"
                                                                 jsf:rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleFinish)}"
                                                                 data-bs-toggle="tooltip">
@@ -600,7 +601,7 @@
                                         jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
                                     <span>#{msgs.cancel}</span>
                                 </button>
-                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() != 'ERROR' and NavigationForm.workflowPlugin.detailScreenType.name() != 'FINISH'}">
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() != 'ERROR' and NavigationForm.workflowPlugin.detailScreenType.name() != 'FINISH' and NavigationForm.workflowPlugin.detailScreenType.name() != 'IN_PROGRESS'}">
                                     <button
                                         jsf:id="set-all-valid"
                                         class="btn btn-blank"
@@ -630,7 +631,7 @@
                                 </ui:fragment>
 
 
-                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'ERROR' or NavigationForm.workflowPlugin.detailScreenType.name() == 'FINISH'}">
+                                <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'ERROR' or NavigationForm.workflowPlugin.detailScreenType.name() == 'FINISH' or NavigationForm.workflowPlugin.detailScreenType.name() == 'IN_PROGRESS'}">
                                       <button
                                         jsf:id="save"
                                         class="btn btn-neutral-600"
