@@ -688,7 +688,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
             try {
                 if (dp.getValidity() == ProcessValidationState.INVALID) {
                     persistInvalidToDatabase(dp);
-                } else {
+                } else if (dp.getValidity() == ProcessValidationState.VALID) {
                     DatabaseVersion.runSql(
                             "update properties set property_value ='accepted' where property_name = 'QA-Status' and object_type='process' and object_id = "
                                     + dp.getProcess().getId());
