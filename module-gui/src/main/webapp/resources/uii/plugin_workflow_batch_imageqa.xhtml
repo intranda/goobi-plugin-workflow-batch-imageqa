@@ -179,7 +179,7 @@
                                                             <h:outputText value="#{item.numberOfPagesInProcess}" />
                                                             <div class="d-flex gap-1">
                                                                 <button
-                                                                    jsf:rendered="#{item.numberOfPagesInProcess gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewInProcess)}"
+                                                                    jsf:rendered="#{item.numberOfPagesInProcess gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewInProcess) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditInProcess)}"
                                                                     class="btn btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcessesReadOnly}"
@@ -217,7 +217,7 @@
 
                                                             <div class="d-flex gap-1">
                                                                 <button
-                                                                    jsf:rendered="#{item.errorNumberOfPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewError)}"
+                                                                    jsf:rendered="#{item.errorNumberOfPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewError) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditError)}"
                                                                     class="btn btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcessesReadOnly}"
@@ -253,7 +253,7 @@
                                                             <h:outputText value="#{item.processedPages}" />
                                                             <div class="d-flex gap-1">
                                                                 <button
-                                                                    jsf:rendered="#{item.processedPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewFinish)}"
+                                                                    jsf:rendered="#{item.processedPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewFinish) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditFinish)}"
                                                                     class="btn btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadFinishedProcessesReadOnly}"
@@ -408,10 +408,13 @@
                                         <span class="fa fa-refresh" aria-hidden="true" />
                                         #{NavigationForm.workflowPlugin.currentBatch.numberOfPagesInProcess}
                                     </span>
-                                    <span class="text-muted">
+                                    <span class="text-muted d-flex align-items-center gap-3">
+                                        <span class="text-muted">
                                         <span class="fa fa-circle-o" aria-hidden="true" />
                                         #{NavigationForm.workflowPlugin.currentBatch.openNumberOfPages}
-                                        /&#160;<h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}"><f:convertNumber maxFractionDigits="0" /></h:outputText>
+                                        </span>
+                                        <span>/</span>
+                                        <h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}"><f:convertNumber maxFractionDigits="0" /></h:outputText>
                                     </span>
                                 </span>
                             </section:header-actions>
@@ -463,7 +466,7 @@
                                                         title="#{msgs.metadatenBearbeiten}"
                                                         pt:aria-label="#{msgs.metadatenBearbeiten}"
                                                         rel="tooltip"
-                                                        disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}">
+                                                        rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}">
                                                         <span class="fa fa-book" />
                                                         <f:passThroughAttribute
                                                             name="data-toggle"
@@ -498,7 +501,7 @@
                                                         class="btn #{displayProcess.validity.name() == 'NOT_PROCESSED' ? 'border text-success' : displayProcess.validity.name() == 'VALID' ? 'border' : ''}"
                                                         title="#{msgs.plugin_workflow_batches_valid}"
                                                         jsf:id="set-valid"
-                                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                                        jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                         data-bs-toggle="tooltip">
                                                         <span
                                                             class="fa fa-check"
@@ -509,7 +512,7 @@
                                                         class="btn #{displayProcess.validity.name() == 'NOT_PROCESSED' ? 'border text-danger' : displayProcess.validity.name() == 'INVALID' ? 'border' : ''}"
                                                         title="#{msgs.plugin_workflow_batches_invalid}"
                                                         jsf:id="set-invalid"
-                                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                                        jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                         data-bs-toggle="tooltip">
                                                         <span
                                                             class="fa fa-times"
@@ -591,7 +594,7 @@
                                                  or NavigationForm.workflowPlugin.detailScreenType.name() == 'ERROR'
                                                  or NavigationForm.workflowPlugin.detailScreenType.name() == 'FINISH'}"
                                     jsf:action="#{NavigationForm.workflowPlugin.cancelEdition}">
-                                    <span>#{msgs.cancel}</span>
+                                    <span>#{NavigationForm.workflowPlugin.detailViewReadOnly ? msgs.goBack : msgs.cancel}</span>
                                 </button>
                                 <button
                                         jsf:id="abort"
@@ -599,14 +602,14 @@
                                         jsf:rel="tooltip"
                                         jsf:rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() == 'NORMAL'}"
                                         jsf:action="#{NavigationForm.workflowPlugin.abortEdition}">
-                                    <span>#{msgs.cancel}</span>
+                                    <span>#{NavigationForm.workflowPlugin.detailViewReadOnly ? msgs.goBack : msgs.cancel}</span>
                                 </button>
                                 <ui:fragment rendered="#{NavigationForm.workflowPlugin.detailScreenType.name() != 'ERROR' and NavigationForm.workflowPlugin.detailScreenType.name() != 'FINISH' and NavigationForm.workflowPlugin.detailScreenType.name() != 'IN_PROGRESS'}">
                                     <button
                                         jsf:id="set-all-valid"
                                         class="btn btn-blank"
                                         jsf:rel="tooltip"
-                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                        jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                         data-bs-toggle="tooltip"
                                         title="#{msgs.plugin_workflow_batches_setAllValid}">
                                         <span class="fa fa-check text-success me-1" aria-hidden="true" />
@@ -617,7 +620,8 @@
                                         jsf:id="continue"
                                         class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
-                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly or not NavigationForm.workflowPlugin.allProcessesMarked}"
+                                        jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                        jsf:disabled="#{not NavigationForm.workflowPlugin.allProcessesMarked}"
                                         jsf:action="#{NavigationForm.workflowPlugin.continueBatch}">
                                         <span>
                                             <h:outputText
@@ -636,7 +640,7 @@
                                         jsf:id="save"
                                         class="btn btn-neutral-600"
                                         jsf:rel="tooltip"
-                                        jsf:disabled="#{NavigationForm.workflowPlugin.detailViewReadOnly}"
+                                        jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                         jsf:action="#{NavigationForm.workflowPlugin.saveCurrentPageAndExit}">
                                         <span>#{msgs.speichern}</span>
                                     </button>

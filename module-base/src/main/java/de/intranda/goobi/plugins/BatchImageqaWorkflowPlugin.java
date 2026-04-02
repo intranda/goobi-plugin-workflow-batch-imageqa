@@ -386,6 +386,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
     }
 
     public void openBatch() {
+        this.detailViewReadOnly = false;
         int percentage = currentBatch.getPercentage();
         // check if batch has a percentage property
 
