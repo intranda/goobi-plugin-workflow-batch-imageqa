@@ -7,7 +7,8 @@
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui"
-    xmlns:jsf="http://xmlns.jcp.org/jsf">
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:util="http://goobi.io/util">
     <composite:interface>
     </composite:interface>
     <composite:implementation>
@@ -44,13 +45,11 @@
 
                             <button
                                 type="button"
-                                class="btn"
+                                class="btn btn-icon"
                                 title="#{msgs.abbrechen}"
                                 data-bs-dismiss="modal"
                                 data-toggle="tooltip">
-                                <span
-                                    class="fa fa-times"
-                                    aria-hidden="true" />
+                                <util:icon icon="x" />
                             </button>
                         </div>
                         <div class="modal-body">

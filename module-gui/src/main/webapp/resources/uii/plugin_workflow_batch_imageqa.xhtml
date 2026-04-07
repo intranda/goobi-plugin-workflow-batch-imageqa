@@ -175,33 +175,29 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between align-items-center">
                                                             <h:outputText value="#{item.numberOfPagesInProcess}" />
                                                             <div class="d-flex gap-1">
                                                                 <button
                                                                     jsf:rendered="#{item.numberOfPagesInProcess gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewInProcess) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditInProcess)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcessesReadOnly}"
                                                                     title="#{msgs.plugin_workflow_batches_view}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-eye"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="eye" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
                                                                 </button>
                                                                 <button
                                                                     jsf:rendered="#{item.numberOfPagesInProcess gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditInProcess)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadInWorkProcessesEdit}"
                                                                     title="#{msgs.plugin_workflow_batches_open}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-pencil"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="pencil" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
@@ -211,35 +207,31 @@
 
                                                     </td>
                                                     <td>
-                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between align-items-center">
 
                                                             <h:outputText value="#{item.errorNumberOfPages}" />
 
                                                             <div class="d-flex gap-1">
                                                                 <button
                                                                     jsf:rendered="#{item.errorNumberOfPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewError) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditError)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcessesReadOnly}"
                                                                     title="#{msgs.plugin_workflow_batches_view}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-eye"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="eye" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
                                                                 </button>
                                                                 <button
                                                                     jsf:rendered="#{item.errorNumberOfPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditError)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadErrorProcessesEdit}"
                                                                     title="#{msgs.plugin_workflow_batches_open}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-pencil"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="pencil" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
@@ -249,33 +241,29 @@
                                                     </td>
 
                                                     <td>
-                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between">
+                                                        <div class="d-flex flex-nowrap gap-3 justify-content-between align-items-center">
                                                             <h:outputText value="#{item.processedPages}" />
                                                             <div class="d-flex gap-1">
                                                                 <button
                                                                     jsf:rendered="#{item.processedPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleViewFinish) and not LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditFinish)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadFinishedProcessesReadOnly}"
                                                                     title="#{msgs.plugin_workflow_batches_view}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-eye"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="eye" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
                                                                 </button>
                                                                 <button
                                                                     jsf:rendered="#{item.processedPages gt 0 and LoginForm.hasRole(NavigationForm.workflowPlugin.roleEditFinish)}"
-                                                                    class="btn btn-blank"
+                                                                    class="btn btn-icon btn-blank"
                                                                     jsf:rel="tooltip"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.loadFinishedProcessesEdit}"
                                                                     title="#{msgs.plugin_workflow_batches_open}"
                                                                     data-bs-toggle="tooltip">
-                                                                    <span
-                                                                        class="fa fa-pencil"
-                                                                        aria-hidden="true" />
+                                                                    <util:icon icon="pencil" />
                                                                     <f:setPropertyActionListener
                                                                         target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                         value="#{item}" />
@@ -290,14 +278,12 @@
                                                             <button
                                                                 jsf:rendered="#{!item.finished}"
                                                                 jsf:id="edit"
-                                                                class="btn btn-blank"
+                                                                class="btn btn-icon btn-blank"
                                                                 jsf:rel="tooltip"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.openBatch}"
                                                                 title="#{msgs.plugin_workflow_batches_open}"
                                                                 data-bs-toggle="tooltip">
-                                                                <span
-                                                                    class="fa fa-pencil"
-                                                                    aria-hidden="true" />
+                                                                <util:icon icon="pencil" />
 
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
@@ -311,9 +297,7 @@
                                                                 class="btn btn-blank"
                                                                 title="#{msgs.plugin_workflow_batches_percentage_label}"
                                                                 data-bs-toggle="tooltip">
-                                                                <span
-                                                                    class="fa fa-sliders"
-                                                                    aria-hidden="true" />
+                                                                <util:icon icon="adjustments-horizontal" />
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="percentageBox"
@@ -329,15 +313,11 @@
                                                             <button
                                                                     jsf:id="rejectClick"
                                                                     jsf:action="#{NavigationForm.workflowPlugin.reloadCurrentBatch}"
-                                                                    class="btn btn-danger"
+                                                                    class="btn btn-icon btn-danger"
                                                                     title="#{msgs.plugin_workflow_batches_abort}"
                                                                     jsf:rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleReject)}"
                                                                     data-bs-toggle="tooltip">
-
-                                                            <!-- added padding for icon so that button widths align -->
-                                                                <span
-                                                                    class="fa fa-exclamation px-1"
-                                                                    aria-hidden="true" />
+                                                                <util:icon icon="alert-triangle" />
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="rejectBox"
@@ -352,14 +332,12 @@
                                                             <!-- open finish modal -->
                                                             <button
                                                                 jsf:id="finishClick"
-                                                                class="btn btn-success"
+                                                                class="btn btn-icon btn-success"
                                                                 jsf:action="#{NavigationForm.workflowPlugin.reloadCurrentBatch}"
                                                                 title="#{msgs.plugin_workflow_batches_finish}"
                                                                 jsf:rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleFinish)}"
                                                                 data-bs-toggle="tooltip">
-                                                                <span
-                                                                    class="fa fa-check"
-                                                                    aria-hidden="true" />
+                                                                <util:icon icon="check" />
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="finishBox"
@@ -396,21 +374,21 @@
                             title="#{msgs.plugin_workflow_batches_delivery} #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}">
                             <section:header-actions>
                                 <span class="align-self-center d-flex gap-3 bg-white rounded px-2 py-1">
-                                    <span class="font-status-done">
-                                        <span class="fa fa-check" aria-hidden="true" />
+                                    <span class="font-status-done d-flex align-items-center gap-1">
+                                        <util:icon icon="check" />
                                         #{NavigationForm.workflowPlugin.currentBatch.finishedNumberOfPages}
                                     </span>
-                                    <span class="font-status-locked">
-                                        <span class="fa fa-exclamation" aria-hidden="true" />
+                                    <span class="font-status-locked d-flex align-items-center gap-1">
+                                        <util:icon icon="exclamation-mark" />
                                         #{NavigationForm.workflowPlugin.currentBatch.errorNumberOfPages}
                                     </span>
-                                    <span class="font-status-open">
-                                        <span class="fa fa-refresh" aria-hidden="true" />
+                                    <span class="font-status-open d-flex align-items-center gap-1">
+                                        <util:icon icon="refresh" />
                                         #{NavigationForm.workflowPlugin.currentBatch.numberOfPagesInProcess}
                                     </span>
                                     <span class="text-muted d-flex align-items-center gap-3">
-                                        <span class="text-muted">
-                                        <span class="fa fa-circle-o" aria-hidden="true" />
+                                        <span class="text-muted d-flex align-items-center gap-1">
+                                        <util:icon icon="circle" />
                                         #{NavigationForm.workflowPlugin.currentBatch.openNumberOfPages}
                                         </span>
                                         <span>/</span>
@@ -431,20 +409,20 @@
 
                                                 <section:header-actions>
                                                     <h:panelGroup
-                                                        styleClass="fs-5 fa fa-exclamation-circle d-flex align-items-center"
+                                                        styleClass="d-flex align-items-center"
                                                         style="color: var(--bs-#{displayProcess.validity.name() == 'INVALID' ? 'white' : 'green'})"
                                                         rendered="#{displayProcess.metadataStep}"
                                                         pt:title="#{msgs.plugin_workflow_batches_process_metadatum}"
-                                                        pt:data-bs-toggle="tooltip" />
+                                                        pt:data-bs-toggle="tooltip">
+                                                        <util:icon icon="alert-circle" styleClass="icon--lg" />
+                                                    </h:panelGroup>
 
                                                     <button
                                                         jsf:id="journalClick"
-                                                        class="btn border"
+                                                        class="btn btn-icon border"
                                                         title="#{msgs.plugin_workflow_batches_showLog}"
                                                         data-bs-toggle="tooltip">
-                                                        <span
-                                                            class="fa fa-list-ol"
-                                                            aria-hidden="true" />
+                                                        <util:icon icon="list-numbers" />
                                                         <f:ajax
                                                             execute="@this"
                                                             render="journalBox"
@@ -467,7 +445,7 @@
                                                         pt:aria-label="#{msgs.metadatenBearbeiten}"
                                                         rel="tooltip"
                                                         rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}">
-                                                        <span class="fa fa-book" />
+                                                        <util:icon icon="book" />
                                                         <f:passThroughAttribute
                                                             name="data-toggle"
                                                             value="tooltip" />
@@ -503,9 +481,7 @@
                                                         jsf:id="set-valid"
                                                         jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                         data-bs-toggle="tooltip">
-                                                        <span
-                                                            class="fa fa-check"
-                                                            aria-hidden="true" />
+                                                        <util:icon icon="check" styleClass="icon--lg" />
                                                         <f:ajax render="@form #{reportFormContainer.clientId}" execute="#{reportFormContainer.clientId}" listener="#{displayProcess.setValidityValid}" />
                                                     </button>
                                                     <button
@@ -514,9 +490,7 @@
                                                         jsf:id="set-invalid"
                                                         jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                                         data-bs-toggle="tooltip">
-                                                        <span
-                                                            class="fa fa-times"
-                                                            aria-hidden="true" />
+                                                        <util:icon icon="x" styleClass="icon--lg" />
                                                         <f:ajax render="@form #{reportFormContainer.clientId}" execute="#{reportFormContainer.clientId}" listener="#{displayProcess.setValidityInvalid}" />
                                                     </button>
                                                 </section:header-actions>
@@ -612,7 +586,7 @@
                                         jsf:rendered="#{not NavigationForm.workflowPlugin.detailViewReadOnly}"
                                         data-bs-toggle="tooltip"
                                         title="#{msgs.plugin_workflow_batches_setAllValid}">
-                                        <span class="fa fa-check text-success me-1" aria-hidden="true" />
+                                        <util:icon icon="check" styleClass="text-success me-1" />
                                         <span>#{msgs.plugin_workflow_batches_setAllValid}</span>
                                         <f:ajax render="@form #{processListContainer.clientId}" execute="#{processListContainer.clientId}" listener="#{NavigationForm.workflowPlugin.setAllProcessesValid}" />
                                     </button>

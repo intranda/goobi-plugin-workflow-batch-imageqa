@@ -58,7 +58,7 @@
                                         aria-haspopup="true"
                                         aria-expanded="false"
                                         data-bs-toggle="dropdown">
-                                        <span class="fa fa-columns btn-dropDownInBoxHeader" />
+                                        <util:icon icon="columns" />
                                         <span class="caret"></span>
                                     </button>
 
@@ -68,8 +68,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showDebugMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_debug']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_debug']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showDebugMessages}" />
                                                 </span>
@@ -86,8 +85,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showInfoMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_info']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_info']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showInfoMessages}" />
                                                 </span>
@@ -105,8 +103,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showUserMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_user']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_user']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showUserMessages}" />
                                                 </span>
@@ -123,8 +120,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showUserImportantMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_important']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_important']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showUserImportantMessages}" />
                                                 </span>
@@ -141,8 +137,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showWarnMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_warn']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_warn']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showWarnMessages}" />
                                                 </span>
@@ -160,8 +155,7 @@
                                                 jsf:action="#{NavigationForm.Reload}"
                                                 jsf:id="showErrorMessages"
                                                 class="dropdown-item">
-                                                <span
-                                                    class="fa #{NavigationForm.uiStatus['process_log_level_error']?'fa-square-o':'fa-check-square-o'} margin-right-5" />
+                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_error']?'square':'square-check'}" styleClass="me-2" />
                                                 <span>
                                                     <h:outputText value="#{msgs.process_log_showErrorMessages}" />
                                                 </span>
@@ -181,13 +175,11 @@
 
                             <button
                                 type="button"
-                                class="btn text-white"
+                                class="btn btn-icon text-white"
                                 title="#{msgs.abbrechen}"
                                 data-bs-dismiss="modal"
                                 data-toggle="tooltip">
-                                <span
-                                    class="fa fa-times"
-                                    aria-hidden="true" />
+                                <util:icon icon="x" />
                             </button>
                         </div>
 
@@ -213,23 +205,23 @@
                                         <li class="feed-item feed-colored feed-color-#{entry.type.title}">
                                             <span class="feed-item-icon fs-600">
                                                 <ui:fragment rendered="#{entry.type.title == 'important'}">
-                                                    <span class="fa fa-exclamation-circle" />
+                                                    <util:icon icon="alert-circle" />
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{entry.type.title != 'important'}">
                                                     <ui:fragment rendered="#{entry.type.title == 'debug'}">
-                                                        <span class="fa fa-desktop" />
+                                                        <util:icon icon="device-desktop" />
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{entry.type.title == 'info'}">
-                                                        <span class="fa fa-info-circle" />
+                                                        <util:icon icon="info-circle" />
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{entry.type.title == 'warn'}">
-                                                        <span class="log_color_#{entry.type.title} fa fa-exclamation-circle" />
+                                                        <util:icon icon="alert-circle" styleClass="icon--warning" />
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{entry.type.title == 'error'}">
-                                                        <span class="log_color_#{entry.type.title} fa fa-exclamation-triangle" />
+                                                        <util:icon icon="alert-triangle" styleClass="icon--danger" />
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{entry.type.title == 'user'}">
-                                                        <span class="fa fa-user-o" />
+                                                        <util:icon icon="user" />
                                                     </ui:fragment>
                                                 </ui:fragment>
                                                 <span
