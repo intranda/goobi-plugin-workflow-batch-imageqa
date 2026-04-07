@@ -73,7 +73,7 @@ public class DisplayProcess {
                     imageList.add(new Image(process, imageFolderName, imagename, order, thumbnailSize));
                     order++;
                 } catch (IOException | SwapException | DAOException e) {
-                    log.error("Error initializing image " + imagename, e);
+                    log.error("Error initializing image {} ", imagename, e);
                 }
             }
             allImages.setImages(imageList);

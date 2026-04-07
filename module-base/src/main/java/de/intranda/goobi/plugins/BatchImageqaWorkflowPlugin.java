@@ -273,7 +273,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                                     + dp.getProcess().getId());
                 }
             } catch (SQLException e) {
-                log.error(e);
+                log.error("Error set Accept in property_value: ", e);
             }
 
             for (ProcessOverview entry : currentBatch.getProcesses()) {
@@ -342,7 +342,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
         try {
             DatabaseVersion.runSql(query.toString());
         } catch (SQLException e) {
-            log.error(e);
+            log.error("Error update Prozesse: ", e);
         }
 
         allBatches = null;
@@ -370,7 +370,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                                     try {
                                         StepManager.saveStep(step);
                                     } catch (DAOException e) {
-                                        log.error(e);
+                                        log.error("Errors set Accept in property_value: ", e);
                                     }
                                     openStep = step;
                                 }
@@ -531,7 +531,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                     }
 
                 } catch (UGHException | IOException | SwapException e) {
-                    log.error(e);
+                    log.error("Error generating Process List: ", e);
                 }
                 dp.setTitle(title);
 
@@ -633,7 +633,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                 facesContext.responseComplete();
             }
         } catch (IOException e) {
-            log.error(e);
+            log.error("Error writing CSV-File: ", e);
             Helper.setFehlerMeldung("plugin_workflow_batches_csv_error", e);
         }
     }
@@ -668,7 +668,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                         "delete from properties where property_name in('QA-Status', 'QA-Note') and object_type='process' and object_id = "
                                 + po.getProcessid());
             } catch (SQLException e) {
-                log.error(e);
+                log.error("Error SQL delete properties : ", e);
             }
             // set status back to open
             po.setProcessStatus("");
@@ -699,7 +699,7 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                                     + dp.getProcess().getId());
                 }
             } catch (SQLException e) {
-                log.error(e);
+                log.error("Error sql save current page: ", e);
             }
         }
 
