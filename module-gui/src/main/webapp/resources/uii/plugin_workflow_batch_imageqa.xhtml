@@ -301,9 +301,11 @@
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="percentageBox"
-                                                                    onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#percentageBox').modal('show');
-                                                                                }}" />
+                                                                    onevent="(event) => {
+                                                                        if (event.status === 'begin') { event.source.disabled = true; }
+                                                                        else if (event.status === 'complete') { event.source.disabled = false; }
+                                                                        else if (event.status === 'success' &amp;&amp; !$('#percentageBox').hasClass('show')) { $('#percentageBox').modal('show'); }
+                                                                    }" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
@@ -321,9 +323,11 @@
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="rejectBox"
-                                                                    onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#rejectBox').modal('show');
-                                                                                }}" />
+                                                                    onevent="(event) => {
+                                                                        if (event.status === 'begin') { event.source.disabled = true; }
+                                                                        else if (event.status === 'complete') { event.source.disabled = false; }
+                                                                        else if (event.status === 'success' &amp;&amp; !$('#rejectBox').hasClass('show')) { $('#rejectBox').modal('show'); }
+                                                                    }" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
@@ -341,9 +345,11 @@
                                                                 <f:ajax
                                                                     execute="@this"
                                                                     render="finishBox"
-                                                                    onevent="(event) => {if (event.status === 'success') {
-                                                                                    $('#finishBox').modal('show');
-                                                                                }}" />
+                                                                    onevent="(event) => {
+                                                                        if (event.status === 'begin') { event.source.disabled = true; }
+                                                                        else if (event.status === 'complete') { event.source.disabled = false; }
+                                                                        else if (event.status === 'success' &amp;&amp; !$('#finishBox').hasClass('show')) { $('#finishBox').modal('show'); }
+                                                                    }" />
                                                                 <f:setPropertyActionListener
                                                                     target="#{NavigationForm.workflowPlugin.currentBatch}"
                                                                     value="#{item}" />
@@ -426,9 +432,11 @@
                                                         <f:ajax
                                                             execute="@this"
                                                             render="journalBox"
-                                                            onevent="(event) => {if (event.status === 'success') {
-                                                                                $('#journalBox').modal('show');
-                                                                            }}" />
+                                                            onevent="(event) => {
+                                                                if (event.status === 'begin') { event.source.disabled = true; }
+                                                                else if (event.status === 'complete') { event.source.disabled = false; }
+                                                                else if (event.status === 'success' &amp;&amp; !$('#journalBox').hasClass('show')) { $('#journalBox').modal('show'); }
+                                                            }" />
                                                         <f:setPropertyActionListener
                                                             value="#{displayProcess}"
                                                             target="#{NavigationForm.workflowPlugin.currentProcess}" />
