@@ -3,10 +3,6 @@
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
     xmlns:composite="http://xmlns.jcp.org/jsf/composite"
     xmlns:h="http://xmlns.jcp.org/jsf/html"
-    xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
-    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
     xmlns:util="http://goobi.io/util">
     <composite:interface>
@@ -14,16 +10,16 @@
     <composite:implementation>
 
         <h:panelGroup
-            styleClass="modal"
+            styleClass="modal fade"
             layout="block"
             id="finishBox"
             tabindex="-1"
             role="dialog"
-            aria-labelledby="imageBoxTitle">
+            aria-labelledby="finishBoxTitle">
             <h:panelGroup
                 layout="block"
                 id="finishBoxContent"
-                class="modal-dialog modal-xl p-5"
+                class="modal-dialog modal-xl"
                 role="document">
                 <div class="modal-content">
                     <h:form
@@ -33,7 +29,7 @@
                         <div class="modal-header bg-success text-white">
                             <h4
                                 class="modal-title"
-                                id="rejectBoxTitle">
+                                id="finishBoxTitle">
                                 #{msgs.plugin_workflow_batches_finish}: #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}
                             </h4>
 
@@ -41,8 +37,7 @@
                                 type="button"
                                 class="btn btn-icon text-white"
                                 title="#{msgs.abbrechen}"
-                                data-bs-dismiss="modal"
-                                data-toggle="tooltip">
+                                data-bs-dismiss="modal">
                                 <util:icon icon="x" />
                             </button>
 
@@ -55,7 +50,6 @@
                                 type="button"
                                 jsf:id="cancelFinishButton"
                                 title="#{msgs.cancel}"
-                                jsf:rel="tooltip"
                                 class="btn btn-blank"
                                 data-bs-dismiss="modal">
                                 <h:outputText value="#{msgs.cancel}" />
@@ -65,11 +59,9 @@
                             <button
                                 jsf:id="finalizeBatch"
                                 class="btn btn-success"
-                                jsf:rel="tooltip"
                                 jsf:action="#{NavigationForm.workflowPlugin.finalizeBatch}"
-                                data-bs-toggle="tooltip"
                                 title="#{msgs.abschliessen}">
-                                <span>#{msgs.plugin_workflow_batches_finish}</span>
+                                <util:icon-text icon="check" text="#{msgs.plugin_workflow_batches_finish}" />
                             </button>
 
 

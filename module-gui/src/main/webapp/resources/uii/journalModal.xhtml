@@ -4,210 +4,186 @@
     xmlns:composite="http://xmlns.jcp.org/jsf/composite"
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
-    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:form="http://goobi.io/form"
-    xmlns:section="http://goobi.io/section"
-    xmlns:dl="http://goobi.io/dl"
     xmlns:util="http://goobi.io/util">
     <composite:interface>
     </composite:interface>
     <composite:implementation>
 
-     <h:panelGroup
-        styleClass="modal"
-        layout="block"
-        id="journalBox"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="imageBoxTitle">
         <h:panelGroup
+            styleClass="modal fade"
             layout="block"
-            id="journalBoxContent"
-            class="modal-dialog modal-dialog-scrollable modal-xl"
-            role="document">
-            <div class="modal-content h-100">
-                <h:form
-                    styleClass="h-100"
-                    id="processJournal"
-                    enctype="multipart/form-data"
-                    prependId="false">
-                    <div class="modal-header bg-primary text-white">
-                        <h4
-                            class="modal-title"
-                            id="imageBoxTitle">
-                            <h:outputText value="#{msgs.processLog}" />
-                        </h4>
+            id="journalBox"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="journalBoxTitle">
+            <h:panelGroup
+                layout="block"
+                id="journalBoxContent"
+                class="modal-dialog modal-dialog-scrollable modal-xl"
+                role="document">
+                <div class="modal-content h-100">
+                    <h:form
+                        styleClass="h-100"
+                        id="processJournal"
+                        enctype="multipart/form-data"
+                        prependId="false">
+                        <div class="modal-header bg-primary text-white">
+                            <h4
+                                class="modal-title"
+                                id="journalBoxTitle">
+                                <h:outputText value="#{msgs.processLog}" />
+                            </h4>
 
+                            <div class="actions d-flex">
+                                <div class="btn-group">
+                                    <div class="dropdown">
+                                        <button
+                                            title="#{msgs.filterProcessLog}"
+                                            id="filterLogDropdown"
+                                            type="button"
+                                            class="btn btn-icon text-white dropdown-toggle"
+                                            aria-label="#{msgs.filterProcessLog}"
+                                            aria-haspopup="true"
+                                            aria-expanded="false"
+                                            data-bs-toggle="dropdown">
+                                            <util:icon icon="filter" />
+                                        </button>
 
-
-                        <div class="actions d-flex">
-                            <div
-                                class="btn-group"
-                                data-bs-trigger="hover"
-                                data-bs-toggle="tooltip">
-                                <div class="dropdown">
-                                    <button
-                                        title="#{msgs.filterProcessLog}"
-                                        id="filterLogDropdown"
-                                        type="button"
-                                        class="btn d-flex align-items-center text-white dropdown-toggle"
-                                        aria-label="#{msgs.filterProcessLog}"
-                                        aria-haspopup="true"
-                                        aria-expanded="false"
-                                        data-bs-toggle="dropdown">
-                                        <util:icon icon="columns" />
-                                        <span class="caret"></span>
-                                    </button>
-
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showDebugMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_debug']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showDebugMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_debug']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_debug']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showInfoMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_info']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showInfoMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_info']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_info']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-
-                                        </li>
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showUserMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_user']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showUserMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_user']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_user']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showUserImportantMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_important']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showUserImportantMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_important']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_important']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showWarnMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_warn']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showWarnMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_warn']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_warn']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-
-                                        </li>
-                                        <li>
-                                            <button
-                                                jsf:action="#{NavigationForm.Reload}"
-                                                jsf:id="showErrorMessages"
-                                                class="dropdown-item">
-                                                <util:icon icon="#{NavigationForm.uiStatus['process_log_level_error']?'square':'square-check'}" styleClass="me-2" />
-                                                <span>
-                                                    <h:outputText value="#{msgs.process_log_showErrorMessages}" />
-                                                </span>
-                                                <f:setPropertyActionListener
-                                                    target="#{NavigationForm.uiStatus['process_log_level_error']}"
-                                                    value="#{not NavigationForm.uiStatus['process_log_level_error']}" />
-                                                <f:ajax
-                                                    execute="@this"
-                                                    render="@form" />
-                                            </button>
-                                        </li>
-                                    </ul>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showDebugMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_debug'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showDebugMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_debug']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_debug']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showInfoMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_info'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showInfoMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_info']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_info']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showUserMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_user'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showUserMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_user']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_user']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showUserImportantMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_important'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showUserImportantMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_important']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_important']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showWarnMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_warn'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showWarnMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_warn']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_warn']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    jsf:action="#{NavigationForm.Reload}"
+                                                    jsf:id="showErrorMessages"
+                                                    class="dropdown-item">
+                                                    <util:icon-text
+                                                        icon="#{NavigationForm.uiStatus['process_log_level_error'] ? 'square' : 'square-check'}"
+                                                        text="#{msgs.process_log_showErrorMessages}" />
+                                                    <f:setPropertyActionListener
+                                                        target="#{NavigationForm.uiStatus['process_log_level_error']}"
+                                                        value="#{not NavigationForm.uiStatus['process_log_level_error']}" />
+                                                    <f:ajax
+                                                        execute="@this"
+                                                        render="@form" />
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-icon text-white"
+                                    title="#{msgs.abbrechen}"
+                                    data-bs-dismiss="modal">
+                                    <util:icon icon="x" />
+                                </button>
                             </div>
 
-
-
-                            <button
-                                type="button"
-                                class="btn btn-icon text-white"
-                                title="#{msgs.abbrechen}"
-                                data-bs-dismiss="modal"
-                                data-toggle="tooltip">
-                                <util:icon icon="x" />
-                            </button>
                         </div>
+                        <div class="modal-body h-100 overflow-y-scroll">
+                            <h:panelGroup
+                                layout="block"
+                                rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() == 0}">
+                                <h:outputText value="#{msgs.statistics_noDataAvailable}" />
+                            </h:panelGroup>
+                            <h:panelGroup
+                                layout="block"
+                                rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() > 0}">
+                                <ol
+                                    class="feed"
+                                    role="list">
+                                    <ui:repeat
+                                        var="entry"
+                                        value="#{NavigationForm.workflowPlugin.currentProcess.process.journal}"
+                                        varStatus="row">
+                                        <h:panelGroup rendered="#{!NavigationForm.uiStatus[('process_log_level_').concat(entry.type.title)]}">
 
-                    </div>
-                    <div class="modal-body h-100 overflow-y-scroll">
-                        <h:panelGroup
-                            layout="block"
-                            rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() == 0}">
-                            <h:outputText value="#{msgs.statistics_noDataAvailable}" />
-                        </h:panelGroup>
-                        <h:panelGroup
-                            layout="block"
-                            rendered="#{NavigationForm.workflowPlugin.currentProcess.process.journal.size() > 0}">
-                            <ol
-                                class="feed"
-                                role="list">
-                                <ui:repeat
-                                    var="entry"
-                                    value="#{NavigationForm.workflowPlugin.currentProcess.process.journal}"
-                                    varStatus="row">
-                                    <h:panelGroup rendered="#{!NavigationForm.uiStatus[('process_log_level_').concat(entry.type.title)]}">
-
-                                        <li class="feed-item feed-colored feed-color-#{entry.type.title}">
-                                            <span class="feed-item-icon fs-600">
-                                                <ui:fragment rendered="#{entry.type.title == 'important'}">
-                                                    <util:icon icon="alert-circle" />
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{entry.type.title != 'important'}">
+                                            <li class="feed-item feed-colored feed-color-#{entry.type.title}">
+                                                <span class="feed-item-icon fs-600">
+                                                    <ui:fragment rendered="#{entry.type.title == 'important'}">
+                                                        <util:icon icon="alert-circle" />
+                                                    </ui:fragment>
                                                     <ui:fragment rendered="#{entry.type.title == 'debug'}">
                                                         <util:icon icon="device-desktop" />
                                                     </ui:fragment>
@@ -223,33 +199,32 @@
                                                     <ui:fragment rendered="#{entry.type.title == 'user'}">
                                                         <util:icon icon="user" />
                                                     </ui:fragment>
-                                                </ui:fragment>
-                                                <span
-                                                    class="filler filler-vertical
-                                                        #{entry.type.title == 'warn' ? 'filler-yellow' : ''}
-                                                        #{entry.type.title == 'error' ? 'filler-red' : ''}" />
-                                            </span>
-                                            <span class="feed-item-content">
-                                                <span class="feed-item-responsibility">
-                                                    <span class="fw-700"> #{msgs[entry.userName]}: </span>
+                                                    <span
+                                                        class="filler filler-vertical
+                                                            #{entry.type.title == 'warn' ? 'filler-yellow' : ''}
+                                                            #{entry.type.title == 'error' ? 'filler-red' : ''}" />
                                                 </span>
-                                                <h:outputText
-                                                    value="#{entry.formattedContent}"
-                                                    escape="false" />
-                                            </span>
-                                            <span class="feed-item-timestamp">
-                                                <h:outputText value="#{entry.formattedDate} #{entry.creationTime}">
-                                                </h:outputText>
-                                            </span>
-                                        </li>
-                                    </h:panelGroup>
-                                </ui:repeat>
-                            </ol>
-                        </h:panelGroup>
-                    </div>
-                </h:form>
-            </div>
+                                                <span class="feed-item-content">
+                                                    <span class="feed-item-responsibility">
+                                                        <span class="fw-700"> #{msgs[entry.userName]}: </span>
+                                                    </span>
+                                                    <h:outputText
+                                                        value="#{entry.formattedContent}"
+                                                        escape="false" />
+                                                </span>
+                                                <span class="feed-item-timestamp">
+                                                    <h:outputText value="#{entry.formattedDate} #{entry.creationTime}">
+                                                    </h:outputText>
+                                                </span>
+                                            </li>
+                                        </h:panelGroup>
+                                    </ui:repeat>
+                                </ol>
+                            </h:panelGroup>
+                        </div>
+                    </h:form>
+                </div>
+            </h:panelGroup>
         </h:panelGroup>
-           </h:panelGroup>
     </composite:implementation>
 </ui:composition>

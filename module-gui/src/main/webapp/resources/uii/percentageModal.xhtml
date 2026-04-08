@@ -4,17 +4,15 @@
     xmlns:composite="http://xmlns.jcp.org/jsf/composite"
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
-    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:form="http://goobi.io/form"
     xmlns:util="http://goobi.io/util">
     <composite:interface>
     </composite:interface>
     <composite:implementation>
 
         <h:panelGroup
-            styleClass="modal"
+            styleClass="modal fade"
             layout="block"
             id="percentageBox"
             rendered="#{LoginForm.hasRole(NavigationForm.workflowPlugin.roleSampleSize)}"
@@ -24,55 +22,50 @@
             <h:panelGroup
                 layout="block"
                 id="percentageBoxContent"
-                class="modal-dialog p-5"
+                class="modal-dialog modal-lg"
                 role="document">
                 <div class="modal-content">
                     <h:form
-                        styleClass="h-100"
                         id="percentageForm"
                         prependId="false">
-                        <div class="modal-header" >
-                            <div class="modal-body">
-                                <div class="d-flex align-items-center gap-3">
-                                    <h4
-                                            class="modal-title"
-                                            id="percentageBoxTitle">
-                                        #{msgs.plugin_workflow_batches_progress_title}: #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}
-                                    </h4>
-                                </div>
-                            </div>
-
+                        <div class="modal-header bg-primary text-white">
+                            <h4
+                                class="modal-title"
+                                id="percentageBoxTitle">
+                                #{msgs.plugin_workflow_batches_progress_title}: #{empty NavigationForm.workflowPlugin.currentBatch.batch.batchName ? '–' : NavigationForm.workflowPlugin.currentBatch.batch.batchName}
+                            </h4>
 
                             <button
                                 type="button"
-                                class="btn btn-icon"
+                                class="btn btn-icon text-white"
                                 title="#{msgs.abbrechen}"
-                                data-bs-dismiss="modal"
-                                data-toggle="tooltip">
+                                data-bs-dismiss="modal">
                                 <util:icon icon="x" />
                             </button>
                         </div>
-                        <div class="modal-body">
-                            <div class="d-flex align-items-center gap-3">
-                                <label for="percentageInput">#{msgs.plugin_workflow_batches_percentage_label}</label>
-                                <h:inputText
-                                    id="percentageInput"
-                                    value="#{NavigationForm.workflowPlugin.percentage}"
-                                    styleClass="form-control form-control-compact"
-                                    style="--form-control-compact-width: 5em" />
-                                <span>%</span>
-                                <span class="text-muted">
-                                    (= <h:outputText value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}"><f:convertNumber maxFractionDigits="0" /></h:outputText>
-                                    #{msgs.Images})
-                                </span>
-                            </div>
+                        <div class="modal-body form-box section-body p-0">
+                            <form:field
+                                label="#{msgs.plugin_workflow_batches_percentage_label}"
+                                help="">
+                                <div class="input-group">
+                                    <h:inputText
+                                        id="percentageInput"
+                                        value="#{NavigationForm.workflowPlugin.percentage}"
+                                        styleClass="form-control" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">
+                                    <h:outputFormat value="= {0} #{msgs.Images}">
+                                        <f:param value="#{NavigationForm.workflowPlugin.currentBatch.thresholdPages}" />
+                                    </h:outputFormat>
+                                </div>
+                            </form:field>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer border-top-0">
                             <button
                                 type="button"
                                 jsf:id="cancelPercentageButton"
                                 title="#{msgs.cancel}"
-                                jsf:rel="tooltip"
                                 class="btn btn-blank"
                                 data-bs-dismiss="modal">
                                 <h:outputText value="#{msgs.cancel}" />
@@ -81,20 +74,28 @@
                             <button
                                 jsf:id="applyPercentage"
                                 class="btn btn-primary"
-                                jsf:rel="tooltip"
                                 title="#{msgs.plugin_workflow_batches_accept_button}">
-                                <span>#{msgs.plugin_workflow_batches_accept_button}</span>
-                                <!-- TODO das onEvent ist unschön geht das besser? -->
+                                <util:icon-text icon="check" text="#{msgs.plugin_workflow_batches_accept_button}" />
                                 <f:ajax
                                     execute="percentageForm"
-                                    render="#{batchesFormContainer.clientId} percentageBox"
+                                    render="#{batchesFormContainer.clientId}"
                                     listener="#{NavigationForm.workflowPlugin.savePercentage}"
-                                    onevent="(event) => { if (event.status === 'success') { $('#percentageBox').modal('hide'); $('.modal-backdrop').remove(); $('body').removeClass('modal-open').css('padding-right', ''); } }" />
+                                    onevent="closePercentageModalOnSuccess" />
                             </button>
                         </div>
                     </h:form>
                 </div>
             </h:panelGroup>
         </h:panelGroup>
+
+        <script>
+            function closePercentageModalOnSuccess(event) {
+                if (event.status !== 'success') return;
+                const modalEl = document.getElementById('percentageBox');
+                if (!modalEl) return;
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+            }
+        </script>
     </composite:implementation>
 </ui:composition>
