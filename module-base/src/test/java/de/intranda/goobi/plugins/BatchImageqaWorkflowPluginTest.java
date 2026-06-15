@@ -38,6 +38,7 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.StorageProviderInterface;
+import de.sub.goobi.persistence.managers.DatabaseVersion;
 import de.sub.goobi.persistence.managers.MetadataManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
@@ -49,7 +50,7 @@ import ugh.fileformats.mets.MetsMods;
 @PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*", "jdk.internal.reflect.*" })
 
 @PrepareForTest({ ConfigPlugins.class, ProcessManager.class, MetadataManager.class, ConfigurationHelper.class, StorageProvider.class,
-        PropertyManager.class })
+        PropertyManager.class, DatabaseVersion.class })
 
 public class BatchImageqaWorkflowPluginTest {
 
@@ -157,13 +158,22 @@ public class BatchImageqaWorkflowPluginTest {
         EasyMock.expect(PropertyManager.getPropertiesForObject(EasyMock.anyInt(), EasyMock.anyObject())).andReturn(gpl).anyTimes();
         PropertyManager.saveProperty(EasyMock.anyObject());
 
+        PowerMock.mockStatic(DatabaseVersion.class);
+        try {
+            DatabaseVersion.runSql(EasyMock.anyString());
+            EasyMock.expectLastCall().anyTimes();
+        } catch (Exception e) {
+            // not expected in mock
+        }
+
         PowerMock.mockStatic(StorageProvider.class);
         StorageProviderInterface spi = EasyMock.createMock(StorageProviderInterface.class);
         EasyMock.expect(StorageProvider.getInstance()).andReturn(spi).anyTimes();
 
         EasyMock.expect(spi.isFileExists(EasyMock.anyObject())).andReturn(false).anyTimes();
         EasyMock.replay(spi);
-        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class, PropertyManager.class);
+        PowerMock.replay(ProcessManager.class, ConfigPlugins.class, MetadataManager.class, StorageProvider.class, PropertyManager.class,
+                DatabaseVersion.class);
     }
 
     @Test
