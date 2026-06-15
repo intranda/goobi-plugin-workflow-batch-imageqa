@@ -410,11 +410,15 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                     numberOfFinishedPages = numberOfFinishedPages + entry.getNumberOfPages();
                     processDisplayList.add(entry);
                     entry.setProcessStatus("in progress");
-                    GoobiProperty gp = new GoobiProperty(PropertyOwnerType.PROCESS);
-                    gp.setPropertyName("QA-Status");
-                    gp.setPropertyValue("in progress");
-                    gp.setObjectId(Integer.valueOf(entry.getProcessid()));
-                    PropertyManager.saveProperty(gp);
+                    try {
+                        DatabaseVersion.runSql(
+                                "INSERT INTO properties (property_name, property_value, object_type, object_id) "
+                                        + "SELECT 'QA-Status', 'in progress', 'process', " + entry.getProcessid()
+                                        + " WHERE NOT EXISTS (SELECT 1 FROM properties WHERE property_name = 'QA-Status'"
+                                        + " AND object_type = 'process' AND object_id = " + entry.getProcessid() + ")");
+                    } catch (SQLException e) {
+                        log.error("Error inserting QA-Status property for process {}: ", entry.getProcessid(), e);
+                    }
                 }
             }
         }
