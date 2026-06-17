@@ -494,12 +494,12 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                             for (MetadataGroup mg : logical.getAllMetadataGroups()) {
                                 if (mg.getType().getName().equals(metadataName)) {
                                     if (!values.isEmpty()) {
-                                        values.append("<br />");
+                                        values.append("\n");
                                     }
                                     for (Metadata md : mg.getMetadataList()) {
                                         if (StringUtils.isNotBlank(md.getValue())) {
                                             if (!values.isEmpty()) {
-                                                values.append("<br />");
+                                                values.append("\n");
                                             }
                                             values.append(md.getType().getLanguage("de"));
                                             values.append(": ").append(md.getValue());
@@ -509,14 +509,14 @@ public class BatchImageqaWorkflowPlugin implements IWorkflowPlugin {
                                         StringBuilder subValues = new StringBuilder();
                                         for (Metadata md : subGroup.getMetadataList()) {
                                             if (StringUtils.isNotBlank(md.getValue())) {
-                                                subValues.append("<br />");
+                                                subValues.append("\n");
                                                 subValues.append(md.getType().getLanguage("de"));
                                                 subValues.append(": ").append(md.getValue());
                                             }
                                         }
 
                                         if (!subValues.isEmpty()) {
-                                            values.append("<br />");
+                                            values.append("\n");
                                             values.append(subValues.toString());
                                         }
                                     }
