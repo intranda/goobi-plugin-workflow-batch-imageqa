@@ -67,6 +67,11 @@ public class BatchImageqaWorkflowPluginTest {
         String log4jFile = resourcesFolder + "log4j2.xml"; // for junit tests in eclipse
 
         System.setProperty("log4j.configurationFile", log4jFile);
+
+        // Without this, ConfigurationHelper picks up the goobi_config.properties that is bundled inside the
+        // workflow-core jar. PropertiesConfiguration.getFile() returns null for a jar url, which makes the
+        // ConfigurationHelper constructor throw a NullPointerException on File.getAbsolutePath().
+        ConfigurationHelper.configFileName = Paths.get(resourcesFolder, "goobi_config.properties").toAbsolutePath().toString();
     }
 
     private static XMLConfiguration getConfig() {
